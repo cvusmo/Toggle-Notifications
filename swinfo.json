@@ -8,7 +8,7 @@
   "version_check": "",
   "dependencies": [
     {
-      "id":  "SpaceWarp",
+      "id": "SpaceWarp",
       "version": {
         "min": "1.1.1",
         "max": "*"
