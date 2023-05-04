@@ -36,20 +36,21 @@ namespace ToggleNotifications
         private bool _isWindowOpen;
         private Rect _windowRect;
         private static object _solarPanelsIneffectiveNotificationHandle;
-
+        private static object partineffective;
         public static ToggleNotificationsPlugin Instance { get; private set; }
 
         public class NotificationManagerUpdatePatch
         {
-            private static bool Prefix()
+            private static bool Prefix(NotificationManager __instance)
             {
-                return false; // disable the NotificationManager Update method
+                bool notificationsEnabled = ToggleNotificationsPlugin.Instance._enableNotificationsConfig.Value;
+                return notificationsEnabled; // allow NotificationManager Update method only if notifications are enabled
             }
         }
         public override void OnInitialized()
         {
             Instance = this;
-            _enableNotificationsConfig = Config.Bind("Settings section", "Enable Notifications", true, "Toggle Notifications: Enabled (true) or Disabled (false)");
+            _enableNotificationsConfig = Config.Bind("Settings section", "Enable Notifications",  false, "Toggle Notifications: Enabled (true) or Disabled (false)");
             Logger.LogInfo($"Toggle Notifications Plugin: Enabled = {_enableNotificationsConfig.Value}");
 
             // Register Flight AppBar button
