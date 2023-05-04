@@ -18,15 +18,15 @@ namespace ToggleNotifications
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
 
-    [HarmonyPatch(typeof(MessageCenter))]
-    [HarmonyPatch("SolarPanelsIneffective")]
-
-    //[AttributeUsage(AttributeTargets.Class)]
-    //[MessageCenterMessage("SentOn")]
-
-    [HarmonyPatch(typeof(DiscoverableProperty))]
+    [HarmonyPatch(typeof(DiscoverableMessage))]
     [HarmonyPatch("isActive", MethodType.Setter)]
     [DiscoverableMessage("Events/Flight/Parts/SolarPanelsIneffectiveMessage", false, "Solar panels fully deployed but ineffective.", "")]
+
+    [HarmonyPatch(typeof(NotificationEvents))]
+    [HarmonyPatch("Update")]
+
+    [HarmonyPatch(typeof(NotificationManager))]
+    [HarmonyPatch("Update")]
 
     public class ToggleNotificationsPlugin : BaseSpaceWarpPlugin
     {
@@ -35,9 +35,17 @@ namespace ToggleNotifications
         private const string ToolbarOABButtonID = "BTN-ToggleNotificationsOAB";
         private bool _isWindowOpen;
         private Rect _windowRect;
+        private static object _solarPanelsIneffectiveNotificationHandle;
 
         public static ToggleNotificationsPlugin Instance { get; private set; }
 
+        public class NotificationManagerUpdatePatch
+        {
+            private static bool Prefix()
+            {
+                return false; // disable the NotificationManager Update method
+            }
+        }
         public override void OnInitialized()
         {
             Instance = this;
@@ -68,11 +76,39 @@ namespace ToggleNotifications
                 }
             );
 
-            // Disable SelectedDiscoverableMessage and messageCenter.Publish
-            //MessageCenter.SelectedDiscoverableMessage = (Action<Action<DiscoverableMessage>>)(action => { });
-            //MessageCenter.Publish = isActive ? new System.Action<MessageCenterMessage>(MessageCenter.DefaultPublish) : null;
+            //variables that disable notifications by type of notification
 
-            // Disable DiscoverableMessage
+            var notificationEventsType = typeof(NotificationEvents);
+
+            //insufficientstellarexposure notification
+            var insufficientStellarExposureField = AccessTools.Field(notificationEventsType, "InsufficientStellarExposure");
+            var insufficientStellarExposureEvent = (Delegate)insufficientStellarExposureField.GetValue(null);
+            insufficientStellarExposureEvent?.DynamicInvoke(new object[] { new Action(() => { }), null });
+
+            var solarPanelsIneffectiveTimeToWaitTillField = AccessTools.Field(notificationEventsType, "_solarPanelsIneffectiveTimeToWaitTill");
+            var solarPanelsIneffectiveTimeToWaitTill = (Delegate)solarPanelsIneffectiveTimeToWaitTillField.GetValue(null);
+
+            // Check if the notification delegate is not null before trying to disable it
+            if (solarPanelsIneffectiveTimeToWaitTill != null)
+            {
+                // Set a custom time delay for the notification
+                float timeDelay = float.MaxValue; // Set your custom time delay here
+                solarPanelsIneffectiveTimeToWaitTill.DynamicInvoke(new Action(() => { }), timeDelay);
+            }
+
+            //partineffective notification
+            var partIneffectiveField = AccessTools.Field(notificationEventsType, "PartIneffective");
+            var partIneffectiveEvent = (Delegate)partIneffectiveField.GetValue(null);
+
+            // Check if the notification delegate is not null before trying to disable it
+            if (partIneffectiveEvent != null)
+            {
+                // Set a custom time delay for the notification
+                float timeDelay = float.MaxValue; // Set your custom time delay here
+                partIneffectiveEvent.DynamicInvoke(new Action(() => { }), timeDelay);
+            }
+
+            // Harmony creates the plugin/patch
             Harmony.CreateAndPatchAll(typeof(ToggleNotificationsPlugin).Assembly);
         }
 
@@ -100,5 +136,9 @@ namespace ToggleNotifications
             GUI.DragWindow(new Rect(80, 20, 500, 500));
         }
         // Method to toggle the isActive property of the DiscoverableMessage attribute
+        static void Postfix(NotificationEvents __instance)
+        {
+            _solarPanelsIneffectiveNotificationHandle = null;
+        }
     }
 }
