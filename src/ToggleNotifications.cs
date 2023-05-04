@@ -1,27 +1,18 @@
 using BepInEx;
 using BepInEx.Configuration;
+using BepInEx.Logging;
 using HarmonyLib;
 using KSP.Game;
-using KSP.Messages;
-using KSP.UI.Binding;
 using SpaceWarp;
-using SpaceWarp.API;
-using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI;
-using SpaceWarp.API.UI.Appbar;
 using UnityEngine;
-using System;
-using BepInEx.Logging;
 
 namespace ToggleNotifications
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
 
-    //[HarmonyPatch(typeof(DiscoverableMessage))]
-    //[HarmonyPatch("isActive", MethodType.Setter)]
-    //[DiscoverableMessage("Events/Flight/Parts/SolarPanelsIneffectiveMessage")]
     public class ToggleNotificationsPlugin : BaseSpaceWarpPlugin
     {
         private ConfigEntry<bool> _enableNotificationsConfig;
@@ -34,9 +25,6 @@ namespace ToggleNotifications
         private const string ToolbarOABButtonID = "BTN-ToggleNotificationsOAB";
         private bool _isWindowOpen;
         private Rect _windowRect;
-        private static object _solarPanelsIneffectiveNotificationHandle;
-        private static object PartIneffective;
-        private bool _ToggleNotifications;
 
         public static ToggleNotificationsPlugin Instance { get; private set; }
         public new static ManualLogSource Logger { get; set; }
@@ -45,10 +33,14 @@ namespace ToggleNotifications
         {
             Instance = this;
             _enableNotificationsConfig = Config.Bind("Settings section", "Enable Notifications", true, "Toggle Notifications: Enabled (Notifications Enabled) or Disabled (Notifications Disabled)");
-            //Logger.LogInfo($"Toggle Notifications Plugin: Enabled = {_enableNotificationsConfig.Value}");
 
             // Harmony creates the plugin/patch
             Harmony.CreateAndPatchAll(typeof(ToggleNotificationsPlugin).Assembly);
+        }
+
+        public void OnAwake()
+        {
+            //Harmony.CreateAndPatchAll(typeof(NotificationToggle).Assembly);
         }
         private void Update()
         {
@@ -80,19 +72,83 @@ namespace ToggleNotifications
             GUILayout.Label("Toggle Notifications - Toggle Notifications to be added to Community Fixes");
             GUI.DragWindow(new Rect(80, 20, 500, 500));
         }
-        // Disable SolarPanelsIneffective
+    }
+    [HarmonyPatch(typeof(NotificationEvents))]
+    [HarmonyPatch("Update")]
 
-        //[HarmonyPatch(typeof(NotificationManager))]
-        //[HarmonyPatch("Update")]
-        //[HarmonyPatch(typeof(DiscoverableMessage))]
-        //[HarmonyPatch("Update")]
+    public static class SolarPanelNotification
+    {
+        public static bool SolarPanelsIneffectiveMessageToggle = false;
+        //public static bool VesselOutOfElectricityMessageToggle = false;
+
         [HarmonyPatch(typeof(NotificationEvents))]
-        [HarmonyPatch("Update")]
+        [HarmonyPatch("SolarPanelsIneffectiveMessage")]
+        [HarmonyPrefix]
 
-        static void Prefix(NotificationEvents __instance)
+        public static bool NotificationsEvents_SolarPanelsIneffectiveMessage(NotificationEvents __instance)
         {
-            _solarPanelsIneffectiveNotificationHandle = null;
-            PartIneffective = null;
+            if (SolarPanelsIneffectiveMessageToggle)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool VesselLeftCommunicationRangeMessageToggle = false;
+
+        [HarmonyPatch(typeof(NotificationEvents))]
+        [HarmonyPatch("VesselLeftCommunicationRangeMessage")]
+        [HarmonyPrefix]
+
+        public static bool NotificationsEvents_VesselLeftCommunicationRangeMessage(NotificationEvents __instance)
+        {
+            if (VesselLeftCommunicationRangeMessageToggle)
+            {
+                return true;
+            }
+            return false;
+        }
+        public static bool VesselThrottleLockedDueToTimewarpingMessageToggle = false;
+
+        [HarmonyPatch(typeof(NotificationEvents))]
+        [HarmonyPatch("VesselThrottleLockedDueToTimewarpingMessage")]
+        [HarmonyPrefix]
+
+        public static bool NotificationsEvents_VesselThrottleLockedDueToTimewarpingMessage(NotificationEvents __instance)
+        {
+            if (VesselThrottleLockedDueToTimewarpingMessageToggle)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle = false;
+
+        [HarmonyPatch(typeof(NotificationEvents))]
+        [HarmonyPatch("CannotPlaceManeuverNodeWhileOutOfFuelMessage")]
+        [HarmonyPrefix]
+        public static bool NotificationsEvents_CannotPlaceManeuverNodeWhileOutOfFuelMessage(NotificationEvents __instance)
+        {
+            if (CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool GamePauseToggledMessageToggle = false;
+
+        [HarmonyPatch(typeof(NotificationEvents))]
+        [HarmonyPatch("GamePauseToggledMessage")]
+        [HarmonyPrefix]
+        public static bool NotificationsEvents_GamePauseToggledMessage(NotificationEvents __instance)
+        {
+            if (GamePauseToggledMessageToggle)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
