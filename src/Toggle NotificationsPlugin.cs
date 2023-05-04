@@ -1,118 +1,104 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
+using KSP.Game;
+using KSP.Messages;
 using KSP.UI.Binding;
 using SpaceWarp;
+using SpaceWarp.API;
 using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
-using SpaceWarp.API.Game;
-using SpaceWarp.API.Game.Extensions;
 using SpaceWarp.API.UI;
 using SpaceWarp.API.UI.Appbar;
 using UnityEngine;
+using System;
 
-namespace Toggle_Notifications;
-
-[BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
-public class Toggle_NotificationsPlugin : BaseSpaceWarpPlugin
+namespace ToggleNotifications
 {
-    // These are useful in case some other mod wants to add a dependency to this one
-    public const string ModGuid = MyPluginInfo.PLUGIN_GUID;
-    public const string ModName = MyPluginInfo.PLUGIN_NAME;
-    public const string ModVer = MyPluginInfo.PLUGIN_VERSION;
-    
-    private bool _isWindowOpen;
-    private Rect _windowRect;
+    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+    [BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
 
-    private const string ToolbarFlightButtonID = "BTN-Toggle_NotificationsFlight";
-    private const string ToolbarOABButtonID = "BTN-Toggle_NotificationsOAB";
+    [HarmonyPatch(typeof(MessageCenter))]
+    [HarmonyPatch("SolarPanelsIneffective")]
 
-    public static Toggle_NotificationsPlugin Instance { get; set; }
+    //[AttributeUsage(AttributeTargets.Class)]
+    //[MessageCenterMessage("SentOn")]
 
-    /// <summary>
-    /// Runs when the mod is first initialized.
-    /// </summary>
-    public override void OnInitialized()
+    [HarmonyPatch(typeof(DiscoverableProperty))]
+    [HarmonyPatch("isActive", MethodType.Setter)]
+    [DiscoverableMessage("Events/Flight/Parts/SolarPanelsIneffectiveMessage", false, "Solar panels fully deployed but ineffective.", "")]
+
+    public class ToggleNotificationsPlugin : BaseSpaceWarpPlugin
     {
-        base.OnInitialized();
+        private ConfigEntry<bool> _enableNotificationsConfig;
+        private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
+        private const string ToolbarOABButtonID = "BTN-ToggleNotificationsOAB";
+        private bool _isWindowOpen;
+        private Rect _windowRect;
 
-        Instance = this;
+        public static ToggleNotificationsPlugin Instance { get; private set; }
 
-        // Register Flight AppBar button
-        Appbar.RegisterAppButton(
-            "Toggle Notifications",
-            ToolbarFlightButtonID,
-            AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
-            isOpen =>
-            {
-                _isWindowOpen = isOpen;
-                GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
-            }
-        );
-
-        // Register OAB AppBar Button
-        Appbar.RegisterOABAppButton(
-            "Toggle Notifications",
-            ToolbarOABButtonID,
-            AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
-            isOpen =>
-            {
-                _isWindowOpen = isOpen;
-                GameObject.Find(ToolbarOABButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
-            }
-        );
-
-        // Register all Harmony patches in the project
-        Harmony.CreateAndPatchAll(typeof(Toggle_NotificationsPlugin).Assembly);
-
-        // Try to get the currently active vessel, set its throttle to 100% and toggle on the landing gear
-        try
+        public override void OnInitialized()
         {
-            var currentVessel = Vehicle.ActiveVesselVehicle;
-            if (currentVessel != null)
-            {
-                currentVessel.SetMainThrottle(1.0f);
-                currentVessel.SetGearState(true);
-            }
-        }
-        catch (Exception e) {}
-        
-        // Fetch a configuration value or create a default one if it does not exist
-        var defaultValue = "my_value";
-        var configValue = Config.Bind<string>("Settings section", "Option 1", defaultValue, "Option description");
-        
-        // Log the config value into <KSP2 Root>/BepInEx/LogOutput.log
-        Logger.LogInfo($"Option 1: {configValue.Value}");
-    }
+            Instance = this;
+            _enableNotificationsConfig = Config.Bind("Settings section", "Enable Notifications", true, "Toggle Notifications: Enabled (true) or Disabled (false)");
+            Logger.LogInfo($"Toggle Notifications Plugin: Enabled = {_enableNotificationsConfig.Value}");
 
-    /// <summary>
-    /// Draws a simple UI window when <code>this._isWindowOpen</code> is set to <code>true</code>.
-    /// </summary>
-    private void OnGUI()
-    {
-        // Set the UI
-        GUI.skin = Skins.ConsoleSkin;
-
-        if (_isWindowOpen)
-        {
-            _windowRect = GUILayout.Window(
-                GUIUtility.GetControlID(FocusType.Passive),
-                _windowRect,
-                FillWindow,
+            // Register Flight AppBar button
+            Appbar.RegisterAppButton(
                 "Toggle Notifications",
-                GUILayout.Height(350),
-                GUILayout.Width(350)
+                ToolbarFlightButtonID,
+                AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
+                isOpen =>
+                {
+                    _isWindowOpen = isOpen;
+                    GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
+                }
             );
-        }
-    }
 
-    /// <summary>
-    /// Defines the content of the UI window drawn in the <code>OnGui</code> method.
-    /// </summary>
-    /// <param name="windowID"></param>
-    private static void FillWindow(int windowID)
-    {
-        GUILayout.Label("Toggle Notifications - Toggle Notifications to be added to Community Fixes");
-        GUI.DragWindow(new Rect(0, 0, 10000, 500));
+            // Register OAB AppBar Button
+            Appbar.RegisterOABAppButton(
+                "Toggle Notifications",
+                ToolbarOABButtonID,
+                AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
+                isOpen =>
+                {
+                    _isWindowOpen = isOpen;
+                    GameObject.Find(ToolbarOABButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
+                }
+            );
+
+            // Disable SelectedDiscoverableMessage and messageCenter.Publish
+            //MessageCenter.SelectedDiscoverableMessage = (Action<Action<DiscoverableMessage>>)(action => { });
+            //MessageCenter.Publish = isActive ? new System.Action<MessageCenterMessage>(MessageCenter.DefaultPublish) : null;
+
+            // Disable DiscoverableMessage
+            Harmony.CreateAndPatchAll(typeof(ToggleNotificationsPlugin).Assembly);
+        }
+
+        private void OnGUI()
+        {
+            // Set the UI
+            GUI.skin = Skins.ConsoleSkin;
+
+            if (_isWindowOpen)
+            {
+                _windowRect = GUILayout.Window(
+                    GUIUtility.GetControlID(FocusType.Passive),
+                    _windowRect,
+                    FillWindow,
+                    "Toggle Notifications",
+                    GUILayout.Height(350),
+                    GUILayout.Width(350)
+                );
+            }
+        }
+
+        private static void FillWindow(int windowID)
+        {
+            GUILayout.Label("Toggle Notifications - Toggle Notifications to be added to Community Fixes");
+            GUI.DragWindow(new Rect(80, 20, 500, 500));
+        }
+        // Method to toggle the isActive property of the DiscoverableMessage attribute
     }
 }
