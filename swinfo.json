@@ -1,0 +1,22 @@
+{
+  "mod_id": "Toggle_Notifications",
+  "author": "cvusmo",
+  "name": "Toggle Notifications",
+  "description": "Toggle Notifications to be added to Community Fixes",
+  "source": "https://github.com/cvusmo/ToggleNotifications",
+  "version": "1.0.0",
+  "version_check": "",
+  "dependencies": [
+    {
+      "id":  "SpaceWarp",
+      "version": {
+        "min": "1.1.1",
+        "max": "*"
+      }
+    }
+  ],
+  "ksp2_version": {
+    "min": "0.1.0",
+    "max": "*"
+  }
+}
