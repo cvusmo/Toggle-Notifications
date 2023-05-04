@@ -3,7 +3,7 @@
   "author": "cvusmo",
   "name": "Toggle Notifications",
   "description": "Toggle Notifications to be added to Community Fixes",
-  "source": "https://github.com/cvusmo/ToggleNotifications",
+  "source": "https://github.com/cvusmo/Toggle-Notifications",
   "version": "1.0.0",
   "version_check": "",
   "dependencies": [

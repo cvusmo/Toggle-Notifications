@@ -1,1 +1,2 @@
-# Toggle NotificationsProject
+# Toggle Notifications
+Toggle Notifications to be added to Community Fixes
