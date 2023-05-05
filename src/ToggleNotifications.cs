@@ -3,10 +3,18 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using KSP.Game;
+using KSP.UI.Binding;
+using TNUtility;
 using SpaceWarp;
+using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI;
+using SpaceWarp.API.UI.Appbar;
+using ToggleNotifications.Tools;
+using ToggleNotifications.Tools.UI;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Microsoft.CodeAnalysis;
 
 namespace ToggleNotifications
 {
@@ -15,140 +23,188 @@ namespace ToggleNotifications
 
     public class ToggleNotificationsPlugin : BaseSpaceWarpPlugin
     {
-        private ConfigEntry<bool> _enableNotificationsConfig;
-
-        public const string ModGuid = "com.github.cvusmo.Toggle-Notifications";
-        public const string ModName = "Toggle Notifications";
-        public const string ModVer = "0.1.0";
-
-        private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
-        private const string ToolbarOABButtonID = "BTN-ToggleNotificationsOAB";
-        private bool _isWindowOpen;
-        private Rect _windowRect;
-
         public static ToggleNotificationsPlugin Instance { get; private set; }
+
+        public const string ModGuid = MyPluginInfo.PLUGIN_GUID;
+        public const string ModName = MyPluginInfo.PLUGIN_NAME;
+        public const string ModVer = MyPluginInfo.PLUGIN_VERSION;
+
+        private ConfigEntry<bool> _enableConfig;
+
+        //input states and text input from player
+        private NotificationToggle _notificationToggle;
+        private bool interfaceEnabled = false;
+        private bool GUIenabled = true;
+        private Rect _windowRect;
+        private int _windowWidth;
+        private int _windowHeight;
+        private bool _isWindowOpen;
+
+        //toggle button webster
+        private Dictionary<string, bool> _toggles = new Dictionary<string, bool>();
+        private Dictionary<string, bool> _previousToggles = new Dictionary<string, bool>();
+        private Dictionary<string, bool> _initialToggles = new Dictionary<string, bool>();
+
+
+        //local vars
+        public bool popoutSettings, popoutPar, popoutOrb, popoutSur, popoutMan, popoutTgt, popoutFlt, popoutStg;
+        public bool solarPanelStateEnable, communicationRangeStateEnable, throttleLockedWarpStateEnable, mnOutofFuelStateEnable, pauseToggleStateEnable;
+        public Rect mainGuiRect, settingsGuiRect, parGuiRect, orbGuiRect, surGuiRect, fltGuiRect, manGuiRect, tgtGuiRect, stgGuiRect;
+        public bool solarPanelState, communicationRangeState, throttleLockedWarpState, mnOutofFuelState, pauseToggleState;
+        public bool currentState;
+
+        //appbar info
+        private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
+        //private const string ToolbarOABButtonID = "BTN-ToggleNotificationsOAB";
+
+        private static string settings_path;
+        public bool inputFields;
+        private static string SettingsPath =>
+        settings_path ?? (settings_path = Path.Combine(BepInEx.Paths.ConfigPath, "ToggleNotifications", "settings.json"));
         public new static ManualLogSource Logger { get; set; }
 
+        public void Load()
+        {
+            _enableConfig = Config.Bind("Section name", "Setting name", true, "Description");
+            currentState = _enableConfig.Value;
+        }
         public override void OnInitialized()
         {
+            base.OnInitialized();
+
+            try
+            {
+                TNSettings.Init(SettingsPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to initialize TNSettings: {ex}");
+                return;
+            }
+
             Instance = this;
-            _enableNotificationsConfig = Config.Bind("Settings section", "Enable Notifications", true, "Toggle Notifications: Enabled (Notifications Enabled) or Disabled (Notifications Disabled)");
+
+            //bepinex log
+            Logger = base.Logger;
+
+            //call notificationlib
+            _notificationToggle = new NotificationToggle();
+            _notificationToggle.SolarPanelsIneffectiveMessageToggle = false;
+            _notificationToggle.VesselLeftCommunicationRangeMessageToggle = false;
+            _notificationToggle.VesselThrottleLockedDueToTimewarpingMessageToggle = false;
+            _notificationToggle.CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle = false;
+            _notificationToggle.GamePauseToggledMessageToggle = false;
+            _notificationToggle.GamePauseToggledMessageToggle = false;
+
+            // Register Flight AppBar button
+            var icon = AssetManager.GetAsset<Texture2D>($"{MyPluginInfo.PLUGIN_GUID}/assets/images/icon.png");
+            Appbar.RegisterAppButton("Toggle Notifications", ToolbarFlightButtonID, icon, isEnabled =>
+            {
+                // This code will be executed when the button is clicked
+                // You can add your own code here to perform the desired action
+                Debug.Log("Toggle Notifications button clicked!");
+            });
+
 
             // Harmony creates the plugin/patch
             Harmony.CreateAndPatchAll(typeof(ToggleNotificationsPlugin).Assembly);
-        }
 
-        public void OnAwake()
+            //log config value
+            Logger.LogInfo($"Current State: {currentState}");
+        }        
+        private void ToggleButton(bool toggle)
         {
-            //Harmony.CreateAndPatchAll(typeof(NotificationToggle).Assembly);
+            interfaceEnabled = toggle;
+            GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(interfaceEnabled);
         }
-        private void Update()
+        void Awake()
         {
-            //figure out what to update
+            _windowRect = new Rect((Screen.width * 0.7f) - (_windowWidth / 2), (Screen.height * 2) - (_windowHeight / 2), 0, 0);
         }
-
-        //gui not super important but would be nice to have a gui for community fixes
-        private void OnGUI()
+        void Update()
         {
-            // Set the UI
-            GUI.skin = Skins.ConsoleSkin;
-            GUI.backgroundColor = Color.white;
-            GUI.enabled = true;
-
-            if (_isWindowOpen)
+            if (Input.GetKeyDown(KeyCode.LeftAlt) && Input.GetKeyDown(KeyCode.RightControl))
             {
+                ToggleButton(!interfaceEnabled);
+                Logger.LogInfo("Update: ToggleNotifications toggled with hotkey");
+            }
+        }
+
+        //make rects
+        void save_rect_pos()
+        {
+            BaseSettings.window_x_pos = (int)_windowRect.xMin;
+            BaseSettings.window_y_pos = (int)_windowRect.yMin;
+        }
+
+        private void InitializeRects()
+        {
+            mainGuiRect = settingsGuiRect = parGuiRect = orbGuiRect = surGuiRect = fltGuiRect = manGuiRect = tgtGuiRect = stgGuiRect = new Rect();
+        }
+
+        private void ResetLayout()
+        {
+            popoutPar = popoutStg = popoutOrb = popoutSur = popoutFlt = popoutTgt = popoutMan = popoutSettings = false;
+            mainGuiRect.position = new Vector2(Screen.width * 0.8f, Screen.height * 0.2f);
+            Vector2 popoutWindowPosition = new Vector2(Screen.width * 0.6f, Screen.height * 0.2f);
+            parGuiRect.position = popoutWindowPosition;
+            orbGuiRect.position = popoutWindowPosition;
+            manGuiRect.position = popoutWindowPosition;
+        }
+
+        //begin GUI functionality
+
+        //check currentState of notification and update GUI
+        private void UpdateCurrentStates()
+        {
+            _notificationToggle.SetNotificationState("SolarPanelsIneffectiveMessage", solarPanelState);
+            _notificationToggle.SetNotificationState("VesselLeftCommunicationRangeMessage", communicationRangeState);
+            _notificationToggle.SetNotificationState("VesselThrottleLockedDueToTimewarpingMessage", throttleLockedWarpState);
+            _notificationToggle.SetNotificationState("CannotPlaceManeuverNodeWhileOutOfFuelMessage", mnOutofFuelState);
+            _notificationToggle.SetNotificationState("GamePauseToggledMessage", pauseToggleState);
+        }
+        void FillMainGUI(int windowID)
+        {
+            GUILayout.BeginVertical();
+            GUILayout.Label("Toggle Notifications:");
+
+            solarPanelState = GUILayout.Toggle(solarPanelState, "Solar Panels Ineffective Message");
+            communicationRangeState = GUILayout.Toggle(communicationRangeState, "Vessel Left Communication Range Message");
+            throttleLockedWarpState = GUILayout.Toggle(throttleLockedWarpState, "Vessel Throttle Locked Due To Timewarping Message");
+            mnOutofFuelState = GUILayout.Toggle(mnOutofFuelState, "Cannot Place Maneuver Node While Out Of Fuel Message");
+            pauseToggleState = GUILayout.Toggle(pauseToggleState, "Game Pause Toggled Message");
+
+            GUILayout.EndVertical();
+            GUI.DragWindow();
+        }
+        void OnGUI()
+        {
+            GUIenabled = false;
+            var gameState = Game?.GlobalGameState?.GetState();
+            if (gameState == GameState.Map3DView) GUIenabled = true;
+            if (gameState == GameState.FlightView) GUIenabled = true;
+
+            if (GUILayout.Button(_enableConfig.Value ? "Disable Notifications" : "Enable Notifications"))
+            {
+                _enableConfig.Value = !_enableConfig.Value;
+            }
+
+            if (interfaceEnabled && GUIenabled && currentState)
+            {
+                TNStyles.Init();
+                UI.UIWindow.check_main_window_pos(ref _windowRect);
+                GUI.skin = TNStyles.skin;
                 _windowRect = GUILayout.Window(
                     GUIUtility.GetControlID(FocusType.Passive),
                     _windowRect,
-                    FillWindow,
-                    "Toggle Notifications",
-                    GUILayout.Height(350),
-                    GUILayout.Width(350)
-                );
+                    FillMainGUI,
+                    "<color=#696DFF>TOGGLE NOTIFICATIONS</color>");
+
+                save_rect_pos();
+
+                UpdateCurrentStates();
             }
         }
-        private static void FillWindow(int windowID)
-        {
-            GUILayout.Label("Toggle Notifications - Toggle Notifications to be added to Community Fixes");
-            GUI.DragWindow(new Rect(80, 20, 500, 500));
-        }
-    }
-    [HarmonyPatch(typeof(NotificationEvents))]
-    [HarmonyPatch("Update")]
 
-    public static class SolarPanelNotification
-    {
-        public static bool SolarPanelsIneffectiveMessageToggle = false;
-        //public static bool VesselOutOfElectricityMessageToggle = false;
-
-        [HarmonyPatch(typeof(NotificationEvents))]
-        [HarmonyPatch("SolarPanelsIneffectiveMessage")]
-        [HarmonyPrefix]
-
-        public static bool NotificationsEvents_SolarPanelsIneffectiveMessage(NotificationEvents __instance)
-        {
-            if (SolarPanelsIneffectiveMessageToggle)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public static bool VesselLeftCommunicationRangeMessageToggle = false;
-
-        [HarmonyPatch(typeof(NotificationEvents))]
-        [HarmonyPatch("VesselLeftCommunicationRangeMessage")]
-        [HarmonyPrefix]
-
-        public static bool NotificationsEvents_VesselLeftCommunicationRangeMessage(NotificationEvents __instance)
-        {
-            if (VesselLeftCommunicationRangeMessageToggle)
-            {
-                return true;
-            }
-            return false;
-        }
-        public static bool VesselThrottleLockedDueToTimewarpingMessageToggle = false;
-
-        [HarmonyPatch(typeof(NotificationEvents))]
-        [HarmonyPatch("VesselThrottleLockedDueToTimewarpingMessage")]
-        [HarmonyPrefix]
-
-        public static bool NotificationsEvents_VesselThrottleLockedDueToTimewarpingMessage(NotificationEvents __instance)
-        {
-            if (VesselThrottleLockedDueToTimewarpingMessageToggle)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public static bool CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle = false;
-
-        [HarmonyPatch(typeof(NotificationEvents))]
-        [HarmonyPatch("CannotPlaceManeuverNodeWhileOutOfFuelMessage")]
-        [HarmonyPrefix]
-        public static bool NotificationsEvents_CannotPlaceManeuverNodeWhileOutOfFuelMessage(NotificationEvents __instance)
-        {
-            if (CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle)
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public static bool GamePauseToggledMessageToggle = false;
-
-        [HarmonyPatch(typeof(NotificationEvents))]
-        [HarmonyPatch("GamePauseToggledMessage")]
-        [HarmonyPrefix]
-        public static bool NotificationsEvents_GamePauseToggledMessage(NotificationEvents __instance)
-        {
-            if (GamePauseToggledMessageToggle)
-            {
-                return true;
-            }
-            return false;
-        }
     }
 }
