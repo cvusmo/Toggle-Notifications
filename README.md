@@ -30,3 +30,4 @@ Download the current release from github
 The template versions follow this convention: `x.y.z.version`, where `x.y.z` is the corresponding ToggleNotifications version
 and `version` is the template version for that specific ToggleNotifications release. For example, `0.1.0` is the first version.
 
+Thank you to LuxStice, ShadowDev, Munix, The Yeetster, and schlosrat for all the help getting this working correctly!
