@@ -6,8 +6,8 @@
     <ImplicitUsings>true</ImplicitUsings>
     <AssemblyName>ToggleNotifications</AssemblyName>
     <Product>Toggle Notifications</Product>
-    <Description>Toggle Notifications to be added to Community Fixes</Description>
-    <Version>0.1.0</Version>
+    <Description>Toggle Notifications On and Off!</Description>
+    <Version>0.2.0</Version>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
       https://nuget.bepinex.dev/v3/index.json
@@ -20,6 +20,9 @@
       <HintPath>..\external_dlls\Assembly-CSharp.dll</HintPath>
       <Publicize>true</Publicize>
       <Private>false</Private>
+    </Reference>
+    <Reference Include="CommunityFixes">
+      <HintPath>..\..\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program 2\BepInEx\plugins\community_fixes\community_fixes.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

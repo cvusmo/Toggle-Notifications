@@ -1,11 +1,12 @@
 {
-  "mod_id": "Toggle_Notifications",
+  "mod_id": "Toggle Notifications",
   "author": "cvusmo",
   "name": "Toggle Notifications",
-  "description": "Toggle Notifications to be added to Community Fixes",
+  "description": "Toggle Notifications",
+  "license":  "MIT",
   "source": "https://github.com/cvusmo/Toggle-Notifications",
-  "version": "1.0.0",
-  "version_check": "",
+  "version": "0.2.0",
+  "version_check": "https://github.com/cvusmo/Toggle-Notifications",
   "dependencies": [
     {
       "id": "SpaceWarp",
