@@ -5,6 +5,7 @@ using HarmonyLib;
 using KSP.Game;
 using KSP.UI.Binding;
 using SpaceWarp;
+using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI.Appbar;
 using ToggleNotifications.TNTools;
@@ -25,7 +26,7 @@ namespace ToggleNotifications
         public const string ModGuid = MyPluginInfo.PLUGIN_GUID;
         public const string ModName = MyPluginInfo.PLUGIN_NAME;
         public const string ModVer = MyPluginInfo.PLUGIN_VERSION;
-        readonly Texture2D icon = AssetsLoader.loadIcon("images/icon.png");
+        //private readonly Texture2D icon = AssetsLoader.loadIcon("images/icon.png");
 
 
         //input states and text input from player
@@ -44,8 +45,9 @@ namespace ToggleNotifications
         public ConfigEntry<bool> ShowThrottleLockedWarpMessageConfig;
         public ConfigEntry<bool> ShowManeuverNodeOutOfFuelMessageConfig;
         public ConfigEntry<bool> ShowGamePauseToggledMessageConfig;
-        //private bool loaded = false;
-        //vars
+        private bool loaded = false;
+
+        //the vars volta
         public bool popoutSettings, popoutPar, popoutOrb, popoutSur, popoutMan, popoutTgt, popoutFlt, popoutStg;
         public bool solarPanelStateEnable, communicationRangeStateEnable, throttleLockedWarpStateEnable, mnOutofFuelStateEnable, pauseToggleStateEnable;
         public Rect mainGuiRect, settingsGuiRect, parGuiRect, orbGuiRect, surGuiRect, fltGuiRect, manGuiRect, tgtGuiRect, stgGuiRect;
@@ -102,6 +104,7 @@ namespace ToggleNotifications
             _notificationToggle.CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle = false;
             _notificationToggle.GamePauseToggledMessageToggle = false;
             _notificationToggle.GamePauseToggledMessageToggle = false;
+            _notificationToggle.SetSolarPanelState(true);
             _notificationToggle.SetAllNotificationsState(true);
             _notificationToggle.SetCommunicationRangeState(true);
             _notificationToggle.SetThrottleLockedWarpState(true);
@@ -113,18 +116,18 @@ namespace ToggleNotifications
             ShowManeuverNodeOutOfFuelMessageConfig = Config.Bind("ToggleNotifications", "ShowManeuverNodeOutOfFuelMessage", true, "Show maneuver node out of fuel message.");
             ShowGamePauseToggledMessageConfig = Config.Bind("ToggleNotifications", "ShowGamePauseToggledMessage", true, "Show game pause toggled message.");
 
-            //Logger.LogInfo("Loaded");
-            ///if (loaded)
-            //{
-            // Destroy(this);
-            //}
-            //loaded = true;
+            Logger.LogInfo("Loaded");
+            if (loaded)
+            {
+             Destroy(this);
+            }
+            loaded = true;
 
             // Register Flight AppBar button
             Appbar.RegisterAppButton(
             "Toggle Notifications",
             ToolbarFlightButtonID,
-            AssetsLoader.loadIcon("images/icon.png"),
+            AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
             ToggleButton);
             {
                 // This code will be executed when the button is clicked
@@ -148,7 +151,7 @@ namespace ToggleNotifications
             //currentState.Init(this);
             Logger.LogInfo($"Current State: {currentState}");
 
-            // Harmony creates the plugin/patch
+            // Harmony creates the mainPlugin/patch
             Harmony.CreateAndPatchAll(typeof(ToggleNotificationsPlugin).Assembly);
 
         }

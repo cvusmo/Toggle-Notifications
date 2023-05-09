@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 
@@ -33,7 +31,7 @@ public class SimpleAccordion
         for (int i = 0; i < chapters.Count; i++)
         {
             Chapter chapter = chapters[i];
-            var style = chapter.opened ? TNStyle.foldout_open : TNStyle.foldout_close;
+            var style = chapter.opened ? TNBaseStyle.foldout_open : TNBaseStyle.foldout_close;
             if (GUILayout.Button(chapter.Title, style))
             {
                 chapter.opened = !chapter.opened;
@@ -95,31 +93,26 @@ public class TopButtons
     static public bool Button(string txt)
     {
         position.x -= space;
-        return GUI.Button(position, txt, TNStyle.small_button);
+        return GUI.Button(position, txt, TNBaseStyle.small_button);
     }
     static public bool Button(Texture2D icon)
     {
         position.x -= space;
-        return GUI.Button(position, icon, TNStyle.icon_button);
+        return GUI.Button(position, icon, TNBaseStyle.icon_button);
     }
 
     static public bool Toggle(bool value, string txt)
     {
         position.x -= space;
-        return GUI.Toggle(position, value, txt, TNStyle.small_button);
+        return GUI.Toggle(position, value, txt, TNBaseStyle.small_button);
     }
 
     static public bool Toggle(bool value, Texture2D icon)
     {
         position.x -= space;
-        return GUI.Toggle(position, value, icon, TNStyle.icon_button);
+        return GUI.Toggle(position, value, icon, TNBaseStyle.icon_button);
     }
 }
-
-/// <summary>
-/// A set of simple tools for UI
-/// </summary>
-/// TODO : remove static, make it singleton
 public class UITools
 {
 
@@ -146,9 +139,9 @@ public class UITools
     public static bool Toggle(bool is_on, string txt, string tooltip = null)
     {
         if (tooltip != null)
-            return GUILayout.Toggle(is_on, new GUIContent(txt, tooltip), TNStyle.toggle);
+            return GUILayout.Toggle(is_on, new GUIContent(txt, tooltip), TNBaseStyle.toggle);
         else
-            return GUILayout.Toggle(is_on, txt, TNStyle.toggle);
+            return GUILayout.Toggle(is_on, txt, TNBaseStyle.toggle);
     }
 
     public static bool BigToggleButton(bool is_on, string txt_run, string txt_stop)
@@ -159,7 +152,7 @@ public class UITools
         var txt = is_on ? txt_stop : txt_run;
         // GUILayout.BeginHorizontal();
         // GUILayout.FlexibleSpace();
-        is_on = GUILayout.Toggle(is_on, txt, TNStyle.big_button, GUILayout.MinWidth(min_width_bt));
+        is_on = GUILayout.Toggle(is_on, txt, TNBaseStyle.big_button, GUILayout.MinWidth(min_width_bt));
         // GUILayout.FlexibleSpace();
         // GUILayout.EndHorizontal();
         return is_on;
@@ -173,7 +166,7 @@ public class UITools
 
         var txt = is_on ? txt_stop : txt_run;
 
-        is_on = GUILayout.Toggle(is_on, txt, TNStyle.small_button, GUILayout.MinWidth(min_width_bt));
+        is_on = GUILayout.Toggle(is_on, txt, TNBaseStyle.small_button, GUILayout.MinWidth(min_width_bt));
 
         return is_on;
     }
@@ -183,79 +176,79 @@ public class UITools
         // int height_bt = 30;
         int min_width_bt = 150;
 
-        return GUILayout.Button(txt, TNStyle.big_button, GUILayout.MinWidth(min_width_bt));
+        return GUILayout.Button(txt, TNBaseStyle.big_button, GUILayout.MinWidth(min_width_bt));
     }
 
     public static bool SmallButton(string txt)
     {
-        return GUILayout.Button(txt, TNStyle.small_button);
+        return GUILayout.Button(txt, TNBaseStyle.small_button);
     }
 
     public static bool BigIconButton(string txt)
     {
-        return GUILayout.Button(txt, TNStyle.bigicon_button);
+        return GUILayout.Button(txt, TNBaseStyle.bigicon_button);
     }
 
     public static bool ListButton(string txt)
     {
-        return GUILayout.Button(txt, TNStyle.button, GUILayout.ExpandWidth(true));
+        return GUILayout.Button(txt, TNBaseStyle.button, GUILayout.ExpandWidth(true));
     }
 
     public static bool miniToggle(bool value, string txt, string tooltip)
     {
-        return GUILayout.Toggle(value, new GUIContent(txt, tooltip), TNStyle.small_button, GUILayout.Height(20));
+        return GUILayout.Toggle(value, new GUIContent(txt, tooltip), TNBaseStyle.small_button, GUILayout.Height(20));
     }
 
     public static bool miniButton(string txt, string tooltip = "")
     {
-        return GUILayout.Button(new GUIContent(txt, tooltip), TNStyle.small_button, GUILayout.Height(20));
+        return GUILayout.Button(new GUIContent(txt, tooltip), TNBaseStyle.small_button, GUILayout.Height(20));
     }
 
     public static bool ToolTipButton(string tooltip)
     {
-        return GUILayout.Button(new GUIContent("?", tooltip), TNStyle.small_button, GUILayout.Width(16), GUILayout.Height(20));
+        return GUILayout.Button(new GUIContent("?", tooltip), TNBaseStyle.small_button, GUILayout.Width(16), GUILayout.Height(20));
     }
 
     static public bool BigIconButton(Texture2D icon)
     {
-        return GUILayout.Button(icon, TNStyle.bigicon_button);
+        return GUILayout.Button(icon, TNBaseStyle.bigicon_button);
     }
 
     public static void Title(string txt)
     {
-        GUILayout.Label($"<b>{txt}</b>", TNStyle.title);
+        GUILayout.Label($"<b>{txt}</b>", TNBaseStyle.title);
     }
 
     public static void Label(string txt)
     {
-        GUILayout.Label(txt, TNStyle.label);
+        GUILayout.Label(txt, TNBaseStyle.label);
     }
 
     public static void OK(string txt)
     {
-        GUILayout.Label(txt, TNStyle.phase_ok);
+        GUILayout.Label(txt, TNBaseStyle.phase_ok);
     }
 
     public static void Warning(string txt)
     {
-        GUILayout.Label(txt, TNStyle.phase_warning);
+        GUILayout.Label(txt, TNBaseStyle.phase_warning);
     }
 
     public static void Error(string txt)
     {
-        GUILayout.Label(txt, TNStyle.phase_error);
+        GUILayout.Label(txt, TNBaseStyle.phase_error);
     }
 
 
 
     public static void Console(string txt)
     {
-        GUILayout.Label(txt, TNStyle.console_text);
+        GUILayout.Label(txt, TNBaseStyle.console_text);
     }
 
     public static void Mid(string txt)
     {
-        GUILayout.Label(txt, TNStyle.mid_text);
+        GUILayout.Label(txt, TNBaseStyle.mid_text);
     }
 
 
@@ -264,9 +257,9 @@ public class UITools
     {
         string content = txt + $" : {value} " + postfix;
 
-        GUILayout.Label(content, TNStyle.slider_text);
+        GUILayout.Label(content, TNBaseStyle.slider_text);
         GUILayout.BeginHorizontal();
-        value = (int)GUILayout.HorizontalSlider((int)value, min, max, TNStyle.slider_line, TNStyle.slider_node);
+        value = (int)GUILayout.HorizontalSlider((int)value, min, max, TNBaseStyle.slider_line, TNBaseStyle.slider_node);
         if (value < min) value = min;
         if (value > max) value = max;
 
@@ -282,9 +275,9 @@ public class UITools
     {
         string value_str = value.ToString("N" + 1);
         string content = $"{txt} : {value_str} °";
-        GUILayout.Label(content, TNStyle.slider_text);
+        GUILayout.Label(content, TNBaseStyle.slider_text);
         GUILayout.BeginHorizontal();
-        value = GUILayout.HorizontalSlider(value, -180, 180, TNStyle.slider_line, TNStyle.slider_node);
+        value = GUILayout.HorizontalSlider(value, -180, 180, TNBaseStyle.slider_line, TNBaseStyle.slider_node);
 
         int step = 45;
         float precision = 5;
@@ -311,7 +304,7 @@ public class UITools
 
     public static void Separator()
     {
-        GUILayout.Box("", TNStyle.separator);
+        GUILayout.Box("", TNBaseStyle.separator);
     }
 
     public static void ProgressBar(double value, double min, double max)
@@ -323,18 +316,18 @@ public class UITools
     {
         var ratio = Mathf.InverseLerp(min, max, value);
 
-        GUILayout.Box("", TNStyle.progress_bar_empty, GUILayout.ExpandWidth(true));
+        GUILayout.Box("", TNBaseStyle.progress_bar_empty, GUILayout.ExpandWidth(true));
         var lastrect = GUILayoutUtility.GetLastRect();
 
         lastrect.width = Mathf.Clamp(lastrect.width * ratio, 4, 10000000);
-        GUI.Box(lastrect, "", TNStyle.progress_bar_full);
+        GUI.Box(lastrect, "", TNBaseStyle.progress_bar_full);
     }
 
     public static float FloatSlider(float value, float min, float max, string tooltip = "")
     {
         // simple float slider
         GUILayout.BeginHorizontal();
-        value = GUILayout.HorizontalSlider(value, min, max, TNStyle.slider_line, TNStyle.slider_node);
+        value = GUILayout.HorizontalSlider(value, min, max, TNBaseStyle.slider_line, TNBaseStyle.slider_node);
 
         if (!string.IsNullOrEmpty(tooltip))
         {
@@ -353,7 +346,7 @@ public class UITools
 
         string content = $"{txt} : {value_str} {postfix}";
 
-        GUILayout.Label(content, TNStyle.slider_text);
+        GUILayout.Label(content, TNBaseStyle.slider_text);
         value = FloatSlider(value, min, max, tooltip);
         return value;
     }

@@ -18,7 +18,7 @@ public class SettingsFile
 
     public ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("TNStyles.SettingsFile");
 
-    protected void Load()
+    public void Load()
     {
         var previous_culture = Thread.CurrentThread.CurrentCulture;
         Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -41,7 +41,7 @@ public class SettingsFile
         Thread.CurrentThread.CurrentCulture = previous_culture;
     }
 
-    protected void Save()
+    public void Save()
     {
         var previous_culture = Thread.CurrentThread.CurrentCulture;
         Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -116,12 +116,6 @@ public class SettingsFile
             Save();
         }
     }
-
-
-    /// <summary>
-    /// Get the parameter using bool value
-    /// if not found it is added and saved at once
-    /// </summary>
     public bool GetBool(string name, bool defaultValue)
     {
         if (data.ContainsKey(name))
@@ -132,21 +126,11 @@ public class SettingsFile
         return defaultValue;
     }
 
-    /// <summary>
-    /// Set the parameter using bool value
-    /// the value is saved at once
-    /// </summary>
     public void SetBool(string name, bool value)
     {
         string value_str = value ? "1" : "0";
         SetString(name, value_str);
     }
-
-
-    /// <summary>
-    /// Get the parameter using integer value
-    /// if not found or on parsing error, it is replaced and saved at once
-    /// </summary>
     public int GetInt(string name, int defaultValue)
     {
         if (data.ContainsKey(name))
@@ -163,10 +147,6 @@ public class SettingsFile
         return defaultValue;
     }
 
-    /// <summary>
-    /// Set the parameter using integer value
-    /// the value is saved at once
-    /// </summary>
     public void SetInt(string name, int value)
     {
         SetString(name, value.ToString());
@@ -191,11 +171,6 @@ public class SettingsFile
         SetString(name, value.ToString());
     }
 
-
-    /// <summary>
-    /// Get the parameter using float value
-    /// if not found or on parsing error, it is replaced and saved at once
-    /// </summary>
     public float GetFloat(string name, float defaultValue)
     {
         if (data.ContainsKey(name))
@@ -212,19 +187,11 @@ public class SettingsFile
         return defaultValue;
     }
 
-    /// <summary>
-    /// Set the parameter using float value
-    /// the value is saved at once
-    /// </summary>
     public void SetFloat(string name, float value)
     {
         SetString(name, value.ToString());
     }
 
-    /// <summary>
-    /// Get the parameter using double value
-    /// if not found or on parsing error, it is replaced and saved at once
-    /// </summary>
     public double GetDouble(string name, double defaultValue)
     {
         if (data.ContainsKey(name))
@@ -242,19 +209,11 @@ public class SettingsFile
         return defaultValue;
     }
 
-    /// <summary>
-    /// Set the parameter using double value
-    /// the value is saved at once
-    /// </summary>
     public void SetDouble(string name, double value)
     {
         SetString(name, value.ToString());
     }
 
-    /// <summary>
-    /// Get the parameter using Vector3 value
-    ///  if not found or on parsing error, it is replaced and saved at once
-    /// </summary>
     public Vector3 GetVector3(string name, Vector3 defaultValue)
     {
         if (!data.ContainsKey(name))
@@ -288,20 +247,11 @@ public class SettingsFile
         return result;
     }
 
-    /// <summary>
-    /// Set the parameter using Vector3 value
-    /// the value is saved at once
-    /// </summary>
     public void SetParamVector3(string name, Vector3 value)
     {
         string text = value.x + ";" + value.y + ";" + value.z;
         SetString(name, text);
     }
-
-    /// <summary>
-    /// Get the parameter using Vector3d value
-    ///  if not found or on parsing error, it is replaced and saved at once
-    /// </summary>
     public Vector3 GetVector3d(string name, Vector3d defaultValue)
     {
         if (!data.ContainsKey(name))
@@ -340,4 +290,5 @@ public class SettingsFile
         string text = value.x + ";" + value.y + ";" + value.z;
         SetString(name, text);
     }
+
 }

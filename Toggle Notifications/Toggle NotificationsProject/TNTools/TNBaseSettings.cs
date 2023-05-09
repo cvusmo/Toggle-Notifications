@@ -23,10 +23,10 @@ namespace ToggleNotifications.TNTools
             set { sfile.SetInt("window_y_pos", value); }
         }
 
-        public static int main_tab_index
+        public static int MainTabIndex
         {
-            get { return sfile.GetInt("main_tab_index", 0); }
-            set { sfile.SetInt("main_tab_index", value); }
+            get { return sfile.GetInt("MainTabIndex", 0); }
+            set { sfile.SetInt("MainTabIndex", value); }
         }
     }
 }

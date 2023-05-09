@@ -1,26 +1,43 @@
-﻿using ToggleNotifications.TNTools.UI;
+﻿using KSP.Game;
+using SpaceWarp.API.Assets;
+using ToggleNotifications.TNTools.UI;
+using ToggleNotifications.UI;
+using UnityEngine;
 
 namespace ToggleNotifications;
 
-public class BasePageContent : PageContent
+public class BasePageContent : PageContent, SetSelection, SetOption
 {
+    protected NotificationEvents notificationEvents = new NotificationEvents();
+    private void HandleAlertNotificationOpen()
+    {
+        foreach (var evt in notificationEvents.OnAlertNotificationOpen)
+        {
+            evt?.Post(MainUI.gameObject);
+        }
+    }
+    private void HandleAlertNotificationClose()
+    {
+        foreach (var evt in notificationEvents.OnAlertNotificationClose)
+        {
+            evt?.Post(MainUI.gameObject);
+        }
+    }
     public BasePageContent()
     {
-        this.main_ui = ToggleNotificationsUI.Instance;
-        this.plugin = ToggleNotificationsPlugin.Instance;
+        this.MainUI = ToggleNotificationsUI.Instance;
+        this.mainPlugin = ToggleNotificationsPlugin.Instance;
+
+        // Register OnAlertNotificationOpen and OnAlertNotificationClose events
+        this.MainUI.OnAlertNotificationOpen += HandleAlertNotificationOpen;
+        this.MainUI.OnAlertNotificationClose += HandleAlertNotificationClose;
     }
-    protected ToggleNotificationsUI main_ui;
-    protected ToggleNotificationsPlugin plugin;
 
-
-    //protected PatchedConicsOrbit orbit => main_ui.orbit;
-    //protected CelestialBodyComponent referenceBody => main_ui.referenceBody;
-
-    public virtual string Name => throw new NotImplementedException();
-
+    protected ToggleNotificationsUI MainUI;
+    protected ToggleNotificationsPlugin mainPlugin;
+    protected NotificationToggle currentState => MainUI.currentState;
+    protected NotificationEvents OnAlertNotificationOpen => MainUI.RefreshState;
     public bool isRunning => false;
-
-
     bool ui_visible;
     public bool UIVisible { get => ui_visible; set => ui_visible = value; }
 
@@ -31,38 +48,19 @@ public class BasePageContent : PageContent
         throw new NotImplementedException();
     }
 }
-
-public class TargetPage : BasePageContent
-{
-    public override string Name => "Target";
-
-    public override bool isActive
-    {
-        get => plugin.currentTarget != null  // If the activeVessel and the currentTarget are both orbiting the same body
-            && plugin.currentTarget.Orbit != null // No maneuvers relative to a star
-            && plugin.currentTarget.Orbit.referenceBody.Name == referenceBody.Name;
-    }
-
-    public override void onGUI()
-    {
-        TNStyles.DrawSectionHeader("Notifications");
-
-        SolarPanelOption.Instance.SolarTypeSelectionGUI();
-
-        main_ui.DrawToggleButton("Match Planes", ManeuverType.matchPlane);
-        main_ui.DrawToggleButton("Hohmann Transfer", ManeuverType.hohmannXfer);
-        main_ui.DrawToggleButton("Course Correction", ManeuverType.courseCorrection);
-
-        if (plugin.experimental.Value)
-        {
-            FPSettings.interceptT = main_ui.DrawToggleButtonWithTextField("Intercept", ManeuverType.interceptTgt, FPSettings.interceptT, "s");
-            main_ui.DrawToggleButton("Match Velocity", ManeuverType.matchVelocity);
-        }
-    }
-}
 public class SolarPage : BasePageContent
 {
-    //
+    public override string Name => "Solar Notification";
+
+    // readonly Texture2D tabIcon = AssetManager.GetAsset<Texture2D>($"{FlightPlanPlugin.Instance.SpaceWarpMetadata.ModID}/images/OwnshipManeuver_50v2.png");
+    readonly Texture2D tabIcon = AssetManager.GetAsset<Texture2D>($"{ToggleNotificationsPlugin.Instance.SpaceWarpMetadata.ModID}/images/Capsule_v3_50.png");
+
+    public override GUIContent Icon => new(tabIcon, "Solar");
+
+    public virtual void onGUI()
+    {
+        throw new NotImplementedException();
+    }
 }
 public class CommRangePage : BasePageContent
 {

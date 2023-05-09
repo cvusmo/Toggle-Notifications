@@ -2,46 +2,51 @@
 using ToggleNotifications.TNTools.UI;
 using ToggleNotifications.UI;
 using UnityEngine;
+using static ToggleNotifications.UI.Selection;
 
 namespace ToggleNotifications
 {
-
     public class ToggleNotificationsUI
     {
-        private static ToggleNotificationsUI _instance;
-        public static ToggleNotificationsUI Instance { get => _instance; }
-
-        public Selection SelectionInstance { get; set; }
-
-        public ToggleNotificationsUI(ToggleNotificationsPlugin main_plugin)
-        {
-            _instance = this;
-
-            Type[] selectionTypes = new Type[]
-            {
-            typeof(SolarSelection),
-            typeof(CommRangeSelection),
-            typeof(ThrottleLockedSelection),
-            typeof(ManeuverNodeOutOfFuelSelection),
-            typeof(GamePauseToggledSelection),
-            typeof(AllNotificationsSelection)
-            };
-
-            Type[] optionTypes = new Type[]
-            {
-            typeof(SolarOption),
-            typeof(CommRangeOption),
-            typeof(ThrottleLockedOption),
-            typeof(ManeuverNodeOutOfFuelOption),
-            typeof(GamePauseToggledOption),
-            typeof(AllNotificationsOption)
-            };
-
-            SelectionInstance = new Selection(this, selectionTypes, optionTypes, main_plugin);
-        }
+        private SolarPanelSelection solarSelection;
+        private CommRangeSelection commRangeSelection;
+        private ThrottleLockedSelection throttleLockedSelection;
+        private GamePauseToggledSelection gamePauseToggledSelection;
+        private AllNotificationsSelection allNotificationsSelection;
 
         private static ManualLogSource Logger;
         public static NotificationToggle currentState;
+
+        private static ToggleNotificationsUI instance;
+
+        public ToggleNotificationsPlugin Plugin { get; }
+        public class SetSelection
+        {
+            public SolarPanelSelection solarPanelSelection { get; }
+            public CommRangeSelection commRangeSelection { get; }
+            public ThrottleLockedSelection throttleLockedSelection { get; }
+            public GamePauseToggledSelection gamePauseToggledSelection { get; }
+            public AllNotificationsSelection allNotificationsSelection { get; }
+
+            public SetSelection(ToggleNotificationsUI mainPlugin)
+            {
+                solarPanelSelection = (SolarPanelSelection)Activator.CreateInstance(typeof(SolarPanelSelection), mainPlugin);
+                commRangeSelection = (CommRangeSelection)Activator.CreateInstance(typeof(CommRangeSelection), mainPlugin);
+                throttleLockedSelection = (ThrottleLockedSelection)Activator.CreateInstance(typeof(ThrottleLockedSelection), mainPlugin);
+                gamePauseToggledSelection = new GamePauseToggledSelection();
+                allNotificationsSelection = new AllNotificationsSelection();
+            }
+        }
+        public static ToggleNotificationsUI Instance { get { return instance; } }
+
+        public ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, SetSelection selection, SetOption option)
+        {
+            instance = this;
+            this.Plugin = mainPlugin;
+            this.SetSelection = selection;
+            this.SetOption = option;
+        }
+
         public bool RefreshState()
         {
             if (currentState == null)
@@ -78,32 +83,15 @@ namespace ToggleNotifications
         TabsUI tabs = new TabsUI();
         public void Update()
         {
+            if (currentState == null)
+                currentState = null;
+            var state = ToggleNotificationsPlugin.Instance.currentState;
             if (init_done)
             {
                 RefreshState();
                 tabs.Update();
             }
         }
-
-        public ManeuverType maneuver_type = ManeuverType.None;
-
-        public static TimeRef time_ref = TimeRef.None;
-
-        public void SetManeuverType(ManeuverType type)
-        {
-            maneuver_type = type;
-            maneuver_type_desc = BurnTimeOption.Instance.setOptionsList(type);
-        }
-
-        public string maneuver_type_desc;
-
-
-        ToggleNotificationsPlugin plugin;
-
-        public ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("ToggleNotifications");
-
-        //BodySelection body_selection;
-        //BurnTimeOption burn_options;
 
         int spacingAfterEntry = 5;
 
@@ -153,57 +141,7 @@ namespace ToggleNotifications
             GUILayout.Space(spacingAfterEntry);
             return value;
         }
-
-        //public double DrawToggleButtonWithTextField(string runString, OtherType type, double value, string unit = "", string stopString = "")
-        // {
-        // GUILayout.BeginHorizontal();
-        // if (stopString.Length < 1)
-        //   stopString = runString;
-
-
-        // DrawToggleButton(runString, type);
-        // GUILayout.Space(10);
-
-        //  value = UI_Fields.DoubleField(runString, value);
-
-        //   GUILayout.Space(3);
-        // UI_Too   ls.Label(unit);
-        // GUILayout.EndHorizontal();
-
-        // GUILayout.Space(spacingAfterEntry);
-        // return value;
-        // }
-
-        public enum SolarType
-        {
-            Enabled,
-            Disabled,
-        }
-        public void SolarTypeSelectionGUI()
-        {
-            GUILayout.BeginHorizontal();
-
-            DrawToggleButton("Enabled", SolarType.Enabled);
-            DrawToggleButton("Disabled", SolarType.Disabled);
-
-            GUILayout.EndHorizontal();
-        }
-
-        public void DrawToggleButton(string txt, SolarType type)
-        {
-            bool active = solar_type == type;
-
-            bool result = UITools.SmallToggleButton(active, txt, txt);
-            if (result != active)
-            {
-                if (!active)
-                    solar_type = type;
-                else
-                    solar_type = SolarType.None;
-            }
-        }
-
-        public enum ComRangeType
+        public enum CommRangeType
         {
             Enabled,
             Disabled,
@@ -212,24 +150,16 @@ namespace ToggleNotifications
         {
             GUILayout.BeginHorizontal();
 
-            DrawToggleButton("Enable", ComRangeType.Enabled);
-            DrawToggleButton("Disable", ComRangeType.Disabled);
+            DrawToggleButton("Enable", CommRangeType.Enabled);
+            DrawToggleButton("Disable", CommRangeType.Disabled);
 
             GUILayout.EndHorizontal();
         }
-
-        public void DrawToggleButton(string txt, ComRangeType type)
+        public void DrawCommRangeButton(string txt, CommRangeType this_comrange_type, bool shortDingus = false)
         {
-            bool active = comrange_type == type;
-
-            bool result = UITools.SmallToggleButton(active, txt, txt);
-            if (result != active)
-            {
-                if (!active)
-                    comrange_type = type;
-                else
-                    comrange_type = ComRangeType.None;
-            }
+            bool active = commRangeType == this_comrange_type;
+            bool result = UITools.SmallToggleButton(active, txt, txt, shortDingus);
+            if (result != active) { SetCommRangeType(result ? this_comrange_type : CommRangeType.Enabled); }
         }
 
         public enum ThrottleLockedType
@@ -241,23 +171,16 @@ namespace ToggleNotifications
         {
             GUILayout.BeginHorizontal();
 
-            DrawToggleButton("Enable", ThrottleLockedType.Enabled);
-            DrawToggleButton("Disable", ThrottleLockedType.Disabled);
+            DrawThrottleLockedButton("Enable", ThrottleLockedType.Enabled);
+            DrawThrottleLockedButton("Disable", ThrottleLockedType.Disabled);
 
             GUILayout.EndHorizontal();
         }
-        public void DrawToggleButton(string txt, ThrottleLockedType type)
+        public void DrawThrottleLockedButton(string txt, ThrottleLockedType this_throttlelocked_type, bool shortDingus = false)
         {
-            bool active = throttlelocked_type == type;
-
-            bool result = UITools.SmallToggleButton(active, txt, txt);
-            if (result != active)
-            {
-                if (!active)
-                    throttlelocked_type = type;
-                else
-                    throttlelocked_type = ThrottleLockedType.None;
-            }
+            bool active = throttlelocked_type == this_throttlelocked_type;
+            bool result = UITools.SmallToggleButton(active, txt, txt, shortDingus);
+            if (result != active) { SetThrottleLockedType(result ? this_throttlelocked_type : ThrottleLockedType.None); }
         }
 
         public enum MNType
@@ -269,13 +192,13 @@ namespace ToggleNotifications
         {
             GUILayout.BeginHorizontal();
 
-            DrawToggleButton("Enable", MNType.Enabled);
-            DrawToggleButton("Disable", MNType.Disabled);
+            DrawMNOutOfFuelButton("Enable", MNType.Enabled);
+            DrawMNOutOfFuelButton("Disable", MNType.Disabled);
 
             GUILayout.EndHorizontal();
         }
 
-        public void DrawToggleButton(string txt, MNType type)
+        public void DrawMNOutOfFuelButton(string txt, MNType type)
         {
             bool active = mn_type == type;
 
@@ -289,7 +212,7 @@ namespace ToggleNotifications
             }
         }
 
-        public enum GPaused
+        public enum GPausedType
         {
             Enabled,
             Disabled,
@@ -298,13 +221,13 @@ namespace ToggleNotifications
         {
             GUILayout.BeginHorizontal();
 
-            DrawToggleButton("Enabled", GPausedType.Enabled);
-            DrawToggleButton("Disabled", GPausedType.Disabled);
+            DrawGPausedButton("Enabled", GPausedType.Enabled);
+            DrawGPausedButton("Disabled", GPausedType.Disabled);
 
             GUILayout.EndHorizontal();
         }
 
-        public void DrawToggleButton(string txt, GPausedType type)
+        public void DrawGPausedButton(string txt, GPausedType type)
         {
             bool active = gpaused_type == type;
 
@@ -332,7 +255,7 @@ namespace ToggleNotifications
 
             GUILayout.EndHorizontal();
         }
-        public void DrawToggleButton(string txt, AllNotificationsType type)
+        public void DrawAllNotificationsButton(string txt, AllNotificationsType type)
         {
             bool active = allnotifications_type == type;
 
@@ -382,13 +305,19 @@ namespace ToggleNotifications
             }
         }
 
-        var isRefreshing;
+        private var isRefreshing;
         public async void OnGUI()
         {
             createTabs();
             tabs.onGUI();
 
-            foreach (ISelection selection in selectionList)
+            if (currentState.listGui())
+                return;
+
+            if (burn_options.listGui())
+                return;
+
+            foreach (SetSelection selection in selectionList)
             {
                 if (selection.listGUI())
                 {
@@ -405,7 +334,6 @@ namespace ToggleNotifications
                 await Task.Run(() => RefreshState());
                 isRefreshing = false;
             }
-
         }
         private void DrawGUIStatus(double UT)
         {
