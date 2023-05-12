@@ -1,55 +1,47 @@
-﻿using UnityEngine;
+﻿using ToggleNotifications.TNTools;
+using UnityEngine;
 
-namespace ToggleNotifications.Tools.UI;
+namespace ToggleNotifications.TNTools.UI;
 
 public class WindowTool
 {
-    /// <summary>
-    ///  checks if the window is in screen
-    /// </summary>
-    /// <param name="window_frame"></param>
-    public static void check_window_pos(ref Rect window_frame)
+    public static void CheckWindowPos(ref Rect windowFrame)
     {
-        if (window_frame.xMax > Screen.width)
+        if (windowFrame.xMax > Screen.width)
         {
-            var dx = Screen.width - window_frame.xMax;
-            window_frame.x += dx;
+            float _dx = Screen.width - windowFrame.xMax;
+            windowFrame.x += _dx;
         }
-        if (window_frame.yMax > Screen.height)
+        if (windowFrame.yMax > Screen.height)
         {
-            var dy = Screen.height - window_frame.yMax;
-            window_frame.y += dy;
+            float _dy = Screen.height - windowFrame.yMax;
+            windowFrame.y += _dy;
         }
-        if (window_frame.xMin < 0)
+        if (windowFrame.xMin < 0)
         {
-            window_frame.x = 0;
+            windowFrame.x = 0;
         }
-        if (window_frame.yMin < 0)
+        if (windowFrame.yMin < 0)
         {
-            window_frame.y = 0;
+            windowFrame.y = 0;
         }
     }
-
-    /// <summary>
-    /// check the window pos and load settings if not set
-    /// </summary>
-    /// <param name="window_frame"></param>
-    public static void check_main_window_pos(ref Rect window_frame)
+    public static void CheckMainWindowPos(ref Rect windowFrame)
     {
-        if (window_frame == Rect.zero)
+        if (windowFrame == Rect.zero)
         {
-            int x_pos = BaseSettings.window_x_pos;
-            int y_pos = BaseSettings.window_y_pos;
+            int _xPos = TNBaseSettings.WindowXPos;
+            int _yPos = TNBaseSettings.WindowYPos;
 
-            if (x_pos == -1)
+            if (_xPos == -1)
             {
-                x_pos = 100;
-                y_pos = 50;
+                _xPos = 100;
+                _yPos = 50;
             }
 
-            window_frame = new Rect(x_pos, y_pos, 500, 100);
+            windowFrame = new Rect(_xPos, _yPos, 500, 100);
         }
 
-        check_window_pos(ref window_frame);
+        CheckWindowPos(ref windowFrame);
     }
 }
