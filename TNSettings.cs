@@ -1,16 +1,17 @@
 ﻿using BepInEx.Configuration;
+using static ToggleNotifications.UI.Selection;
 
-namespace ToggleNotifications.Tools
+namespace ToggleNotifications.TNTools
 {
     public class TNSettings
     {
         private static ConfigFile s_config_file;
-        private static string s_settings_path;
+        private static string s_settingspath;
 
-        public static void Init(string settings_path)
+        public static void Init(string settingspath)
         {
-            s_settings_path = settings_path;
-            s_config_file = new ConfigFile(settings_path, true);
+            s_settingspath = settingspath;
+            s_config_file = new ConfigFile(settingspath, true);
         }
 
         public static T GetValue<T>(string key, T defaultValue)
@@ -52,18 +53,6 @@ namespace ToggleNotifications.Tools
         {
             get => GetValue(nameof(GamePauseToggledMessage), true);
             set { SetValue(nameof(GamePauseToggledMessage), value); }
-        }
-
-        public static int num_sats
-        {
-            get => GetValue(nameof(num_sats), 3);
-            set { SetValue(nameof(num_sats), value); }
-        }
-
-        public static int num_orb
-        {
-            get => GetValue(nameof(num_orb), 1);
-            set { SetValue(nameof(num_orb), value); }
         }
     }
 }
