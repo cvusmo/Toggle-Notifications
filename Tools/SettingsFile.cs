@@ -1,41 +1,35 @@
-using BepInEx;
+﻿
 using BepInEx.Logging;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace ToggleNotifications.Tools
+namespace ToggleNotifications.TNTools
 {
     public class SettingsFile
     {
         protected string file_path = "";
         Dictionary<string, string> data = new Dictionary<string, string>();
 
-        public SettingsFile()
+        public SettingsFile(string settingspath)
         {
-            this.file_path = Path.Combine(Paths.ConfigPath, "ToggleNotifications.cfg");
+            file_path = settingspath;
             Load();
         }
 
-        public ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("TNStyles.SettingsFile");
+        public ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("K2D2.SettingsFile");
 
         protected void Load()
         {
+
             var previous_culture = Thread.CurrentThread.CurrentCulture;
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             try
             {
-                if (File.Exists(file_path))
-                {
-                    this.data = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file_path));
-                }
-                else
-                {
-                    logger.LogWarning($"Settings file {file_path} does not exist.");
-                }
+                this.data = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file_path));
             }
             catch (System.Exception)
             {
-                logger.LogWarning($"Error loading settings from {file_path}");
+                logger.LogWarning($"error loading {file_path}");
             }
 
             Thread.CurrentThread.CurrentCulture = previous_culture;
@@ -78,41 +72,6 @@ namespace ToggleNotifications.Tools
             else
             {
                 data[name] = value;
-                Save();
-            }
-        }
-
-        public T Get<T>(string name, T defaultValue, string section = "Settings")
-        {
-            if (data.ContainsKey(name))
-            {
-                try
-                {
-                    return JsonConvert.DeserializeObject<T>(data[name]);
-                }
-                catch (System.Exception)
-                {
-                    logger.LogWarning($"error deserializing {name}");
-                }
-            }
-            Set(name, defaultValue);
-            return defaultValue;
-        }
-
-        public void Set<T>(string name, T value, string section = "Settings")
-        {
-            string serializedValue = JsonConvert.SerializeObject(value);
-            if (data.ContainsKey(name))
-            {
-                if (data[name] != serializedValue)
-                {
-                    data[name] = serializedValue;
-                    Save();
-                }
-            }
-            else
-            {
-                data[name] = serializedValue;
                 Save();
             }
         }
@@ -232,7 +191,6 @@ namespace ToggleNotifications.Tools
                 double value = 0;
                 if (double.TryParse(data[name], out value))
                 {
-                    SetDouble(name, value);
                     return value;
                 }
             }

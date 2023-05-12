@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ToggleNotifications.Tools
+namespace ToggleNotifications.TNTools
 {
     public static class GeneralTools
     {
