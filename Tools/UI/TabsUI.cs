@@ -1,152 +1,169 @@
-﻿using UnityEngine;
+﻿using ToggleNotifications.TNTools.UI;
+using ToggleNotifications.TNTools;
+using UnityEngine;
+using KSP.Messages;
 
-using FlightPlan.KTools;
-using ToggleNotifications.Tools.UI;
-using ToggleNotifications.Tools;
-using ToggleNotifications.UI;
+namespace ToggleNotifications.TNTools.UI;
 
-namespace FlightPlan.KTools.UI;
-
-public interface PageContent
+public interface IPageContent
 {
-    // Name drawn in the Tab button
-    public string Name
-    {
-        get;
-    }
+    MessageCenterMessage ConvertToMessageCenterMessage(NotificationToggle currentState);
+    string Name { get; }
+    GUIContent Icon { get; }
+    bool IsRunning { get; }
+    bool IsActive { get; }
+    bool UIVisible { get; set; }
 
-    // if is isRunning, UI is drawn lighted
-    public bool isRunning
-    {
-        get;
-    }
-
-    // if isActive Tab is visible
-    public bool isActive
-    {
-        get;
-    }
-
-    // usefull to knows is current page is visible (you can switch off not needed updates if not set)
-    public bool UIVisible
-    {
-        get;
-        set;
-    }
-
-    // Main Page UI called Here
-    public void onGUI();
+    void OnGUI();
 }
 
 public class TabsUI
 {
-    public List<PageContent> pages = new List<PageContent>();
+    private List<string> tabNames = new List<string>();
+    private Dictionary<string, string> tabContents = new Dictionary<string, string>();
+    private Dictionary<string, BasePageContent> tabPages = new Dictionary<string, BasePageContent>();
+    public static NotificationToggle currentState;
 
-    private List<PageContent> filtered_pages = new List<PageContent>();
+    public List<IPageContent> pages = new List<IPageContent>();
 
-    PageContent current_page = null;
+    private List<IPageContent> filteredPages = new List<IPageContent>();
+
+    IPageContent CurrentPage = null;
 
     // must be called after adding pages
-    private bool TabButton(bool is_current, bool isActive, string txt)
+    private bool tabButton(bool isCurrent, bool IsActive, string txt, GUIContent icon)
     {
-        GUIStyle style = isActive ? TNBaseStyle.tab_active : TNBaseStyle.tab_normal;
-        return GUILayout.Toggle(is_current, txt, style);
+        GUIStyle style = IsActive ? TNBaseStyle.TabActive : TNBaseStyle.TabNormal;
+        if (icon == null)
+            return GUILayout.Toggle(isCurrent, txt, style, GUILayout.ExpandWidth(true));
+        else
+            return GUILayout.Toggle(isCurrent, icon, style, GUILayout.ExpandWidth(true));
     }
 
-    List<float> tabs_Width = new List<float>();
+    List<float> TabsWidth = new();
 
-    public int DrawTabs(int current, float max_width = 300)
+    public int DrawTabs(int current, float maxWidth = 300)
     {
-        current = GeneralTools.ClampInt(current, 0, filtered_pages.Count - 1);
+        current = GeneralTools.ClampInt(current, 0, filteredPages.Count - 1);
         GUILayout.BeginHorizontal();
 
         int result = current;
 
         // compute sizes
-        if (tabs_Width.Count != filtered_pages.Count)
+        if (TabsWidth.Count != filteredPages.Count)
         {
-            tabs_Width.Clear();
-            for (int index = 0; index < filtered_pages.Count; index++)
+            TabsWidth.Clear();
+            for (int index = 0; index < filteredPages.Count; index++)
             {
-                var page = filtered_pages[index];
-                float minWidth, maxWidth;
-                TNBaseStyle.tab_normal.CalcMinMaxWidth(new GUIContent(page.Name, ""), out minWidth, out maxWidth);
-                tabs_Width.Add(minWidth);
+                var page = filteredPages[index];
+                TNBaseStyle.TabNormal.CalcMinMaxWidth(new GUIContent(page.Name, ""), out float _minWidth, out _);
+                TabsWidth.Add(_minWidth);
             }
         }
-        float xPos = 0;
+        float _xPos = 0;
 
-        for (int index = 0; index < filtered_pages.Count; index++)
+        for (int index = 0; index < filteredPages.Count; index++)
         {
-            var page = filtered_pages[index];
+            IPageContent page = filteredPages[index];
 
-            float width = tabs_Width[index];
+            float _width = TabsWidth[index];
 
-            if (xPos > max_width)
+            if (_xPos > maxWidth)
             {
                 GUILayout.EndHorizontal();
                 GUILayout.BeginHorizontal();
-                xPos = 0;
+                _xPos = 0;
             }
-            xPos += width;
+            _xPos += _width;
 
-            bool is_current = current == index;
-            if (TabButton(is_current, page.isRunning, page.Name))
+            bool _isCurrent = current == index;
+            if (tabButton(_isCurrent, page.IsRunning, page.Name, page.Icon))
             {
-                if (!is_current)
+                if (!_isCurrent)
 
                     result = index;
             }
         }
 
-        if (xPos < max_width * 0.7f)
-        {
-            GUILayout.FlexibleSpace();
-        }
+        /*  if (_xPos < _maxWidth * 0.7f)
+          {
+              GUILayout.FlexibleSpace();
+          }*/
         GUILayout.EndHorizontal();
 
-        UI_Tools.Separator();
+        UITools.Separator();
         return result;
     }
+    public void AddTab(string name, ToggleNotificationsPlugin plugin)
+    {
+        if (!tabContents.ContainsKey(name))
+        {
+            tabContents.Add(name, "");
+            tabPages.Add(name, new SolarPage(plugin));
+        }
+    }
 
+    public void AddContent(string name, string selection, ToggleNotificationsPlugin plugin)
+    {
+        if (!tabContents.ContainsKey(name))
+        {
+            tabContents.Add(name, "");
+            tabPages.Add(name, new SolarPage(plugin));
+        }
+        // add the selection content to the corresponding tab
+        tabContents[name] += selection;
+    }
 
     public void Init()
     {
-        current_page = pages[BaseSettings.main_tab_index];
-        current_page.UIVisible = true;
+        CurrentPage = pages[TNBaseSettings.MainTabIndex];
+        CurrentPage.UIVisible = true;
     }
 
-    // must be called to rebuild the filtered_pages list 
+    // must be called to rebuild the filteredPages list 
     public void Update()
     {
-        filtered_pages = new List<PageContent>();
+        filteredPages = new List<IPageContent>();
         for (int index = 0; index < pages.Count; index++)
         {
-            if (pages[index].isActive)
-                filtered_pages.Add(pages[index]);
+            if (pages[index].IsActive)
+                filteredPages.Add(pages[index]);
         }
     }
 
-    public void onGUI()
+    public void OnGUI()
     {
-        int current_index = BaseSettings.main_tab_index;
+        int _currentIndex = TNBaseSettings.MainTabIndex;
 
-        if (filtered_pages.Count == 0)
+        if (filteredPages.Count == 0)
         {
-            UI_Tools.Error("NO active Tab tage !!!");
+            UITools.Error("NO active Tab tage !!!");
             return;
         }
-
-        current_index = GeneralTools.ClampInt(current_index, 0, filtered_pages.Count - 1);
-        int result = DrawTabs(current_index);
-        if (result != current_index)
+        int result;
+        if (filteredPages.Count == 1)
         {
-            current_page.UIVisible = false;
-            BaseSettings.main_tab_index = result;
-            current_page = filtered_pages[result];
-            current_page.UIVisible = true;
+            result = 0;
+        }
+        else
+        {
+            result = DrawTabs(_currentIndex);
         }
 
-        current_page.onGUI();
+        result = GeneralTools.ClampInt(result, 0, filteredPages.Count - 1);
+        IPageContent page = filteredPages[result];
+
+        if (page != CurrentPage)
+        {
+            CurrentPage.UIVisible = false;
+            //TNBaseSettings.MainTabIndex = result;
+            //CurrentPage = filteredPages[result];
+            CurrentPage = page;
+            CurrentPage.UIVisible = true;
+        }
+
+        TNBaseSettings.MainTabIndex = result;
+
+        CurrentPage.OnGUI();
     }
 }
