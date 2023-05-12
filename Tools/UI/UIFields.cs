@@ -2,157 +2,124 @@ using UnityEngine;
 using System.Text.RegularExpressions;
 using KSP.Game;
 using BepInEx.Logging;
-using ToggleNotifications.Tools.UI;
 
-namespace ToggleNotifications.UI
+namespace ToggleNotifications.TNTools.UI;
+
+public class UIFields
 {
-    public class UI_Fields
+    public static Dictionary<string, string> TempDict = new Dictionary<string, string>();
+    public static List<string> InputFields = new List<string>();
+    static bool InputState = true;
+
+
+    public static ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TNTools.UIFields");
+
+    static public bool GameInputState
     {
-        public static Dictionary<string, string> temp_dict = new Dictionary<string, string>();
-        public static List<string> inputFields = new List<string>();
-        static bool _inputState = true;
-
-
-        public static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("TN.MainUI");
-
-        static public bool GameInputState
+        get { return InputState; }
+        set
         {
-            set
+            if (InputState != value)
             {
-                if (_inputState != value)
-                {
-                    logger.LogWarning("input mode changed");
+                Logger.LogWarning("input mode changed");
 
-                    if (value)
-                        GameManager.Instance.Game.Input.Enable();
-                    else
-                        GameManager.Instance.Game.Input.Disable();
-                }
-                _inputState = value;
+                if (value)
+                    GameManager.Instance.Game.Input.Enable();
+                else
+                    GameManager.Instance.Game.Input.Disable();
             }
-            get { return _inputState; }
+            InputState = value;
+        }
+    }
+
+    static public void CheckEditor()
+    {
+        GameInputState = !InputFields.Contains(GUI.GetNameOfFocusedControl());
+    }
+
+    public static double DoubleField(string entryName, double value, GUIStyle thisStyle = null)
+    {
+        string _textValue;
+        if (TempDict.ContainsKey(entryName))
+            // always use temp value
+            _textValue = TempDict[entryName];
+        else
+            _textValue = value.ToString();
+
+        if (!InputFields.Contains(entryName))
+            InputFields.Add(entryName);
+
+        Color _normal = GUI.color;
+        bool _parsed = double.TryParse(_textValue, out double num);
+        if (!_parsed) GUI.color = Color.red;
+
+        GUI.SetNextControlName(entryName);
+        if (thisStyle != null)
+            _textValue = GUILayout.TextField(_textValue, thisStyle, GUILayout.Width(90));
+        else
+            _textValue = GUILayout.TextField(_textValue, GUILayout.Width(90));
+
+        GUI.color = _normal;
+
+        // save filtered temp value
+        TempDict[entryName] = _textValue;
+        if (_parsed)
+            return num;
+
+        return value;
+    }
+
+    /// Simple Integer Field. for the moment there is a trouble. keys are sent to KSP2 events if focus is in the field
+    public static int IntField(string entryName, string label, int value, int min, int max, string tooltip = "")
+    {
+        string _textValue = value.ToString();
+
+        if (TempDict.ContainsKey(entryName))
+            // always use temp value
+            _textValue = TempDict[entryName];
+
+        if (!InputFields.Contains(entryName))
+            InputFields.Add(entryName);
+
+        GUILayout.BeginHorizontal();
+
+        if (!string.IsNullOrEmpty(label))
+        {
+            GUILayout.Label(label);
         }
 
-        static public void CheckEditor()
+        GUI.SetNextControlName(entryName);
+        string _typedText = GUILayout.TextField(_textValue, GUILayout.Width(100));
+        _typedText = Regex.Replace(_typedText, @"[^\d-]+", "");
+
+        // save filtered temp value
+        TempDict[entryName] = _typedText;
+        bool _ok = true;
+
+        if (!int.TryParse(_typedText, out int result))
         {
-            GameInputState = !inputFields.Contains(GUI.GetNameOfFocusedControl());
+            _ok = false;
+        }
+        if (result < min)
+        {
+            _ok = false;
+            result = value;
+        }
+        else if (result > max)
+        {
+            _ok = false;
+            result = value;
         }
 
-        public static double DoubleField(string entryName, double value)
+        if (!_ok)
+            GUILayout.Label("!!!", GUILayout.Width(30));
+
+        if (!string.IsNullOrEmpty(tooltip))
         {
-            string text_value;
-            if (temp_dict.ContainsKey(entryName))
-                // always use temp value
-                text_value = temp_dict[entryName];
-            else
-                text_value = value.ToString();
-
-            if (!inputFields.Contains(entryName))
-                inputFields.Add(entryName);
-
-            Color normal = GUI.color;
-            double num = 0;
-            bool parsed = double.TryParse(text_value, out num);
-            if (!parsed) GUI.color = Color.red;
-
-            GUI.SetNextControlName(entryName);
-            text_value = GUILayout.TextField(text_value, TNStyles.textInputStyle); // GUILayout.Width(100));
-
-            GUI.color = normal;
-
-            // save filtered temp value
-            temp_dict[entryName] = text_value;
-            if (parsed)
-                return num;
-
-            return value;
+            UITools.ToolTipButton(tooltip);
         }
 
-        /// Simple Integer Field. for the moment there is a trouble. keys are sent to KSP2 events if focus is in the field
-        public static int IntField(string entryName, int value) // int min = 0, string tooltip = ""
-        {
-            string text_value;
-            if (temp_dict.ContainsKey(entryName))
-                // always use temp value
-                text_value = temp_dict[entryName];
-            else
-                text_value = value.ToString();
-
-            if (!inputFields.Contains(entryName))
-                inputFields.Add(entryName);
-
-            Color normal = GUI.color;
-            int num = 0;
-            bool parsed = int.TryParse(text_value, out num);
-            if (!parsed) GUI.color = Color.red;
-
-            GUI.SetNextControlName(entryName);
-            var typed_text = GUILayout.TextField(text_value, TNStyles.textInputStyle);
-            typed_text = Regex.Replace(typed_text, @"[^\d-]+", "");
-
-            GUI.color = normal;
-
-            // save filtered temp value
-            temp_dict[entryName] = typed_text;
-            if (parsed)
-                return num;
-
-            return value;
-        }
-
-        /// Simple Integer Field. for the moment there is a trouble. keys are sent to KSP2 events if focus is in the field
-        public static int IntField(string entryName, string label, int value, int min, int max, string tooltip = "")
-        {
-            string text_value = value.ToString();
-
-            if (temp_dict.ContainsKey(entryName))
-                // always use temp value
-                text_value = temp_dict[entryName];
-
-            if (!inputFields.Contains(entryName))
-                inputFields.Add(entryName);
-
-            GUILayout.BeginHorizontal();
-
-            if (!string.IsNullOrEmpty(label))
-            {
-                GUILayout.Label(label);
-            }
-
-            GUI.SetNextControlName(entryName);
-            var typed_text = GUILayout.TextField(text_value, GUILayout.Width(100));
-            typed_text = Regex.Replace(typed_text, @"[^\d-]+", "");
-
-            // save filtered temp value
-            temp_dict[entryName] = typed_text;
-
-            int result = value;
-            bool ok = true;
-            if (!int.TryParse(typed_text, out result))
-            {
-                ok = false;
-            }
-            if (result < min)
-            {
-                ok = false;
-                result = value;
-            }
-            else if (result > max)
-            {
-                ok = false;
-                result = value;
-            }
-
-            if (!ok)
-                GUILayout.Label("!!!", GUILayout.Width(30));
-
-            if (!string.IsNullOrEmpty(tooltip))
-            {
-                UI_Tools.ToolTipButton(tooltip);
-            }
-
-            GUILayout.EndHorizontal();
-            return result;
-        }
+        GUILayout.EndHorizontal();
+        return result;
     }
 }

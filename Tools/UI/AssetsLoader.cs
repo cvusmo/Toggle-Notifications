@@ -1,31 +1,27 @@
 using UnityEngine;
 using SpaceWarp.API.Assets;
 
-namespace ToggleNotifications.UI
+namespace ToggleNotifications.TNTools.UI;
+
+public class AssetsLoader
 {
-    public class AssetsLoader
+    public static Texture2D LoadIcon(string path)
     {
-        // BEPEXVersion
-        public static Texture2D loadIcon(string path)
+        Texture2D imageTexture = AssetManager.GetAsset<Texture2D>($"Toggle_Notifications/images/{path}.png");
+
+        //   Check if the texture is null
+        if (imageTexture == null)
         {
-            // hardcoded per mod
-            string full_path = $"ToggleNotifications/assets/images/icon.png";
-            var imageTexture = AssetManager.GetAsset<Texture2D>(full_path);
+            // Print an Error message to the Console
+            Debug.LogError("Failed to load image texture from path: " + path);
 
-            // Check if the texture is null
-            if (imageTexture == null)
-            {
-                // Print an error message to the Console
-                Debug.LogError("Failed to load image texture from path: " + full_path);
+            // Print the full path of the resource
+            Debug.Log("Full resource path: " + Application.dataPath + "/" + path);
 
-                // Print the full path of the resource
-                Debug.Log("Full resource path: " + Application.dataPath + "/" + full_path);
-
-                // Print the type of resource that was expected
-                Debug.Log("Expected resource type: Texture2D");
-            }
-
-            return imageTexture;
+            // Print the type of resource that was expected
+            Debug.Log("Expected resource type: Texture2D");
         }
+
+        return imageTexture;
     }
 }
