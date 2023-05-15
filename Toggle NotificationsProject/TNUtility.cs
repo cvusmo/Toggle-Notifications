@@ -1,8 +1,10 @@
 ﻿using BepInEx.Logging;
+using KSP.Game;
+using KSP.Messages;
 using ToggleNotifications;
 using ToggleNotifications.TNTools.UI;
 
-namespace ToggleNotifications
+namespace TNUtilities
 {
     public class TNUtility
     {
@@ -12,6 +14,8 @@ namespace ToggleNotifications
         public ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TNUtility");
         public static NotificationToggle currentState;
         public static NotificationToggle UpdateCurrentStates;
+        public static GameStateConfiguration GameState;
+        public static MessageCenter MessageCenter;
         public static string InputDisableWindowAbbreviation = "WindowAbbreviation";
         public static string InputDisableWindowName = "WindowName";
         public TNUtility()
