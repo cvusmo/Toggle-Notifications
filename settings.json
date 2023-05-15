@@ -1,6 +1,6 @@
 {
-  "window_x_pos": "3340",
-  "window_y_pos": "1333"
+  "WindowXPos": "3340",
+  "WindowYPos": "1333",
   {
     "General": {
       "EnablePlugin": true,
