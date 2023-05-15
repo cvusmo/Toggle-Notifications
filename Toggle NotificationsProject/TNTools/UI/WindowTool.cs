@@ -8,13 +8,13 @@ public class WindowTool
     {
         if (windowFrame.xMax > Screen.width)
         {
-            float _dx = Screen.width - windowFrame.xMax;
-            windowFrame.x += _dx;
+            float dx = Screen.width - windowFrame.xMax;
+            windowFrame.x += dx;
         }
         if (windowFrame.yMax > Screen.height)
         {
-            float _dy = Screen.height - windowFrame.yMax;
-            windowFrame.y += _dy;
+            float dy = Screen.height - windowFrame.yMax;
+            windowFrame.y += dy;
         }
         if (windowFrame.xMin < 0)
         {
@@ -29,16 +29,17 @@ public class WindowTool
     {
         if (windowFrame == Rect.zero)
         {
-            int _xPos = TNBaseSettings.WindowXPos;
-            int _yPos = TNBaseSettings.WindowYPos;
+            int windowXPos = TNBaseSettings.WindowXPos;
+            int xPos = windowXPos;
+            int yPos = TNBaseSettings.WindowYPos;
 
-            if (_xPos == -1)
+            if (xPos == -1)
             {
-                _xPos = 100;
-                _yPos = 50;
+                xPos = 100;
+                yPos = 50;
             }
 
-            windowFrame = new Rect(_xPos, _yPos, 500, 100);
+            windowFrame = new Rect(xPos, yPos, 500, 100);
         }
 
         CheckWindowPos(ref windowFrame);
