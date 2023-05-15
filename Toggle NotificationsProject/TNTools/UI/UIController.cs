@@ -9,25 +9,19 @@
         // Constructor
         public UIController(ToggleNotificationsPlugin mainPlugin)
         {
-            pages = new BasePageContent[]
-            {
-                new SolarPage(mainPlugin),
-                new CommRangePage(mainPlugin),
-                new ThrottlePage(mainPlugin),
-                new NodePage(mainPlugin),
-                new GamePausedPage(mainPlugin),
-            };
+            // Toggle the mainPlugin.pauseToggleState to control the notification
+            mainPlugin.pauseToggleState = !mainPlugin.pauseToggleState;
+
+            // Check the current state of the GamePausedPage
         }
 
         // Use this method to switch to a different page
         public void SwitchToPage(int index)
         {
-            // Disable the current page
-            //pages[currentPageIndex].gameObject.SetActive(false);
+            // Deactivate the current page
 
-            // Set the new page index and enable the new page
+            // Set the new page index and activate the new page
             currentPageIndex = index;
-            //pages[currentPageIndex].gameObject.SetActive(true);
         }
 
         // Call this method to switch to the next page

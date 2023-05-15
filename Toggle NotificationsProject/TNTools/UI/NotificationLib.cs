@@ -1,20 +1,11 @@
-using HarmonyLib;
-using KSP.Game;
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
     public class NotificationToggle
     {
-        // Library of all notifications
-
-        private readonly ToggleNotificationsPlugin pluginLib;
-        public Dictionary<NotificationType, bool> GetCurrentState()
-        {
-            return notificationStates;
-        }
+        private readonly ToggleNotificationsPlugin mainPlugin;
         public Dictionary<NotificationType, bool> notificationStates;
-
         public bool SolarPanelsIneffectiveMessageToggle { get; set; }
         public bool VesselLeftCommunicationRangeMessageToggle { get; set; }
         public bool VesselThrottleLockedDueToTimewarpingMessageToggle { get; set; }
@@ -22,9 +13,11 @@ namespace ToggleNotifications.TNTools.UI
         public bool GamePauseToggledMessageToggle { get; set; }
         public long SentOn { get; internal set; }
 
-        public NotificationToggle(ToggleNotificationsPlugin pluginLib, Dictionary<NotificationType, bool> notificationStates, bool solarPanelsIneffectiveMessageToggle, bool vesselLeftCommunicationRangeMessageToggle, bool vesselThrottleLockedDueToTimewarpingMessageToggle, bool cannotPlaceManeuverNodeWhileOutOfFuelMessageToggle, bool gamePauseToggledMessageToggle, long sentOn)
+        //LIST of Notifications
+        public List<string> NotificationList { get; } = new List<string>();
+        public NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates, bool solarPanelsIneffectiveMessageToggle, bool vesselLeftCommunicationRangeMessageToggle, bool vesselThrottleLockedDueToTimewarpingMessageToggle, bool cannotPlaceManeuverNodeWhileOutOfFuelMessageToggle, bool gamePauseToggledMessageToggle, long sentOn)
         {
-            this.pluginLib = pluginLib;
+            this.mainPlugin = mainPlugin;
             this.notificationStates = notificationStates;
             SolarPanelsIneffectiveMessageToggle = solarPanelsIneffectiveMessageToggle;
             VesselLeftCommunicationRangeMessageToggle = vesselLeftCommunicationRangeMessageToggle;
@@ -32,105 +25,68 @@ namespace ToggleNotifications.TNTools.UI
             CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle = cannotPlaceManeuverNodeWhileOutOfFuelMessageToggle;
             GamePauseToggledMessageToggle = gamePauseToggledMessageToggle;
             SentOn = sentOn;
-        }
-        public NotificationToggle()
-        {
-            notificationStates = new Dictionary<NotificationType, bool>
-            {
-                { NotificationType.SolarPanelsIneffectiveMessage, false },
-                { NotificationType.VesselLeftCommunicationRangeMessage, false },
-                { NotificationType.VesselThrottleLockedDueToTimewarpingMessage, false },
-                { NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, false },
-                { NotificationType.GamePauseToggledMessage, false }
-            };
+
+            // Add the names of the notifications to the list
+            NotificationList.Add("Solar Panels Ineffective");
+            NotificationList.Add("Vessel Left Communication Range");
+            NotificationList.Add("Vessel Throttle Locked Due to Timewarping");
+            NotificationList.Add("Cannot Place Maneuver Node While Out of Fuel");
+            NotificationList.Add("Game Pause Toggled");
         }
 
-        public void UpdateCurrentStates()
+        public bool GetNotificationState(NotificationType notificationType)
         {
-            pluginLib.UpdateCurrentStates();
+            return notificationStates.TryGetValue(notificationType, out bool state) ? state : false;
         }
-        public bool GetNotificationState(string notificationKey)
-        {
-            switch (notificationKey)
-            {
-                case "SolarPanelsIneffectiveMessage":
-                    return TNSettings.SolarPanelsIneffectiveMessage;
-                case "VesselLeftCommunicationRangeMessage":
-                    return TNSettings.VesselLeftCommunicationRangeMessage;
-                case "VesselThrottleLockedDueToTimewarpingMessage":
-                    return TNSettings.VesselThrottleLockedDueToTimewarpingMessage;
-                case "CannotPlaceManeuverNodeWhileOutOfFuelMessage":
-                    return TNSettings.CannotPlaceManeuverNodeWhileOutOfFuelMessage;
-                case "GamePauseToggledMessage":
-                    return TNSettings.GamePauseToggledMessage;
-                default:
-                    return false;
-            }
-        }
-        public void SetNotificationState(string notificationKey, bool currentState)
-        {
-            if (Enum.TryParse(notificationKey, out NotificationType notificationType))
-            {
-                notificationStates[notificationType] = currentState;
 
-                switch (notificationType)
-                {
-                    case NotificationType.SolarPanelsIneffectiveMessage:
-                        TNSettings.SolarPanelsIneffectiveMessage = currentState;
-                        break;
-                    case NotificationType.VesselLeftCommunicationRangeMessage:
-                        TNSettings.VesselLeftCommunicationRangeMessage = currentState;
-                        break;
-                    case NotificationType.VesselThrottleLockedDueToTimewarpingMessage:
-                        TNSettings.VesselThrottleLockedDueToTimewarpingMessage = currentState;
-                        break;
-                    case NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage:
-                        TNSettings.CannotPlaceManeuverNodeWhileOutOfFuelMessage = currentState;
-                        break;
-                    case NotificationType.GamePauseToggledMessage:
-                        TNSettings.GamePauseToggledMessage = currentState;
-                        break;
-                }
-            }
-            else
-            {
-                Debug.LogError($"Invalid notificationKey: {notificationKey}");
-                UpdateCurrentStates();
-            }
-        }
         public void SetNotificationState(NotificationType notificationType, bool currentState)
         {
             notificationStates[notificationType] = currentState;
+
+            switch (notificationType)
+            {
+                case NotificationType.SolarPanelsIneffectiveMessage:
+                    SolarPanelsIneffectiveMessageToggle = currentState;
+                    break;
+                case NotificationType.VesselLeftCommunicationRangeMessage:
+                    VesselLeftCommunicationRangeMessageToggle = currentState;
+                    break;
+                case NotificationType.VesselThrottleLockedDueToTimewarpingMessage:
+                    VesselThrottleLockedDueToTimewarpingMessageToggle = currentState;
+                    break;
+                case NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage:
+                    CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle = currentState;
+                    break;
+                case NotificationType.GamePauseToggledMessage:
+                    GamePauseToggledMessageToggle = currentState;
+                    break;
+            }
         }
-        public void SetAllNotificationsState(bool currentState)
+        public void UpdateCurrentStates()
         {
-            SetNotificationState("SolarPanelsIneffectiveMessage", currentState);
-            SetNotificationState("VesselLeftCommunicationRangeMessage", currentState);
-            SetNotificationState("VesselThrottleLockedDueToTimewarpingMessage", currentState);
-            SetNotificationState("CannotPlaceManeuverNodeWhileOutOfFuelMessage", currentState);
-            SetNotificationState("GamePauseToggledMessage", currentState);
+            mainPlugin.SetNotificationState(NotificationType.SolarPanelsIneffectiveMessage, SolarPanelsIneffectiveMessageToggle);
+            mainPlugin.SetNotificationState(NotificationType.VesselLeftCommunicationRangeMessage, VesselLeftCommunicationRangeMessageToggle);
+            mainPlugin.SetNotificationState(NotificationType.VesselThrottleLockedDueToTimewarpingMessage, VesselThrottleLockedDueToTimewarpingMessageToggle);
+            mainPlugin.SetNotificationState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle);
+            mainPlugin.SetNotificationState(NotificationType.GamePauseToggledMessage, GamePauseToggledMessageToggle);
         }
-        public void SetSolarPanelState(bool currentState)
+        public bool ListGUI()
         {
-            SetNotificationState(NotificationType.SolarPanelsIneffectiveMessage, currentState);
+            GUI.enabled = true;
+
+            GUILayout.Label("Notification Options:");
+
+            SolarPanelsIneffectiveMessageToggle = GUILayout.Toggle(SolarPanelsIneffectiveMessageToggle, "Solar Panels Ineffective");
+            VesselLeftCommunicationRangeMessageToggle = GUILayout.Toggle(VesselLeftCommunicationRangeMessageToggle, "Vessel Left Communication Range");
+            VesselThrottleLockedDueToTimewarpingMessageToggle = GUILayout.Toggle(VesselThrottleLockedDueToTimewarpingMessageToggle, "Vessel Throttle Locked Due to Timewarping");
+            CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle = GUILayout.Toggle(CannotPlaceManeuverNodeWhileOutOfFuelMessageToggle, "Cannot Place Maneuver Node While Out of Fuel");
+            GamePauseToggledMessageToggle = GUILayout.Toggle(GamePauseToggledMessageToggle, "Game Pause Toggled");
+
+            // Update the notification states based on the toggle options
+            UpdateCurrentStates();
+
+            return true; // Indicate that a change has occurred
         }
-        public void SetCommunicationRangeState(bool currentState)
-        {
-            SetNotificationState(NotificationType.VesselLeftCommunicationRangeMessage, currentState);
-        }
-        public void SetThrottleLockedWarpState(bool currentState)
-        {
-            SetNotificationState(NotificationType.VesselThrottleLockedDueToTimewarpingMessage, currentState);
-        }
-        public void SetManeuverNodeOutOfFuelState(bool currentState)
-        {
-            SetNotificationState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, currentState);
-        }
-        public void SetGamePauseToggledState(bool currentState)
-        {
-            SetNotificationState(NotificationType.GamePauseToggledMessage, currentState);
-        }
-        // Notifications
         public enum NotificationType
         {
             SolarPanelsIneffectiveMessage,
@@ -139,87 +95,6 @@ namespace ToggleNotifications.TNTools.UI
             CannotPlaceManeuverNodeWhileOutOfFuelMessage,
             GamePauseToggledMessage,
             None
-        }
-    }
-
-    [HarmonyPatch(typeof(NotificationEvents))]
-    public static class ToggleNotificationPatch
-    {
-        private static readonly NotificationToggle notificationToggle = new NotificationToggle();
-
-        public static NotificationToggle NotificationToggle => notificationToggle;
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(NotificationEvents.SolarPanelsIneffectiveMessage))]
-        public static bool SolarPanelsIneffectiveMessage(NotificationEvents __instance)
-        {
-            return !NotificationToggle.GetNotificationState("SolarPanelsIneffectiveMessage");
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(NotificationEvents.VesselLeftCommunicationRangeMessage))]
-        public static bool VesselLeftCommunicationRangeMessage(NotificationEvents __instance)
-        {
-            return !NotificationToggle.GetNotificationState("VesselLeftCommunicationRangeMessage");
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(NotificationEvents.VesselThrottleLockedDueToTimewarpingMessage))]
-        public static bool VesselThrottleLockedDueToTimewarpingMessage(NotificationEvents __instance)
-        {
-            return !NotificationToggle.GetNotificationState("VesselThrottleLockedDueToTimewarpingMessage");
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(NotificationEvents.CannotPlaceManeuverNodeWhileOutOfFuelMessage))]
-        public static bool CannotPlaceManeuverNodeWhileOutOfFuelMessage(NotificationEvents __instance)
-        {
-            return !NotificationToggle.GetNotificationState("CannotPlaceManeuverNodeWhileOutOfFuelMessage");
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(NotificationEvents.GamePauseToggledMessage))]
-        public static bool GamePauseToggledMessage(NotificationEvents __instance)
-        {
-            return !NotificationToggle.GetNotificationState("GamePauseToggledMessage");
-        }
-    }
-    public class NotificationTogglePage : BasePageContent
-    {
-        private readonly NotificationToggle notificationToggle;
-        public NotificationTogglePage(ToggleNotificationsPlugin mainPlugin) : base(mainPlugin)
-        {
-            notificationToggle = ToggleNotificationsPlugin.Instance.notificationToggle;
-            notificationToggle.SetAllNotificationsState(false);
-            notificationToggle.SetSolarPanelState(true);
-        }
-
-        public override string Name => "Notification Toggle";
-
-        public override GUIContent Icon => new GUIContent("Icon");
-
-        public override bool IsActive => notificationToggle.GetNotificationState("SolarPanelsIneffectiveMessage");
-
-        public override void OnGUI()
-        {
-            // Implement the code to show the notification toggle page
-        }
-        protected override void NotificationChange(NotificationToggle newToggle)
-        {
-            bool solarPanelNotification = newToggle.GetNotificationState("SolarPanelsIneffectiveMessage");
-            if (solarPanelNotification)
-            {
-                SwitchToPage(0);
-            }
-            else
-            {
-                SwitchToPage(1);
-            }
-        }
-
-        private void SwitchToPage(int v)
-        {
-            throw new NotImplementedException();
         }
     }
 }

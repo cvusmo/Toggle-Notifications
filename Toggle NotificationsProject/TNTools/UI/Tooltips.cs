@@ -1,61 +1,54 @@
 ﻿using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
-namespace ToggleNotifications.TNTools.UI;
-
-public class ToolTipsManager
+namespace ToggleNotifications.TNTools.UI
 {
-
-    public static void SetToolTip(string tooltip)
+    public class ToolTipsManager
     {
-        if (Event.current.type == EventType.Repaint)
-        {
-            if (LastToolTip != tooltip)
-            {
-                //Debug.Log("changed");
+        private static float ShowTime;
+        private const float DELAY = 0.5f;
+        private static bool Show = false;
+        private static Vector2 Offset = new Vector2(20f, 10f);
+        private static string LastToolTip;
+        private static string DrawToolTip;
 
+        public static void SetToolTip(string tooltip)
+        {
+            if (Event.current.type != EventType.Repaint)
+                return;
+            if (ToolTipsManager.LastToolTip != tooltip)
+            {
                 if (!string.IsNullOrEmpty(tooltip))
                 {
-                    Show = true;
-                    ShowTime = Time.time + DELAY;
-                    DrawToolTip = tooltip;
+                    ToolTipsManager.Show = true;
+                    ToolTipsManager.ShowTime = Time.time + 0.5f;
+                    ToolTipsManager.DrawToolTip = tooltip;
                 }
                 else
-                {
-                    Show = false;
-                }
+                    ToolTipsManager.Show = false;
             }
-
-            LastToolTip = tooltip;
+            ToolTipsManager.LastToolTip = tooltip;
         }
-    }
 
-    static float ShowTime;
-    const float DELAY = 0.5f;
-    static bool Show = false;
-
-    static Vector2 Offset = new Vector2(20, 10);
-
-    static string LastToolTip;
-    static string DrawToolTip;
-    public static void DrawToolTips()
-    {
-        if (!Show)
-            return;
-
-        if (Time.time > ShowTime)
+        public static void DrawToolTips()
         {
-            GUI.skin.button.CalcMinMaxWidth(new GUIContent(DrawToolTip), out float _minWidth, out float _maxWidth);
-            Rect _tooltipPos = new Rect(Input.mousePosition.x + Offset.x, Screen.height - Input.mousePosition.y + Offset.y, _maxWidth, 10);
-            WindowTool.CheckWindowPos(ref _tooltipPos);
+            if (!Show)
+                return;
 
-            GUILayout.Window(3, _tooltipPos, WindowFunction, "", GUI.skin.button);
+            if (Time.time > ShowTime)
+            {
+                GUI.skin.button.CalcMinMaxWidth(new GUIContent(DrawToolTip), out float _minWidth, out float _maxWidth);
+                Rect _tooltipPos = new Rect(Input.mousePosition.x + Offset.x, Screen.height - Input.mousePosition.y + Offset.y, _maxWidth, 10);
+                WindowTool.CheckWindowPos(ref _tooltipPos);
+
+                GUILayout.Window(3, _tooltipPos, WindowFunction, "", GUI.skin.button);
+            }
         }
-    }
 
-    static void WindowFunction(int windowID)
-    {
-        //Debug.Log(DrawToolTip);
-        GUILayout.Label(DrawToolTip);
+        static void WindowFunction(int windowID)
+        {
+            //Debug.Log(DrawToolTip);
+            GUILayout.Label(DrawToolTip);
+        }
     }
 }

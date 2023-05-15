@@ -1,489 +1,384 @@
 ﻿using SpaceWarp.API.UI;
 using UnityEngine;
 
-namespace ToggleNotifications.TNTools.UI;
-
-public class TNBaseStyle
+namespace ToggleNotifications.TNTools.UI
 {
-    public static bool Init()
+    public class TNBaseStyle
     {
-        return BuildStyles();
-    }
+        public static GUISkin Skin;
+        private static bool guiLoaded;
+        public static GUIStyle Error;
+        public static GUIStyle Warning;
+        public static GUIStyle Label;
+        public static GUIStyle MidText;
+        public static GUIStyle ConsoleText;
+        public static GUIStyle PhaseOk;
+        public static GUIStyle PhaseWarning;
+        public static GUIStyle PhaseError;
+        public static GUIStyle IconsLabel;
+        public static GUIStyle Title;
+        public static GUIStyle SliderText;
+        public static GUIStyle TextInputStyle;
+        public static GUIStyle NameLabelStyle;
+        public static GUIStyle ValueLabelStyle;
+        public static GUIStyle UnitLabelStyle;
+        public static string UnitColorHex;
+        public static GUIStyle Separator;
+        public static GUIStyle SliderLine;
+        public static GUIStyle SliderNode;
+        public static Texture2D Gear;
+        public static Texture2D Icon;
+        public static Texture2D TNIcon;
+        public static Texture2D Cross;
+        public static GUIStyle ProgressBarEmpty;
+        public static GUIStyle ProgressBarFull;
+        public static GUIStyle BigiconButton;
+        public static GUIStyle IconButton;
+        public static GUIStyle SmallButton;
+        public static GUIStyle BigButton;
+        public static GUIStyle Button;
+        public static GUIStyle CtrlButton;
+        public static GUIStyle TabNormal;
+        public static GUIStyle TabActive;
+        public static GUIStyle FoldoutClose;
+        public static GUIStyle FoldoutOpen;
+        public static GUIStyle Toggle;
+        public static GUIStyle ToggleError;
 
-    public static GUISkin Skin;
-    private static bool guiLoaded = false;
+        public static bool Init() => TNBaseStyle.BuildStyles();
 
-    public static bool BuildStyles()
-    {
-        if (guiLoaded)
+        public static bool BuildStyles()
+        {
+            Debug.Log("BuildStyle is being called!");
+            if (TNBaseStyle.guiLoaded)
+                return true;
+            TNBaseStyle.Skin = TNBaseStyle.CopySkin(Skins.ConsoleSkin);
+            TNBaseStyle.BuildFrames();
+            TNBaseStyle.BuildSliders();
+            TNBaseStyle.BuildButtons();
+            TNBaseStyle.BuildTabs();
+            TNBaseStyle.BuildFoldout();
+            TNBaseStyle.BuildToggle();
+            TNBaseStyle.BuildProgressBar();
+            TNBaseStyle.BuildIcons();
+            TNBaseStyle.BuildLabels();
+            TNBaseStyle.guiLoaded = true;
             return true;
+        }
 
-        Skin = CopySkin(Skins.ConsoleSkin);
-
-        BuildFrames();
-        BuildSliders();
-        BuildButtons();
-        BuildTabs();
-        BuildFoldout();
-        BuildToggle();
-        BuildProgressBar();
-        BuildIcons();
-        BuildLabels();
-
-        guiLoaded = true;
-        return true;
-    }
-
-    public static GUIStyle Error, Warning, Label, MidText, ConsoleText, PhaseOk, PhaseWarning, PhaseError;
-    public static GUIStyle IconsLabel, Title, SliderText, TextInputStyle, NameLabelStyle, ValueLabelStyle, UnitLabelStyle;
-    public static string UnitColorHex;
-
-    static void BuildLabels()
-    {
-
-        IconsLabel = new GUIStyle(GUI.skin.GetStyle("Label"))
+        private static void BuildLabels()
         {
-            border = new RectOffset(0, 0, 0, 0),
-            padding = new RectOffset(0, 0, 0, 0),
-            margin = new RectOffset(0, 0, 0, 0),
-            overflow = new RectOffset(0, 0, 0, 0)
-        };
+            TNBaseStyle.IconsLabel = new GUIStyle(GUI.skin.GetStyle("Label"))
+            {
+                border = new RectOffset(0, 0, 0, 0),
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 0, 0),
+                overflow = new RectOffset(0, 0, 0, 0)
+            };
+            TNBaseStyle.Error = new GUIStyle(GUI.skin.GetStyle("Label"));
+            TNBaseStyle.Warning = new GUIStyle(GUI.skin.GetStyle("Label"));
+            TNBaseStyle.Error.normal.textColor = Color.red;
+            TNBaseStyle.Warning.normal.textColor = Color.yellow;
+            TNBaseStyle.PhaseOk = new GUIStyle(GUI.skin.GetStyle("Label"));
+            TNBaseStyle.PhaseOk.normal.textColor = ColorTools.ParseColor("#00BC16");
+            TNBaseStyle.PhaseWarning = new GUIStyle(GUI.skin.GetStyle("Label"));
+            TNBaseStyle.PhaseWarning.normal.textColor = ColorTools.ParseColor("#BC9200");
+            TNBaseStyle.PhaseError = new GUIStyle(GUI.skin.GetStyle("Label"));
+            TNBaseStyle.PhaseError.normal.textColor = ColorTools.ParseColor("#B30F0F");
+            TNBaseStyle.ConsoleText = new GUIStyle(GUI.skin.GetStyle("Label"));
+            TNBaseStyle.ConsoleText.normal.textColor = ColorTools.ParseColor("#B6B8FA");
+            TNBaseStyle.ConsoleText.padding = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.ConsoleText.margin = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.SliderText = new GUIStyle(TNBaseStyle.ConsoleText);
+            TNBaseStyle.SliderText.normal.textColor = ColorTools.ParseColor("#C0C1E2");
+            TNBaseStyle.MidText = new GUIStyle(TNBaseStyle.SliderText);
+            TNBaseStyle.SliderText.margin = new RectOffset(5, 0, 0, 0);
+            TNBaseStyle.SliderText.contentOffset = new Vector2(8f, 5f);
+            TNBaseStyle.Label = new GUIStyle(GUI.skin.GetStyle("Label"))
+            {
+                margin = new RectOffset(0, 0, 0, 0),
+                padding = new RectOffset(0, 0, 0, 0)
+            };
+            TNBaseStyle.Title = new GUIStyle();
+            TNBaseStyle.Title.normal.textColor = ColorTools.ParseColor("#C0C1E2");
+            TNBaseStyle.TextInputStyle = new GUIStyle(GUI.skin.GetStyle("textField"))
+            {
+                alignment = TextAnchor.LowerCenter,
+                padding = new RectOffset(10, 10, 0, 0),
+                contentOffset = new Vector2(0.0f, 2f),
+                fixedHeight = 18f,
+                fixedWidth = 90f,
+                clipping = TextClipping.Overflow,
+                margin = new RectOffset(0, 0, 2, 0)
+            };
+            TNBaseStyle.NameLabelStyle = new GUIStyle(GUI.skin.GetStyle("Label"));
+            TNBaseStyle.NameLabelStyle.border = new RectOffset(0, 0, 5, 5);
+            TNBaseStyle.NameLabelStyle.padding = new RectOffset(0, 0, 4, 4);
+            TNBaseStyle.NameLabelStyle.overflow = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.ValueLabelStyle = new GUIStyle(GUI.skin.GetStyle("Label"))
+            {
+                alignment = TextAnchor.MiddleRight
+            };
+            TNBaseStyle.UnitLabelStyle = new GUIStyle(TNBaseStyle.ValueLabelStyle)
+            {
+                fixedWidth = 24f,
+                alignment = TextAnchor.MiddleLeft
+            };
+            TNBaseStyle.UnitLabelStyle.normal.textColor = new Color(0.7f, 0.75f, 0.75f, 1f);
+            TNBaseStyle.UnitLabelStyle.border = new RectOffset(0, 0, 5, 5);
+            TNBaseStyle.UnitLabelStyle.padding = new RectOffset(0, 0, 4, 4);
+            TNBaseStyle.UnitLabelStyle.overflow = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.UnitColorHex = ColorUtility.ToHtmlStringRGBA(TNBaseStyle.UnitLabelStyle.normal.textColor);
+        }
 
-        Error = new GUIStyle(GUI.skin.GetStyle("Label"));
-        Warning = new GUIStyle(GUI.skin.GetStyle("Label"));
-        Error.normal.textColor = Color.red;
-        Warning.normal.textColor = Color.yellow;
-        //labelColor = GUI.Skin.GetStyle("Label").normal.textColor;
-
-        PhaseOk = new GUIStyle(GUI.skin.GetStyle("Label"));
-        PhaseOk.normal.textColor = ColorTools.ParseColor("#00BC16");
-        // PhaseOk.fontSize = 20;
-
-        PhaseWarning = new GUIStyle(GUI.skin.GetStyle("Label"));
-        PhaseWarning.normal.textColor = ColorTools.ParseColor("#BC9200");
-        // PhaseWarning.fontSize = 20;
-
-        PhaseError = new GUIStyle(GUI.skin.GetStyle("Label"));
-        PhaseError.normal.textColor = ColorTools.ParseColor("#B30F0F");
-        // PhaseError.fontSize = 20;
-
-        ConsoleText = new GUIStyle(GUI.skin.GetStyle("Label"));
-        ConsoleText.normal.textColor = ColorTools.ParseColor("#B6B8FA");
-        // ConsoleText.fontSize = 15;
-        ConsoleText.padding = new RectOffset(0, 0, 0, 0);
-        ConsoleText.margin = new RectOffset(0, 0, 0, 0);
-
-        SliderText = new GUIStyle(ConsoleText);
-        SliderText.normal.textColor = ColorTools.ParseColor("#C0C1E2");
-
-        MidText = new GUIStyle(SliderText);
-
-        SliderText.margin = new RectOffset(5, 0, 0, 0);
-        SliderText.contentOffset = new Vector2(8, 5);
-
-        Label = new GUIStyle(GUI.skin.GetStyle("Label"))
+        private static void BuildFrames()
         {
-            // Label.fontSize = 17;
-            margin = new RectOffset(0, 0, 0, 0),
-            padding = new RectOffset(0, 0, 0, 0)
-        };
+            GUIStyle guiStyle = new GUIStyle(TNBaseStyle.Skin.window)
+            {
+                border = new RectOffset(25, 25, 35, 25),
+                margin = new RectOffset(0, 0, 0, 0),
+                padding = new RectOffset(10, 10, 44, 10),
+                overflow = new RectOffset(0, 0, 0, 0),
+                contentOffset = new Vector2(31f, -40f)
+            };
+            guiStyle.normal.background = AssetsLoader.LoadIcon("window");
+            guiStyle.normal.textColor = Color.black;
+            TNBaseStyle.SetAllFromNormal(guiStyle);
+            guiStyle.alignment = TextAnchor.UpperLeft;
+            guiStyle.stretchWidth = true;
+            guiStyle.contentOffset = new Vector2(31f, -40f);
+            TNBaseStyle.Skin.window = guiStyle;
+            GUIStyle style1 = new GUIStyle(guiStyle);
+            style1.normal.background = AssetsLoader.LoadIcon("Box");
+            TNBaseStyle.SetAllFromNormal(style1);
+            style1.border = new RectOffset(10, 10, 10, 10);
+            style1.margin = new RectOffset(0, 0, 0, 0);
+            style1.padding = new RectOffset(10, 10, 10, 10);
+            style1.overflow = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.Skin.box = style1;
+            TNBaseStyle.Skin.scrollView = style1;
+            GUIStyle style2 = new GUIStyle(GUI.skin.verticalScrollbar);
+            style2.normal.background = AssetsLoader.LoadIcon("VerticalScroll");
+            TNBaseStyle.SetAllFromNormal(style2);
+            style2.border = new RectOffset(5, 5, 5, 5);
+            style2.fixedWidth = 10f;
+            TNBaseStyle.Skin.verticalScrollbar = style2;
+            GUIStyle style3 = new GUIStyle(GUI.skin.verticalScrollbarThumb);
+            style3.normal.background = AssetsLoader.LoadIcon("VerticalScroll_thumb");
+            TNBaseStyle.SetAllFromNormal(style3);
+            style3.border = new RectOffset(5, 5, 5, 5);
+            style3.fixedWidth = 10f;
+            TNBaseStyle.Skin.verticalScrollbarThumb = style3;
+            TNBaseStyle.Separator = new GUIStyle(GUI.skin.box);
+            TNBaseStyle.Separator.normal.background = AssetsLoader.LoadIcon("line");
+            TNBaseStyle.Separator.border = new RectOffset(2, 2, 0, 0);
+            TNBaseStyle.Separator.margin = new RectOffset(10, 10, 5, 5);
+            TNBaseStyle.Separator.fixedHeight = 3f;
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.Separator);
+        }
 
-        Title = new GUIStyle();
-        Title.normal.textColor = ColorTools.ParseColor("#C0C1E2");
-        // Title.fontSize = 19;
-
-        TextInputStyle = new GUIStyle(GUI.skin.GetStyle("textField")) // was (_spaceWarpUISkin.textField)
+        private static void BuildSliders()
         {
-            alignment = TextAnchor.LowerCenter,
-            padding = new RectOffset(10, 10, 0, 0),
-            contentOffset = new Vector2(0, 2),
-            fixedHeight = 18,
-            fixedWidth = 90, //(float)(windowWidth / 4),
-            clipping = TextClipping.Overflow,
-            margin = new RectOffset(0, 0, 2, 0)
-        };
+            TNBaseStyle.SliderLine = new GUIStyle(GUI.skin.horizontalSlider);
+            TNBaseStyle.SliderLine.normal.background = AssetsLoader.LoadIcon("Slider");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.SliderLine);
+            TNBaseStyle.SliderLine.border = new RectOffset(5, 5, 0, 0);
+            TNBaseStyle.SliderLine.border = new RectOffset(12, 14, 0, 0);
+            TNBaseStyle.SliderLine.fixedWidth = 0.0f;
+            TNBaseStyle.SliderLine.fixedHeight = 21f;
+            TNBaseStyle.SliderLine.margin = new RectOffset(0, 0, 2, 5);
+            TNBaseStyle.SliderNode = new GUIStyle(GUI.skin.horizontalSliderThumb);
+            TNBaseStyle.SliderNode.normal.background = AssetsLoader.LoadIcon("SliderNode");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.SliderNode);
+            TNBaseStyle.SliderNode.border = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.SliderNode.fixedWidth = 21f;
+            TNBaseStyle.SliderNode.fixedHeight = 21f;
+        }
 
-        NameLabelStyle = new GUIStyle(GUI.skin.GetStyle("Label")); // was (_spaceWarpUISkin.Label);
-        // NameLabelStyle.normal.textColor = new Color(.7f, .75f, .75f, 1);
-        NameLabelStyle.border = new RectOffset(0, 0, 5, 5);
-        NameLabelStyle.padding = new RectOffset(0, 0, 4, 4);
-        NameLabelStyle.overflow = new RectOffset(0, 0, 0, 0);
-
-        ValueLabelStyle = new GUIStyle(GUI.skin.GetStyle("Label")) // was (_spaceWarpUISkin.Label)
+        private static void BuildIcons()
         {
-            alignment = TextAnchor.MiddleRight
-        };
-        // ValueLabelStyle.normal.textColor = new Color(.6f, .7f, 1, 1);
+            TNBaseStyle.Gear = AssetsLoader.LoadIcon("Gear");
+            TNBaseStyle.Icon = AssetsLoader.LoadIcon("Icon");
+            TNBaseStyle.Cross = AssetsLoader.LoadIcon("Cross");
+        }
 
-        UnitLabelStyle = new GUIStyle(ValueLabelStyle)
+        private static void BuildProgressBar()
         {
-            fixedWidth = 24,
-            alignment = TextAnchor.MiddleLeft
-        };
-        UnitLabelStyle.normal.textColor = new Color(.7f, .75f, .75f, 1);
-        UnitLabelStyle.border = new RectOffset(0, 0, 5, 5);
-        UnitLabelStyle.padding = new RectOffset(0, 0, 4, 4);
-        UnitLabelStyle.overflow = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.ProgressBarEmpty = new GUIStyle(GUI.skin.box);
+            TNBaseStyle.ProgressBarEmpty.normal.background = AssetsLoader.LoadIcon("progress_empty");
+            TNBaseStyle.ProgressBarEmpty.border = new RectOffset(2, 2, 2, 2);
+            TNBaseStyle.ProgressBarEmpty.margin = new RectOffset(5, 5, 5, 5);
+            TNBaseStyle.ProgressBarEmpty.fixedHeight = 20f;
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.ProgressBarEmpty);
+            TNBaseStyle.ProgressBarFull = new GUIStyle(TNBaseStyle.ProgressBarEmpty);
+            TNBaseStyle.ProgressBarFull.normal.background = AssetsLoader.LoadIcon("progress_full");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.ProgressBarEmpty);
+        }
 
-        UnitColorHex = ColorUtility.ToHtmlStringRGBA(UnitLabelStyle.normal.textColor);
-
-    }
-
-    public static GUIStyle Separator;
-    static void BuildFrames()
-    {
-        // Define the GUIStyle for the window
-        GUIStyle window = new GUIStyle(Skin.window)
+        private static void BuildButtons()
         {
-            border = new RectOffset(25, 25, 35, 25),
-            margin = new RectOffset(0, 0, 0, 0),
-            padding = new RectOffset(10, 10, 44, 10),
-            overflow = new RectOffset(0, 0, 0, 0),
+            TNBaseStyle.Button = new GUIStyle(GUI.skin.GetStyle("Button"));
+            TNBaseStyle.Button.normal.background = AssetsLoader.LoadIcon("BigButton_Normal");
+            TNBaseStyle.Button.normal.textColor = ColorTools.ParseColor("#FFFFFF");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.Button);
+            TNBaseStyle.Button.hover.background = AssetsLoader.LoadIcon("BigButton_hover");
+            TNBaseStyle.Button.active.background = AssetsLoader.LoadIcon("BigButton_hover");
+            TNBaseStyle.Button.border = new RectOffset(5, 5, 5, 5);
+            TNBaseStyle.Button.padding = new RectOffset(4, 4, 4, 4);
+            TNBaseStyle.Button.overflow = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.Button.alignment = TextAnchor.MiddleCenter;
+            TNBaseStyle.Skin.button = TNBaseStyle.Button;
+            TNBaseStyle.SmallButton = new GUIStyle(GUI.skin.GetStyle("Button"));
+            TNBaseStyle.SmallButton.normal.background = AssetsLoader.LoadIcon("Small_Button");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.SmallButton);
+            TNBaseStyle.SmallButton.hover.background = AssetsLoader.LoadIcon("Small_Button_hover");
+            TNBaseStyle.SmallButton.active.background = AssetsLoader.LoadIcon("Small_Button_active");
+            TNBaseStyle.SmallButton.onNormal = TNBaseStyle.SmallButton.active;
+            TNBaseStyle.SetFromOn(TNBaseStyle.SmallButton);
+            TNBaseStyle.SmallButton.border = new RectOffset(5, 5, 5, 5);
+            TNBaseStyle.SmallButton.padding = new RectOffset(2, 2, 2, 2);
+            TNBaseStyle.SmallButton.overflow = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.SmallButton.alignment = TextAnchor.MiddleCenter;
+            TNBaseStyle.BigButton = new GUIStyle(GUI.skin.GetStyle("Button"));
+            TNBaseStyle.BigButton.normal.background = AssetsLoader.LoadIcon("BigButton_Normal");
+            TNBaseStyle.BigButton.normal.textColor = ColorTools.ParseColor("#FFFFFF");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.BigButton);
+            TNBaseStyle.BigButton.hover.background = AssetsLoader.LoadIcon("BigButton_Hover");
+            TNBaseStyle.BigButton.active.background = AssetsLoader.LoadIcon("BigButton_Active");
+            TNBaseStyle.BigButton.onNormal = TNBaseStyle.BigButton.active;
+            TNBaseStyle.SetFromOn(TNBaseStyle.BigButton);
+            TNBaseStyle.BigButton.border = new RectOffset(5, 5, 5, 5);
+            TNBaseStyle.BigButton.padding = new RectOffset(8, 8, 10, 10);
+            TNBaseStyle.BigButton.overflow = new RectOffset(0, 0, 0, 0);
+            TNBaseStyle.BigButton.alignment = TextAnchor.MiddleCenter;
+            TNBaseStyle.IconButton = new GUIStyle(TNBaseStyle.SmallButton)
+            {
+                padding = new RectOffset(4, 4, 4, 4)
+            };
+            TNBaseStyle.BigiconButton = new GUIStyle(TNBaseStyle.IconButton)
+            {
+                fixedWidth = 50f,
+                fixedHeight = 50f,
+                fontStyle = FontStyle.Bold
+            };
+            TNBaseStyle.CtrlButton = new GUIStyle(TNBaseStyle.SmallButton)
+            {
+                fixedHeight = 16f
+            };
+            TNBaseStyle.CtrlButton.normal.background = AssetsLoader.LoadIcon("Small_Button");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.CtrlButton);
+            TNBaseStyle.CtrlButton.hover.background = AssetsLoader.LoadIcon("Small_Button_hover");
+            TNBaseStyle.CtrlButton.active.background = AssetsLoader.LoadIcon("Small_Button_active");
+            TNBaseStyle.CtrlButton.onNormal = TNBaseStyle.CtrlButton.active;
+            TNBaseStyle.SetFromOn(TNBaseStyle.CtrlButton);
+        }
 
-            // window.fontSize = 20;
-            contentOffset = new Vector2(31, -40)
-        };
-
-        // Set the background color of the window
-        window.normal.background = AssetsLoader.LoadIcon("window");
-        window.normal.textColor = Color.black;
-        SetAllFromNormal(window);
-        window.alignment = TextAnchor.UpperLeft;
-        window.stretchWidth = true;
-        // window.fontSize = 20;
-        window.contentOffset = new Vector2(31, -40);
-        Skin.window = window;
-
-        // Define the GUIStyle for the _box
-        GUIStyle _box = new(window);
-        _box.normal.background = AssetsLoader.LoadIcon("Box");
-        SetAllFromNormal(_box);
-        _box.border = new RectOffset(10, 10, 10, 10);
-        _box.margin = new RectOffset(0, 0, 0, 0);
-        _box.padding = new RectOffset(10, 10, 10, 10);
-        _box.overflow = new RectOffset(0, 0, 0, 0);
-        Skin.box = _box;
-        Skin.scrollView = _box;
-
-
-        // define the V scrollbar
-        GUIStyle _verticalScrollbar = new GUIStyle(GUI.skin.verticalScrollbar);
-
-        _verticalScrollbar.normal.background = AssetsLoader.LoadIcon("VerticalScroll");
-        SetAllFromNormal(_verticalScrollbar);
-        _verticalScrollbar.border = new RectOffset(5, 5, 5, 5);
-        _verticalScrollbar.fixedWidth = 10;
-
-        Skin.verticalScrollbar = _verticalScrollbar;
-
-        GUIStyle _verticalScrollbarThumb = new(GUI.skin.verticalScrollbarThumb);
-
-        _verticalScrollbarThumb.normal.background = AssetsLoader.LoadIcon("VerticalScroll_thumb");
-        SetAllFromNormal(_verticalScrollbarThumb);
-        _verticalScrollbarThumb.border = new RectOffset(5, 5, 5, 5);
-        _verticalScrollbarThumb.fixedWidth = 10;
-
-        Skin.verticalScrollbarThumb = _verticalScrollbarThumb;
-
-        // Separator
-        Separator = new GUIStyle(GUI.skin.box);
-        Separator.normal.background = AssetsLoader.LoadIcon("line");
-        Separator.border = new RectOffset(2, 2, 0, 0);
-        Separator.margin = new RectOffset(10, 10, 5, 5);
-        Separator.fixedHeight = 3;
-        SetAllFromNormal(Separator);
-    }
-
-    public static GUIStyle SliderLine, SliderNode;
-
-    static void BuildSliders()
-    {
-        SliderLine = new GUIStyle(GUI.skin.horizontalSlider);
-        SliderLine.normal.background = AssetsLoader.LoadIcon("Slider");
-        SetAllFromNormal(SliderLine);
-        SliderLine.border = new RectOffset(5, 5, 0, 0);
-
-        SliderLine.border = new RectOffset(12, 14, 0, 0);
-        SliderLine.fixedWidth = 0;
-        SliderLine.fixedHeight = 21;
-        SliderLine.margin = new RectOffset(0, 0, 2, 5);
-
-        SliderNode = new GUIStyle(GUI.skin.horizontalSliderThumb);
-        SliderNode.normal.background = AssetsLoader.LoadIcon("SliderNode");
-        SetAllFromNormal(SliderNode);
-        SliderNode.border = new RectOffset(0, 0, 0, 0);
-        SliderNode.fixedWidth = 21;
-        SliderNode.fixedHeight = 21;
-
-    }
-
-    // icons
-    public static Texture2D Gear, Icon, MNCIcon, Cross;
-
-    static void BuildIcons()
-    {
-        // icons
-        Gear = AssetsLoader.LoadIcon("Gear");
-        Icon = AssetsLoader.LoadIcon("Icon");
-
-        // MNCIcon = AssetsLoader.LoadIcon("mnc_new_icon_50");
-        Cross = AssetsLoader.LoadIcon("Cross");
-    }
-
-    public static GUIStyle ProgressBarEmpty, ProgressBarFull;
-
-    static void BuildProgressBar()
-    {
-        // progress bar
-        ProgressBarEmpty = new GUIStyle(GUI.skin.box);
-        ProgressBarEmpty.normal.background = AssetsLoader.LoadIcon("progress_empty");
-        ProgressBarEmpty.border = new RectOffset(2, 2, 2, 2);
-        ProgressBarEmpty.margin = new RectOffset(5, 5, 5, 5);
-        ProgressBarEmpty.fixedHeight = 20;
-        SetAllFromNormal(ProgressBarEmpty);
-
-        ProgressBarFull = new GUIStyle(ProgressBarEmpty);
-        ProgressBarFull.normal.background = AssetsLoader.LoadIcon("progress_full");
-        SetAllFromNormal(ProgressBarEmpty);
-    }
-
-
-    public static GUIStyle BigiconButton, IconButton, SmallButton, BigButton, Button, CtrlButton;
-
-    static void BuildButtons()
-    {
-        // Button std
-        Button = new GUIStyle(GUI.skin.GetStyle("Button"));
-        Button.normal.background = AssetsLoader.LoadIcon("BigButton_Normal");
-        Button.normal.textColor = ColorTools.ParseColor("#FFFFFF");
-        SetAllFromNormal(Button);
-
-        Button.hover.background = AssetsLoader.LoadIcon("BigButton_hover");
-        Button.active.background = AssetsLoader.LoadIcon("BigButton_hover");
-        // Button.active.background = AssetsLoader.LoadIcon("BigButton_on");
-        // Button.onNormal = Button.active;
-        // SetFromOn(Button);
-
-        Button.border = new RectOffset(5, 5, 5, 5);
-        Button.padding = new RectOffset(4, 4, 4, 4);
-        Button.overflow = new RectOffset(0, 0, 0, 0);
-        // Button.fontSize = 20;
-        Button.alignment = TextAnchor.MiddleCenter;
-        Skin.button = Button;
-
-        // Small Button
-        SmallButton = new GUIStyle(GUI.skin.GetStyle("Button"));
-        SmallButton.normal.background = AssetsLoader.LoadIcon("Small_Button");
-        SetAllFromNormal(SmallButton);
-        SmallButton.hover.background = AssetsLoader.LoadIcon("Small_Button_hover");
-        SmallButton.active.background = AssetsLoader.LoadIcon("Small_Button_active");
-        SmallButton.onNormal = SmallButton.active;
-        SetFromOn(SmallButton);
-
-        SmallButton.border = new RectOffset(5, 5, 5, 5);
-        SmallButton.padding = new RectOffset(2, 2, 2, 2);
-        SmallButton.overflow = new RectOffset(0, 0, 0, 0);
-        SmallButton.alignment = TextAnchor.MiddleCenter;
-        // SmallButton.fixedHeight = 16;
-
-        BigButton = new GUIStyle(GUI.skin.GetStyle("Button"));
-        BigButton.normal.background = AssetsLoader.LoadIcon("BigButton_Normal");
-        BigButton.normal.textColor = ColorTools.ParseColor("#FFFFFF");
-        SetAllFromNormal(BigButton);
-
-        BigButton.hover.background = AssetsLoader.LoadIcon("BigButton_Hover");
-        BigButton.active.background = AssetsLoader.LoadIcon("BigButton_Active");
-        BigButton.onNormal = BigButton.active;
-        SetFromOn(BigButton);
-
-        BigButton.border = new RectOffset(5, 5, 5, 5);
-        BigButton.padding = new RectOffset(8, 8, 10, 10);
-        BigButton.overflow = new RectOffset(0, 0, 0, 0);
-        // BigButton.fontSize = 20;
-        BigButton.alignment = TextAnchor.MiddleCenter;
-
-        // Small Button
-        IconButton = new GUIStyle(SmallButton)
+        private static void BuildTabs()
         {
-            padding = new RectOffset(4, 4, 4, 4)
-        };
+            TNBaseStyle.TabNormal = new GUIStyle(TNBaseStyle.Button)
+            {
+                border = new RectOffset(5, 5, 5, 5),
+                padding = new RectOffset(10, 10, 5, 5),
+                overflow = new RectOffset(0, 0, 0, 0),
+                alignment = TextAnchor.MiddleCenter,
+                stretchWidth = true
+            };
+            TNBaseStyle.TabNormal.normal.background = AssetsLoader.LoadIcon("Tab_Normal");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.TabNormal);
+            TNBaseStyle.TabNormal.hover.background = AssetsLoader.LoadIcon("Tab_Hover");
+            TNBaseStyle.TabNormal.active.background = AssetsLoader.LoadIcon("Tab_Active");
+            TNBaseStyle.TabNormal.onNormal = TNBaseStyle.TabNormal.active;
+            TNBaseStyle.SetFromOn(TNBaseStyle.TabNormal);
+            TNBaseStyle.TabActive = new GUIStyle(TNBaseStyle.TabNormal);
+            TNBaseStyle.TabActive.normal.background = AssetsLoader.LoadIcon("Tab_On_normal");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.TabActive);
+            TNBaseStyle.TabActive.hover.background = AssetsLoader.LoadIcon("Tab_On_hover");
+            TNBaseStyle.TabActive.active.background = AssetsLoader.LoadIcon("Tab_On_Active");
+            TNBaseStyle.TabActive.onNormal = TNBaseStyle.TabActive.active;
+            TNBaseStyle.SetFromOn(TNBaseStyle.TabActive);
+        }
 
-        BigiconButton = new GUIStyle(IconButton)
+        private static void BuildFoldout()
         {
-            fixedWidth = 50,
-            fixedHeight = 50,
-            fontStyle = FontStyle.Bold
-        };
+            TNBaseStyle.FoldoutClose = new GUIStyle(TNBaseStyle.SmallButton)
+            {
+                fixedHeight = 30f,
+                padding = new RectOffset(23, 2, 2, 2),
+                border = new RectOffset(23, 7, 27, 3)
+            };
+            TNBaseStyle.FoldoutClose.normal.background = AssetsLoader.LoadIcon("Chapter_Off_Normal");
+            TNBaseStyle.FoldoutClose.normal.textColor = ColorTools.ParseColor("#D4D4D4");
+            TNBaseStyle.FoldoutClose.alignment = TextAnchor.MiddleLeft;
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.FoldoutClose);
+            TNBaseStyle.FoldoutClose.hover.background = AssetsLoader.LoadIcon("Chapter_Off_Hover");
+            TNBaseStyle.FoldoutClose.active.background = AssetsLoader.LoadIcon("Chapter_Off_Active");
+            TNBaseStyle.FoldoutOpen = new GUIStyle(TNBaseStyle.FoldoutClose);
+            TNBaseStyle.FoldoutOpen.normal.background = AssetsLoader.LoadIcon("Chapter_On_Normal");
+            TNBaseStyle.FoldoutOpen.normal.textColor = ColorTools.ParseColor("#8BFF95");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.FoldoutOpen);
+            TNBaseStyle.FoldoutOpen.hover.background = AssetsLoader.LoadIcon("Chapter_On_Hover");
+            TNBaseStyle.FoldoutOpen.active.background = AssetsLoader.LoadIcon("Chapter_On_Active");
+        }
 
-        CtrlButton = new GUIStyle(SmallButton) // GUI.Skin.GetStyle("Button")) // was: _spaceWarpUISkin.Button)
+        private static void BuildToggle()
         {
-            //alignment = TextAnchor.MiddleCenter,
-            //padding = new RectOffset(0, 0, 0, 3),
-            //contentOffset = new Vector2(0, 2),
-            fixedHeight = 16
-            //fixedWidth = 16,
-            //fontSize = 16,
-            //clipping = TextClipping.Overflow,
-            //margin = new RectOffset(0, 0, 10, 0)
-        };
-        CtrlButton.normal.background = AssetsLoader.LoadIcon("Small_Button");
-        SetAllFromNormal(CtrlButton);
-        CtrlButton.hover.background = AssetsLoader.LoadIcon("Small_Button_hover");
-        CtrlButton.active.background = AssetsLoader.LoadIcon("Small_Button_active");
-        CtrlButton.onNormal = CtrlButton.active;
-        SetFromOn(CtrlButton);
+            TNBaseStyle.Toggle = new GUIStyle(GUI.skin.GetStyle("Button"));
+            TNBaseStyle.Toggle.normal.background = AssetsLoader.LoadIcon("Toggle_Off");
+            TNBaseStyle.Toggle.normal.textColor = ColorTools.ParseColor("#C0C1E2");
+            TNBaseStyle.SetAllFromNormal(TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.onNormal.background = AssetsLoader.LoadIcon("Toggle_On");
+            TNBaseStyle.Toggle.onNormal.textColor = ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.SetFromOn(TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.fixedHeight = 32f;
+            TNBaseStyle.Toggle.stretchWidth = false;
+            TNBaseStyle.Toggle.border = new RectOffset(45, 5, 5, 5);
+            TNBaseStyle.Toggle.padding = new RectOffset(34, 16, 0, 0);
+            TNBaseStyle.Toggle.overflow = new RectOffset(0, 0, 0, 2);
+            TNBaseStyle.ToggleError = new GUIStyle(TNBaseStyle.Toggle);
+            TNBaseStyle.ToggleError.normal.textColor = Color.red;
+        }
 
-    }
-
-    public static GUIStyle TabNormal, TabActive;
-    static void BuildTabs()
-    {
-        TabNormal = new GUIStyle(Button)
+        private static void SetAllFromNormal(GUIStyle style)
         {
-            border = new RectOffset(5, 5, 5, 5),
-            padding = new RectOffset(10, 10, 5, 5),
-            overflow = new RectOffset(0, 0, 0, 0),
-            // BigButton.fontSize = 20;
-            alignment = TextAnchor.MiddleCenter,
-            stretchWidth = true
-        };
+            style.hover = style.normal;
+            style.active = style.normal;
+            style.focused = style.normal;
+            style.onNormal = style.normal;
+            style.onHover = style.normal;
+            style.onActive = style.normal;
+            style.onFocused = style.normal;
+        }
 
-        TabNormal.normal.background = AssetsLoader.LoadIcon("Tab_Normal");
-        SetAllFromNormal(TabNormal);
-
-        TabNormal.hover.background = AssetsLoader.LoadIcon("Tab_Hover");
-        TabNormal.active.background = AssetsLoader.LoadIcon("Tab_Active");
-        TabNormal.onNormal = TabNormal.active;
-        SetFromOn(TabNormal);
-
-
-        TabActive = new GUIStyle(TabNormal);
-        TabActive.normal.background = AssetsLoader.LoadIcon("Tab_On_normal");
-        SetAllFromNormal(TabActive);
-
-        TabActive.hover.background = AssetsLoader.LoadIcon("Tab_On_hover");
-        TabActive.active.background = AssetsLoader.LoadIcon("Tab_On_Active");
-        TabActive.onNormal = TabActive.active;
-        SetFromOn(TabActive);
-    }
-
-
-    public static GUIStyle FoldoutClose, FoldoutOpen;
-
-    static void BuildFoldout()
-    {
-
-        FoldoutClose = new GUIStyle(SmallButton)
+        private static void SetFromOn(GUIStyle style)
         {
-            fixedHeight = 30,
-            padding = new RectOffset(23, 2, 2, 2),
-            border = new RectOffset(23, 7, 27, 3)
+            style.onHover = style.onNormal;
+            style.onActive = style.onNormal;
+            style.onFocused = style.onNormal;
+        }
+
+        private static GUISkin CopySkin(GUISkin source) => new GUISkin()
+        {
+            font = source.font,
+            box = new GUIStyle(source.box),
+            label = new GUIStyle(source.label),
+            textField = new GUIStyle(source.textField),
+            textArea = new GUIStyle(source.textArea),
+            button = new GUIStyle(source.button),
+            toggle = new GUIStyle(source.toggle),
+            window = new GUIStyle(source.window),
+            horizontalSlider = new GUIStyle(source.horizontalSlider),
+            horizontalSliderThumb = new GUIStyle(source.horizontalSliderThumb),
+            verticalSlider = new GUIStyle(source.verticalSlider),
+            verticalSliderThumb = new GUIStyle(source.verticalSliderThumb),
+            horizontalScrollbar = new GUIStyle(source.horizontalScrollbar),
+            horizontalScrollbarThumb = new GUIStyle(source.horizontalScrollbarThumb),
+            horizontalScrollbarLeftButton = new GUIStyle(source.horizontalScrollbarLeftButton),
+            horizontalScrollbarRightButton = new GUIStyle(source.horizontalScrollbarRightButton),
+            verticalScrollbar = new GUIStyle(source.verticalScrollbar),
+            verticalScrollbarThumb = new GUIStyle(source.verticalScrollbarThumb),
+            verticalScrollbarUpButton = new GUIStyle(source.verticalScrollbarUpButton),
+            verticalScrollbarDownButton = new GUIStyle(source.verticalScrollbarDownButton),
+            scrollView = new GUIStyle(source.scrollView)
         };
-
-        FoldoutClose.normal.background = AssetsLoader.LoadIcon("Chapter_Off_Normal");
-        FoldoutClose.normal.textColor = ColorTools.ParseColor("#D4D4D4");
-        FoldoutClose.alignment = TextAnchor.MiddleLeft;
-        SetAllFromNormal(FoldoutClose);
-        FoldoutClose.hover.background = AssetsLoader.LoadIcon("Chapter_Off_Hover");
-        FoldoutClose.active.background = AssetsLoader.LoadIcon("Chapter_Off_Active");
-
-        FoldoutOpen = new GUIStyle(FoldoutClose);
-        FoldoutOpen.normal.background = AssetsLoader.LoadIcon("Chapter_On_Normal");
-        FoldoutOpen.normal.textColor = ColorTools.ParseColor("#8BFF95");
-        SetAllFromNormal(FoldoutOpen);
-
-        FoldoutOpen.hover.background = AssetsLoader.LoadIcon("Chapter_On_Hover");
-        FoldoutOpen.active.background = AssetsLoader.LoadIcon("Chapter_On_Active");
-    }
-
-    public static GUIStyle Toggle, ToggleError;
-    static void BuildToggle()
-    {
-        // Toggle Button
-        Toggle = new GUIStyle(GUI.skin.GetStyle("Button"));
-        Toggle.normal.background = AssetsLoader.LoadIcon("Toggle_Off");
-        Toggle.normal.textColor = ColorTools.ParseColor("#C0C1E2");
-
-
-        SetAllFromNormal(Toggle);
-        Toggle.onNormal.background = AssetsLoader.LoadIcon("Toggle_On");
-        Toggle.onNormal.textColor = ColorTools.ParseColor("#C0E2DC");
-        SetFromOn(Toggle);
-        Toggle.fixedHeight = 32;
-        Toggle.stretchWidth = false;
-
-        Toggle.border = new RectOffset(45, 5, 5, 5);
-        Toggle.padding = new RectOffset(34, 16, 0, 0);
-        Toggle.overflow = new RectOffset(0, 0, 0, 2);
-
-        ToggleError = new GUIStyle(Toggle);
-        ToggleError.normal.textColor = Color.red;
-    }
-
-
-    /// <summary>
-    /// copy all styles from normal currentState  to others
-    /// </summary>
-    /// <param name="style"></param>
-    private static void SetAllFromNormal(GUIStyle style)
-    {
-        style.hover = style.normal;
-        style.active = style.normal;
-        style.focused = style.normal;
-        style.onNormal = style.normal;
-        style.onHover = style.normal;
-        style.onActive = style.normal;
-        style.onFocused = style.normal;
-    }
-
-    /// <summary>
-    /// copy all styles from onNormal currentState  to on others
-    /// </summary>
-    /// <param name="style"></param>
-    private static void SetFromOn(GUIStyle style)
-    {
-        style.onHover = style.onNormal;
-        style.onActive = style.onNormal;
-        style.onFocused = style.onNormal;
-    }
-
-    /// <summary>
-    /// do a full copy of a Skin
-    /// </summary>
-    /// <param name="source"></param>
-    /// <returns></returns>
-    private static GUISkin CopySkin(GUISkin source)
-    {
-        if (source == null)
-            return null;
-
-        GUISkin copy = ScriptableObject.CreateInstance<GUISkin>();
-        copy.font = source.font;
-        copy.box = new GUIStyle(source.box);
-        copy.label = new GUIStyle(source.label);
-        copy.textField = new GUIStyle(source.textField);
-        copy.textArea = new GUIStyle(source.textArea);
-        copy.button = new GUIStyle(source.button);
-        copy.toggle = new GUIStyle(source.toggle);
-        copy.window = new GUIStyle(source.window);
-
-        copy.horizontalSlider = new GUIStyle(source.horizontalSlider);
-        copy.horizontalSliderThumb = new GUIStyle(source.horizontalSliderThumb);
-        copy.verticalSlider = new GUIStyle(source.verticalSlider);
-        copy.verticalSliderThumb = new GUIStyle(source.verticalSliderThumb);
-
-        copy.horizontalScrollbar = new GUIStyle(source.horizontalScrollbar);
-        copy.horizontalScrollbarThumb = new GUIStyle(source.horizontalScrollbarThumb);
-        copy.horizontalScrollbarLeftButton = new GUIStyle(source.horizontalScrollbarLeftButton);
-        copy.horizontalScrollbarRightButton = new GUIStyle(source.horizontalScrollbarRightButton);
-
-        copy.verticalScrollbar = new GUIStyle(source.verticalScrollbar);
-        copy.verticalScrollbarThumb = new GUIStyle(source.verticalScrollbarThumb);
-        copy.verticalScrollbarUpButton = new GUIStyle(source.verticalScrollbarUpButton);
-        copy.verticalScrollbarDownButton = new GUIStyle(source.verticalScrollbarDownButton);
-
-        copy.scrollView = new GUIStyle(source.scrollView);
-
-        return copy;
     }
 }

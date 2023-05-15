@@ -1,299 +1,192 @@
-﻿
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Threading;
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools
 {
     public class SettingsFile
     {
-        protected string file_path = "";
-        Dictionary<string, string> data = new Dictionary<string, string>();
+        protected string FilePath = "";
+        private Dictionary<string, string> Data = new Dictionary<string, string>();
+        public ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TN.SettingsFile");
 
-        public SettingsFile(string settingspath)
+        public SettingsFile(string file_path)
         {
-            file_path = settingspath;
-            Load();
+            this.FilePath = file_path;
+            this.Load();
         }
-
-        public ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("K2D2.SettingsFile");
 
         protected void Load()
         {
-
-            var previous_culture = Thread.CurrentThread.CurrentCulture;
-            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            CultureInfo currentCulture = Thread.CurrentThread.CurrentCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             try
             {
-                this.data = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file_path));
+                this.Data = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(this.FilePath));
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
-                logger.LogWarning($"error loading {file_path}");
+                this.Logger.LogWarning($"Error loading {this.FilePath}: {ex}");
             }
-
-            Thread.CurrentThread.CurrentCulture = previous_culture;
+            Thread.CurrentThread.CurrentCulture = currentCulture;
         }
-
         protected void Save()
         {
-            var previous_culture = Thread.CurrentThread.CurrentCulture;
-            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            CultureInfo currentCulture = Thread.CurrentThread.CurrentCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             try
             {
-                File.WriteAllText(file_path, JsonConvert.SerializeObject(data));
+                File.WriteAllText(this.FilePath, JsonConvert.SerializeObject((object)this.Data));
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
-                logger.LogError($"error saving {this.file_path}");
+                this.Logger.LogError($"Error saving {this.FilePath}: {ex}");
             }
-
-            Thread.CurrentThread.CurrentCulture = previous_culture;
+            Thread.CurrentThread.CurrentCulture = currentCulture;
         }
-
-        public string GetString(string name, string defaultValue)
-        {
-            if (data.ContainsKey(name))
-                return data[name];
-
-            return defaultValue;
-        }
-
+        public string GetString(string name, string defaultValue) => this.Data.ContainsKey(name) ? this.Data[name] : defaultValue;
         public void SetString(string name, string value)
         {
-            if (data.ContainsKey(name))
+            if (this.Data.ContainsKey(name))
             {
-                if (data[name] != value)
-                {
-                    data[name] = value;
-                    Save();
-                }
+                if (!(this.Data[name] != value))
+                    return;
+                this.Data[name] = value;
+                this.Save();
             }
             else
             {
-                data[name] = value;
-                Save();
+                this.Data[name] = value;
+                this.Save();
             }
         }
 
-
-        /// <summary>
-        /// Get the parameter using bool value
-        /// if not found it is added and saved at once
-        /// </summary>
         public bool GetBool(string name, bool defaultValue)
         {
-            if (data.ContainsKey(name))
-                return data[name] == "1";
-            else
-                SetBool(name, defaultValue);
-
+            if (this.Data.ContainsKey(name))
+                return this.Data[name] == "1";
+            this.SetBool(name, defaultValue);
             return defaultValue;
         }
 
-        /// <summary>
-        /// Set the parameter using bool value
-        /// the value is saved at once
-        /// </summary>
         public void SetBool(string name, bool value)
         {
-            string value_str = value ? "1" : "0";
-            SetString(name, value_str);
+            string str = value ? "1" : "0";
+            this.SetString(name, str);
         }
 
-
-        /// <summary>
-        /// Get the parameter using integer value
-        /// if not found or on parsing error, it is replaced and saved at once
-        /// </summary>
         public int GetInt(string name, int defaultValue)
         {
-            if (data.ContainsKey(name))
-            {
-                if (int.TryParse(data[name], out int value))
-                {
-                    return value;
-                }
-            }
-
-            // invalid or no value found in data
-            SetInt(name, defaultValue);
+            int result;
+            if (this.Data.ContainsKey(name) && int.TryParse(this.Data[name], out result))
+                return result;
+            this.SetInt(name, defaultValue);
             return defaultValue;
         }
 
-        /// <summary>
-        /// Set the parameter using integer value
-        /// the value is saved at once
-        /// </summary>
-        public void SetInt(string name, int value)
-        {
-            SetString(name, value.ToString());
-        }
+        public void SetInt(string name, int value) => this.SetString(name, value.ToString());
 
         public TEnum GetEnum<TEnum>(string name, TEnum defaultValue) where TEnum : struct
         {
-            if (data.ContainsKey(name))
-            {
-                TEnum value = defaultValue;
-                if (Enum.TryParse<TEnum>(data[name], out value))
-                {
-                    return value;
-                }
-            }
-
-            return defaultValue;
+            TEnum result;
+            return this.Data.ContainsKey(name) && Enum.TryParse<TEnum>(this.Data[name], out result) ? result : defaultValue;
         }
 
-        public void SetEnum<TEnum>(string name, TEnum value) where TEnum : struct
-        {
-            SetString(name, value.ToString());
-        }
+        public void SetEnum<TEnum>(string name, TEnum value) where TEnum : struct => this.SetString(name, value.ToString());
 
-
-        /// <summary>
-        /// Get the parameter using float value
-        /// if not found or on parsing error, it is replaced and saved at once
-        /// </summary>
         public float GetFloat(string name, float defaultValue)
         {
-            if (data.ContainsKey(name))
-            {
-                if (float.TryParse(data[name], out float value))
-                {
-                    return value;
-                }
-            }
-
-            // invalid or no value found in data
-            SetFloat(name, defaultValue);
+            float result;
+            if (this.Data.ContainsKey(name) && float.TryParse(this.Data[name], out result))
+                return result;
+            this.SetFloat(name, defaultValue);
             return defaultValue;
         }
 
-        /// <summary>
-        /// Set the parameter using float value
-        /// the value is saved at once
-        /// </summary>
-        public void SetFloat(string name, float value)
-        {
-            SetString(name, value.ToString());
-        }
+        public void SetFloat(string name, float value) => this.SetString(name, value.ToString());
 
-        /// <summary>
-        /// Get the parameter using double value
-        /// if not found or on parsing error, it is replaced and saved at once
-        /// </summary>
         public double GetDouble(string name, double defaultValue)
         {
-            if (data.ContainsKey(name))
-            {
-                if (double.TryParse(data[name], out double value))
-                {
-                    return value;
-                }
-            }
-
-            // invalid or no value found in data
-            SetDouble(name, defaultValue);
+            double result;
+            if (this.Data.ContainsKey(name) && double.TryParse(this.Data[name], out result))
+                return result;
+            this.SetDouble(name, defaultValue);
             return defaultValue;
         }
 
-        /// <summary>
-        /// Set the parameter using double value
-        /// the value is saved at once
-        /// </summary>
-        public void SetDouble(string name, double value)
-        {
-            SetString(name, value.ToString());
-        }
+        public void SetDouble(string name, double value) => this.SetString(name, value.ToString());
 
-        /// <summary>
-        /// Get the parameter using Vector3 value
-        ///  if not found or on parsing error, it is replaced and saved at once
-        /// </summary>
         public Vector3 GetVector3(string name, Vector3 defaultValue)
         {
-            if (!data.ContainsKey(name))
+            if (!this.Data.ContainsKey(name))
             {
-                SetParamVector3(name, defaultValue);
+                this.SetParamVector3(name, defaultValue);
                 return defaultValue;
             }
-
-            string txt = (string)data[name];
-            string[] ar = txt.Split(';');
-
-            if (ar.Length < 3)
+            string[] strArray = this.Data[name].Split(';');
+            if (strArray.Length < 3)
             {
-                SetParamVector3(name, defaultValue);
+                this.SetParamVector3(name, defaultValue);
                 return defaultValue;
             }
-
-            Vector3 result = Vector3.zero;
+            Vector3 zero = Vector3.zero;
             try
             {
-                result.x = float.Parse(ar[0]);
-                result.y = float.Parse(ar[1]);
-                result.z = float.Parse(ar[2]);
+                zero.x = float.Parse(strArray[0]);
+                zero.y = float.Parse(strArray[1]);
+                zero.z = float.Parse(strArray[2]);
             }
             catch
             {
-                SetParamVector3(name, defaultValue);
+                this.SetParamVector3(name, defaultValue);
                 return defaultValue;
             }
-
-            return result;
+            return zero;
         }
 
-        /// <summary>
-        /// Set the parameter using Vector3 value
-        /// the value is saved at once
-        /// </summary>
         public void SetParamVector3(string name, Vector3 value)
         {
-            string text = value.x + ";" + value.y + ";" + value.z;
-            SetString(name, text);
+            string str = value.x.ToString() + ";" + value.y.ToString() + ";" + value.z.ToString();
+            this.SetString(name, str);
         }
 
-        /// <summary>
-        /// Get the parameter using Vector3d value
-        ///  if not found or on parsing error, it is replaced and saved at once
-        /// </summary>
         public Vector3 GetVector3d(string name, Vector3d defaultValue)
         {
-            if (!data.ContainsKey(name))
+            if (!this.Data.ContainsKey(name))
             {
-                SetParamVector3d(name, defaultValue);
-                return defaultValue;
+                this.SetParamVector3d(name, defaultValue);
+                return (Vector3)defaultValue;
             }
-
-            string txt = data[name];
-            string[] ar = txt.Split(';');
-
-            if (ar.Length < 3)
+            string[] strArray = this.Data[name].Split(';');
+            if (strArray.Length < 3)
             {
-                SetParamVector3d(name, defaultValue);
-                return defaultValue;
+                this.SetParamVector3d(name, defaultValue);
+                return (Vector3)defaultValue;
             }
-
-            Vector3d result = Vector3d.zero;
+            Vector3d zero = Vector3d.zero;
             try
             {
-                result.x = double.Parse(ar[0]);
-                result.y = double.Parse(ar[1]);
-                result.z = double.Parse(ar[2]);
+                zero.x = double.Parse(strArray[0]);
+                zero.y = double.Parse(strArray[1]);
+                zero.z = double.Parse(strArray[2]);
             }
             catch
             {
-                SetParamVector3d(name, defaultValue);
-                return defaultValue;
+                this.SetParamVector3d(name, defaultValue);
+                return (Vector3)defaultValue;
             }
-
-            return result;
+            return (Vector3)zero;
         }
 
         public void SetParamVector3d(string name, Vector3d value)
         {
-            string text = value.x + ";" + value.y + ";" + value.z;
-            SetString(name, text);
+            string str = value.x.ToString() + ";" + value.y.ToString() + ";" + value.z.ToString();
+            this.SetString(name, str);
         }
     }
 }
