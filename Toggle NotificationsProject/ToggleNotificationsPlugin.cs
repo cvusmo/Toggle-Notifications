@@ -20,8 +20,6 @@ namespace ToggleNotifications
     public class ToggleNotificationsPlugin : BaseSpaceWarpPlugin
     {
         public ToggleNotificationsUI ToggleNotificationsUI { get; set; }
-        public ToggleNotificationsUI MainUI;
-
         private List<NotificationUIAlert> Alerts = new List<NotificationUIAlert>();
         public NotificationToggle notificationToggle;
         public List<string> GetNotificationList;
@@ -42,9 +40,11 @@ namespace ToggleNotifications
 
         //GUI related
         private bool isWindowOpen;
+        private bool interfaceEnabled;
         private bool isGUIVisible = true;
         public Rect windowRect = Rect.zero;
         private int windowWidth = 250;
+        public ToggleNotificationsUI MainUI;
         public bool Loaded = false;
         public GameInstance game;
         public bool inputFields;
@@ -61,10 +61,10 @@ namespace ToggleNotifications
         //private const string ToolbarOABButtonID = "BTN-ToggleNotificationsOAB";
 
         //settingsfile and assembly
-        private static string settingspath;
         private static string assemblyFolder;
+        private static string settingsPath;
         private static string AssemblyFolder => ToggleNotificationsPlugin.assemblyFolder ?? (ToggleNotificationsPlugin.assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-        private static string SettingsPath => ToggleNotificationsPlugin.settingspath ?? (ToggleNotificationsPlugin.settingspath = Path.Combine(ToggleNotificationsPlugin.AssemblyFolder, "settings.json"));
+        private static string SettingsPath => ToggleNotificationsPlugin.settingsPath ?? (ToggleNotificationsPlugin.settingsPath = Path.Combine(ToggleNotificationsPlugin.AssemblyFolder, "settings.json"));
 
         public new static ManualLogSource Logger { get; set; }
         public static ToggleNotificationsPlugin Instance { get; private set; }
@@ -91,13 +91,10 @@ namespace ToggleNotifications
         public override void OnInitialized()
         {
             base.OnInitialized();
-
-            TNBaseSettings.Init(SettingsPath);
-
+            TNBaseSettings.Init(ToggleNotificationsPlugin.SettingsPath);
+            TNBaseSettings.Init(TNBaseSettings.SettingsPath);
             MainUI = new ToggleNotificationsUI(this);
-            Instance = this;
-
-            //bepinex log
+            ToggleNotificationsPlugin.Instance = this;
             game = GameManager.Instance.Game;
             Logger = base.Logger;
 
@@ -119,19 +116,15 @@ namespace ToggleNotifications
             // Harmony creates the mainPlugin/patch
             Harmony harmony = new Harmony(ModGuid);
             harmony.PatchAll(typeof(AssistantToTheAssistantPatchManager));
-            //Harmony.CreateAndPatchAll(typeof(ToggleNotificationsPlugin).Assembly);
+            Harmony.CreateAndPatchAll(typeof(ToggleNotificationsPlugin).Assembly);
 
             currentState = true; // Update the currentState variable to true
             Logger.LogInfo($"Current State: {currentState}");
         }
         public void ToggleButton(bool toggle)
         {
-            isGUIVisible = toggle;
-        }
-        private void saverectpos()
-        {
-            TNBaseSettings.WindowXPos = (int)this.windowRect.xMin;
-            TNBaseSettings.WindowYPos = (int)this.windowRect.yMin;
+            interfaceEnabled = toggle;
+            GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(this.interfaceEnabled);
         }
         public Dictionary<NotificationToggle.NotificationType, bool> ActualState()
         {
@@ -178,86 +171,64 @@ namespace ToggleNotifications
         {
             if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.P))
             {
-                this.ToggleButton(!isGUIVisible);
-                ToggleNotificationsPlugin.Logger.LogInfo((object)"Update: UI toggled with hotkey");
+                this.ToggleButton(!this.interfaceEnabled);
+                ToggleNotificationsPlugin.Logger.LogInfo((object)"Update: Toggle Notifications UI toggled with hotkey");
             }
+            if (this.MainUI == null)
+                return;
+
+            this.MainUI.Update();
 
         }
         public void InitializeRects()
         {
             mainGuiRect = settingsGuiRect = parGuiRect = orbGuiRect = surGuiRect = fltGuiRect = manGuiRect = tgtGuiRect = stgGuiRect = new Rect();
         }
+        private void saverectpos()
+        {
+            TNBaseSettings.WindowXPos = (int)this.windowRect.xMin;
+            TNBaseSettings.WindowYPos = (int)this.windowRect.yMin;
+        }
         public void OnGUI()
         {
-            Debug.Log("OnGUI is being called!");
+            isGUIVisible = false;
+            GameState? state;
+            GameState? nullable = state = BaseSpaceWarpPlugin.Game?.GlobalGameState?.GetState();
+            GameState gameState1 = GameState.Map3DView;
+            if (nullable.GetValueOrDefault() == gameState1 & nullable.HasValue)
+                isGUIVisible = true;
+            nullable = state;
+            GameState gameState2 = GameState.FlightView;
+            if (nullable.GetValueOrDefault() == gameState2 & nullable.HasValue)
+                isGUIVisible = true;
+            if (!interfaceEnabled && !isGUIVisible && currentState == false)
+                return;
+            TNStyles.Init();
             WindowTool.CheckMainWindowPos(ref windowRect);
             GUI.skin = TNBaseStyle.Skin;
-
-            if (isWindowOpen)
-            {
-
-                windowRect = GUILayout.Window(
-                    GUIUtility.GetControlID(FocusType.Passive),
-                    windowRect,
-                    FillWindow,
-                    "<color=#696DFF>Toggle Notifications</color>",
-                    GUILayout.Height(350f),
-                    GUILayout.Width((float)windowWidth)
-                    );
-
-                saverectpos();
-                ToolTipsManager.DrawToolTips();
-                UIFields.CheckEditor();
-
-                var currentState = CurrentState;
-
-                foreach (var kvp in currentState)
-                {
-                    NotificationToggle.NotificationType notificationType = kvp.Key;
-                    bool isEnabled = kvp.Value;
-
-                    bool enableNotification = GUILayout.Toggle(isEnabled, $"Enable {notificationType.ToString()} Notification");
-                    notificationToggle.SetNotificationState(notificationType, enableNotification);
-                }
-                Debug.Log("OnGUI is being called!");
-            }
+            windowRect = GUILayout.Window(GUIUtility.GetControlID(FocusType.Passive), windowRect, new GUI.WindowFunction(FillWindow), "<color=#696DFF>FLIGHT PLAN</color>", GUILayout.Height(0.0f), GUILayout.Width((float)this.windowWidth));
+            this.saverectpos();
+            ToolTipsManager.DrawToolTips();
+            UIFields.CheckEditor();
+            Debug.Log("OnGUI is being called!");
         }
         private void FillWindow(int windowID)
         {
-            if (isGUIVisible)
-            {
-                string[] menuOptions = { "Basic", "Vessel" };
-                selectedItem = GUILayout.SelectionGrid(selectedItem, menuOptions, 2);
-                boxStyle = GUI.skin.GetStyle("Box");
-                GUILayout.BeginVertical();
-
-                TopButtons.Init(windowRect.width);
-                GUI.Label(new Rect(9f, 2f, 29f, 29f), TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
-                if (TopButtons.Button(TNBaseStyle.Cross))
-                {
-                    GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(false);
-                    this.isGUIVisible = false;
-                    this.ToggleButton(this.isGUIVisible);
-                    UIFields.GameInputState = true;
-                }
-            }
-            GUILayout.Label($"Active Vessel: {GameManager.Instance.Game.ViewController.GetActiveSimVessel().DisplayName}");
-
-            var currentState = CurrentState;
-
-            foreach (var kvp in currentState)
-            {
-                NotificationToggle.NotificationType notificationType = kvp.Key;
-                bool isEnabled = kvp.Value;
-
-                bool enableNotification = GUILayout.Toggle(isEnabled, $"Enable {notificationType.ToString()} Notification");
-                notificationToggle.SetNotificationState(notificationType, enableNotification);
-            }
-
-
-            GUILayout.EndVertical();
-            GUI.DragWindow(new Rect(0, 0, 10000, 500));
-
+            TopButtons.Init(windowRect.width);
+            GUI.Label(new Rect(9f, 2f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
+            if (TopButtons.Button(TNBaseStyle.Cross))
+                this.CloseWindow();
+            this.currentState = isGUIVisible;
+            this.MainUI.OnGUI();
+            GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
+        }
+        private void CloseWindow()
+        {
+            GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(false);
+            this.interfaceEnabled = false;
+            this.ToggleButton(this.interfaceEnabled);
+            UIFields.GameInputState = true;
         }
     }
 }
+

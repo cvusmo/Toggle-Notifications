@@ -38,7 +38,7 @@ namespace ToggleNotifications
         {
             toggleNotification = ToggleNotificationsPlugin.Instance.notificationToggle; // Assign the toggleNotification instance
         }
-        public void Update(ToggleNotificationsPlugin plugin)
+        public void Update()
         {
             if (!InitDone)
             {
@@ -49,8 +49,6 @@ namespace ToggleNotifications
             }
 
             tabs.Update();
-            TNStyles.Init();
-            TNBaseStyle.Init();
         }
         public bool RefreshState
         {

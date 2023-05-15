@@ -1,16 +1,14 @@
 ﻿using BepInEx.Configuration;
+using SpaceWarp.Patching;
 
 namespace ToggleNotifications
 {
     public class TNSettings
     {
         private static ConfigFile s_config_file;
-        private static string s_settingspath;
-
-        public static void Init(string settingspath)
+        public static void Init(string configurationpath)
         {
-            s_settingspath = settingspath;
-            s_config_file = new ConfigFile(settingspath, true);
+            s_config_file = new ConfigFile(configurationpath, true);
         }
 
         public static T GetValue<T>(string key, T defaultValue)

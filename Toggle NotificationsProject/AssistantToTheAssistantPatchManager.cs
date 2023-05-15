@@ -23,27 +23,6 @@ namespace ToggleNotifications
             }
 
             [HarmonyPrefix]
-            [HarmonyPatch(nameof(NotificationEvents._solarPanelsIneffectiveTimeToWaitTill))]
-            public static bool _solarPanelsIneffectiveTimeToWaitTill(NotificationEvents __instance)
-            {
-                return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.SolarPanelsIneffectiveMessage);
-            }
-
-            [HarmonyPrefix]
-            [HarmonyPatch(nameof(NotificationEvents._solarPanelsIneffectiveNotificationHandle))]
-            public static bool _solarPanelsIneffectiveNotificationHandle(NotificationEvents __instance)
-            {
-                return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.SolarPanelsIneffectiveMessage);
-            }
-
-            [HarmonyPrefix]
-            [HarmonyPatch(nameof(NotificationEvents._solarPanelsIneffectiveTimeBetweenNotifications))]
-            public static bool _solarPanelsIneffectiveTimeBetweenNotifications(NotificationEvents __instance)
-            {
-                return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.SolarPanelsIneffectiveMessage);
-            }
-
-            [HarmonyPrefix]
             [HarmonyPatch(nameof(NotificationEvents.VesselLeftCommunicationRangeMessage))]
             public static bool VesselLeftCommunicationRangeMessage(NotificationEvents __instance)
             {
