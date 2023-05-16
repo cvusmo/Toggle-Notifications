@@ -1,102 +1,105 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ToggleNotifications.TNTools.UI
 {
     public class TabsUI
     {
-        private List<string> tabNames = new List<string>();
-        private Dictionary<string, string> tabContents = new Dictionary<string, string>();
-        private Dictionary<string, BasePageContent> tabPages = new Dictionary<string, BasePageContent>();
-        public static NotificationToggle currentState;
+        public List<IPageContent> Pages = new List<IPageContent>();
+        private List<IPageContent> _filteredPages = new List<IPageContent>();
+        private IPageContent CurrentPage;
+        private List<float> TabsWidth = new List<float>();
 
-        public List<IPageContent> pages = new List<IPageContent>();
-
-        private List<IPageContent> filteredPages = new List<IPageContent>();
-
-        private IPageContent currentPage;
-
-        private List<float> tabsWidth = new List<float>();
-
-        public bool IsActive { get; internal set; }
-        public bool IsVisible { get; internal set; }
-
-        private bool tabButton(bool isCurrent, bool isActive, string txt, GUIContent icon)
+        private bool _tabButton(bool isCurrent, bool isActive, string txt, GUIContent icon)
         {
             GUIStyle style = isActive ? TNBaseStyle.TabActive : TNBaseStyle.TabNormal;
-            return icon == null ? GUILayout.Toggle(isCurrent, txt, style, GUILayout.ExpandWidth(true)) : GUILayout.Toggle(isCurrent, icon, style, GUILayout.ExpandWidth(true));
+            return icon == null ? GUILayout.Toggle((isCurrent ? 1 : 0) != 0, txt, style, GUILayout.ExpandWidth(true)) : GUILayout.Toggle((isCurrent ? 1 : 0) != 0, icon, style, GUILayout.ExpandWidth(true));
         }
-
         public int DrawTabs(int current, float maxWidth = 300f)
         {
-            current = Mathf.Clamp(current, 0, filteredPages.Count - 1);
+            current = GeneralTools.ClampInt(current, 0, _filteredPages.Count - 1);
             GUILayout.BeginHorizontal();
             int num1 = current;
-            if (tabsWidth.Count != filteredPages.Count)
+
+            if (TabsWidth.Count != _filteredPages.Count)
             {
-                tabsWidth.Clear();
-                for (int index = 0; index < filteredPages.Count; ++index)
+                TabsWidth.Clear();
+                for (int index = 0; index < _filteredPages.Count; ++index)
                 {
-                    IPageContent filteredPage = filteredPages[index];
+                    IPageContent filteredPage = _filteredPages[index];
                     float minWidth;
-                    TNBaseStyle.TabNormal.CalcMinMaxWidth(new GUIContent(filteredPage.Name, ""), out minWidth, out _);
-                    tabsWidth.Add(minWidth);
+                    TNBaseStyle.TabNormal.CalcMinMaxWidth(new GUIContent(filteredPage.Name, ""), out minWidth, out float _);
+                    TabsWidth.Add(minWidth);
                 }
             }
+
             float num2 = 0.0f;
-            for (int index = 0; index < filteredPages.Count; ++index)
+
+            for (int index = 0; index < _filteredPages.Count; ++index)
             {
-                IPageContent filteredPage = filteredPages[index];
-                float num3 = tabsWidth[index];
+                IPageContent filteredPage = _filteredPages[index];
+                float num3 = TabsWidth[index];
+
                 if (num2 > maxWidth)
                 {
                     GUILayout.EndHorizontal();
                     GUILayout.BeginHorizontal();
                     num2 = 0.0f;
                 }
+
                 num2 += num3;
                 bool isCurrent = current == index;
-                if (tabButton(isCurrent, filteredPage.IsActive, filteredPage.Name, filteredPage.Icon) && !isCurrent)
+
+                // Create the tab label with page number
+                GUIContent tabLabel = new GUIContent($"{filteredPage.Name} ({index + 1}/{_filteredPages.Count})");
+
+                if (_tabButton(isCurrent, filteredPage.IsRunning, tabLabel.text, filteredPage.Icon) && !isCurrent)
                     num1 = index;
             }
+
             GUILayout.EndHorizontal();
             UITools.Separator();
             return num1;
         }
 
+
         public void Init()
         {
-            currentPage = pages[TNBaseSettings.MainTabIndex];
+            int mainTabIndex = TNBaseSettings.MainTabIndex;
+            int validTabIndex = Mathf.Clamp(mainTabIndex, 0, Pages.Count - 1);
+            TNBaseSettings.MainTabIndex = validTabIndex;
+            CurrentPage = Pages[validTabIndex];
+            CurrentPage.UIVisible = true;
         }
 
         public void Update()
         {
-            filteredPages.Clear();
-            for (int index = 0; index < pages.Count; ++index)
+            this._filteredPages = new List<IPageContent>();
+            for (int index = 0; index < this.Pages.Count; ++index)
             {
-                if (pages[index].IsActive)
-                    filteredPages.Add(pages[index]);
+                if (this.Pages[index].IsActive)
+                    this._filteredPages.Add(this.Pages[index]);
             }
         }
 
         public void OnGUI()
         {
             int mainTabIndex = TNBaseSettings.MainTabIndex;
-            if (filteredPages.Count == 0)
+            if (this._filteredPages.Count == 0)
             {
-                UITools.Error("NO active Tab tag found!!!");
+                UITools.Error("NO active Tab tage !!!");
             }
             else
             {
-                int index = Mathf.Clamp(filteredPages.Count != 1 ? DrawTabs(mainTabIndex) : 0, 0, filteredPages.Count - 1);
-                IPageContent filteredPage = filteredPages[index];
-                if (filteredPage != currentPage)
+                int index = GeneralTools.ClampInt(this._filteredPages.Count != 1 ? this.DrawTabs(mainTabIndex) : 0, 0, this._filteredPages.Count - 1);
+                IPageContent filteredPage = this._filteredPages[index];
+                if (filteredPage != this.CurrentPage)
                 {
-                    currentPage = filteredPage;
+                    this.CurrentPage.UIVisible = false;
+                    this.CurrentPage = filteredPage;
+                    this.CurrentPage.UIVisible = true;
                 }
                 TNBaseSettings.MainTabIndex = index;
-                currentPage.OnGUI();
+                this.CurrentPage.OnGUI();
             }
         }
     }

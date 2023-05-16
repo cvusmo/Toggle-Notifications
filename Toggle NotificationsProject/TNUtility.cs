@@ -1,52 +1,56 @@
 ﻿using BepInEx.Logging;
-using KSP.Game;
-using KSP.Messages;
 using ToggleNotifications;
 using ToggleNotifications.TNTools.UI;
 
 namespace TNUtilities
 {
+    //provides utility methods to interact with and manage those notification states.
     public class TNUtility
     {
         private static TNUtility _instance;
         public static TNUtility Instance { get => _instance; }
 
         public ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TNUtility");
-        public static NotificationToggle currentState;
-        public static NotificationToggle UpdateCurrentStates;
-        public static GameStateConfiguration GameState;
-        public static MessageCenter MessageCenter;
-        public static string InputDisableWindowAbbreviation = "WindowAbbreviation";
-        public static string InputDisableWindowName = "WindowName";
+        public static NotificationToggle toggleState;
+        public static NotificationToggle notificationToggle;
+
         public TNUtility()
         {
             _instance = this;
         }
 
-        /// Refreshes the currentState.
-        public static void RefreshNotifications()
+        public static void RefreshNotificationsUtil()
         {
-            if (ToggleNotificationsPlugin.Instance.notificationToggle != null)
+            if (ToggleNotificationsUI.toggleNotification != null)
             {
-                currentState = ToggleNotificationsPlugin.Instance.notificationToggle;
+                toggleState = ToggleNotificationsUI.toggleNotification;
             }
             else
             {
-                Instance.Logger.LogWarning("NotificationEvents is null.");
+                Instance.Logger.LogWarning("ToggleNotification is null.");
             }
         }
 
-        // Refreshes the currentState by calling a method in ToggleNotificationsPlugin.
-        public static void RefreshStates()
+        public static void RefreshStatesUtil()
         {
-            if (UpdateCurrentStates != null)
+            if (ToggleNotificationsUI.toggleState != null)
             {
-                UpdateCurrentStates = ToggleNotificationsPlugin.Instance.notificationToggle;
+                toggleState = ToggleNotificationsUI.toggleState;
             }
             else
             {
-                Instance.Logger.LogWarning("UpdateCurrentStates is null.");
+                Instance.Logger.LogWarning("ToggleState is null.");
             }
+        }
+
+        public void CheckCurrentStateUtil()
+        {
+            bool isRefreshing = ToggleNotificationsUI.instance.Refreshing != null;
+            bool isRefreshingNotification = ToggleNotificationsUI.instance.RefreshingNotification != null;
+
+            // Use the values as needed
+            Logger.LogInfo($"UI Refreshing: {isRefreshing}");
+            Logger.LogInfo($"Notification Refreshing: {isRefreshingNotification}");
         }
     }
 }

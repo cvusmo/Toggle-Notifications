@@ -1,9 +1,3 @@
-// Decompiled with JetBrains decompiler
-// Type: FlightPlan.KTools.UI.UIFields
-// Assembly: com.github.schlosrat.flight_plan, Version=0.8.7.0, Culture=neutral, PublicKeyToken=null
-// MVID: 87D15BD7-D90B-451F-94F7-83DF58F536B2
-// Assembly location: C:\Users\nicho\OneDrive\Desktop\flight_plan\flight_plan.dll
-
 using BepInEx.Logging;
 using KSP.Game;
 using System.Text.RegularExpressions;

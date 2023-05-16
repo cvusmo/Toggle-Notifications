@@ -10,33 +10,25 @@ namespace ToggleNotifications
 {
     public class ToggleNotificationsUI
     {
-        public static ToggleNotificationsUI Instance { get { return instance; } }
-        private static NotificationToggle toggleNotification;
+        public List<string> NotificationList = new List<string>();
+        public static ToggleNotificationsUI instance;
+        public static NotificationToggle toggleNotification;
         public ToggleNotificationsPlugin mainPlugin;
-        public Selection Selection;
-        private SetOption setOption;
-
-        // Setup
-        private Selection selection;
         public MessageCenterMessage Refreshing;
         public NotificationEvents RefreshingNotification;
         private static readonly ManualLogSource Logger;
-        public static NotificationToggle currentState;
-        private static readonly ToggleNotificationsUI instance;
-        private static bool InitDone = false;
+        public static NotificationToggle toggleState;
+        private bool InitDone;
         private bool isGUIVisible = false;
-        public bool GamePausedGUI { get; set; }
-
-
         TabsUI tabs = new TabsUI();
+        public bool RefreshNotification { get; set; }
+        public bool GamePausedGUI { get; set; }
+        public static ToggleNotificationsUI Instance => ToggleNotificationsUI.instance;
         public ToggleNotificationsUI(ToggleNotificationsPlugin plugin)
         {
-            mainPlugin = plugin;
-            selection = new Selection(mainPlugin);
-        }
-        public void Awake()
-        {
-            toggleNotification = ToggleNotificationsPlugin.Instance.notificationToggle; // Assign the toggleNotification instance
+            ToggleNotificationsUI.instance = this;
+            plugin = mainPlugin;
+
         }
         public void Update()
         {
@@ -54,30 +46,31 @@ namespace ToggleNotifications
         {
             get
             {
-                if (currentState == null)
-                {
-                    RefreshNotifications();
-                }
+                RefreshNotifications(); // Call RefreshNotifications to update the notification states
                 string[] notificationsToCheck = { "SolarPanelsIneffectiveMessage", "VesselLeftCommunicationRangeMessage", "VesselThrottleLockedDueToTimewarpingMessage", "CannotPlaceManeuverNodeWhileOutOfFuelMessage", "GamePauseToggledMessage" };
 
                 foreach (string notificationName in notificationsToCheck)
                 {
-                    if (Enum.TryParse(notificationName, out NotificationType notificationType) && currentState.GetNotificationState(notificationType))
+                    if (Enum.TryParse(notificationName, out NotificationType notificationType) && toggleState.GetNotificationState(notificationType))
                     {
                         return true;
                     }
                 }
+
                 return false;
             }
         }
-        public object SetOption { get; private set; }
         public bool RefreshNotifications()
         {
-            if (ToggleNotificationsPlugin.Instance.notificationToggle != null)
+            if (RefreshNotification)
             {
-                foreach (var entry in ToggleNotificationsPlugin.Instance.notificationToggle.notificationStates)
+                NotificationList.Clear(); // Clear the existing list
+                foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
                 {
-                    currentState.SetNotificationState(entry.Key, entry.Value);
+                    if (notificationType != NotificationType.None)
+                    {
+                        NotificationList.Add(notificationType.ToString());
+                    }
                 }
 
                 return true;
@@ -87,39 +80,33 @@ namespace ToggleNotifications
                 return false;
             }
         }
-        public void ProcessOption(SetOption option)
+
+        public void CheckCurrentState()
         {
-            switch (option.option)
-            {
-                case "refreshState":
-                    bool isRefreshed = RefreshState;
-                    break;
-                case "refreshNotifications":
-                    bool isRefreshedNotification = RefreshNotifications();
-                    break;
-                default:
-                    // handle unknown option
-                    break;
-            }
+            // Check the refreshing state of the UI
+            bool isRefreshing = Refreshing != null;
+
+            // Check the refreshing state of notifications
+            bool isRefreshingNotification = RefreshingNotification != null;
+
+            // Use the values as needed
+            Debug.Log($"UI Refreshing: {isRefreshing}");
+            Debug.Log($"Notification Refreshing: {isRefreshingNotification}");
         }
         public void ShowGUI()
         {
-            // Set GUI visibility flag to true
             isGUIVisible = true;
 
-            // Define the GUI elements you want to display
-
             GUILayout.BeginVertical();
-
             GUILayout.Label("Toggle Notifications");
 
             bool gamePauseToggledMessage = toggleNotification.GetNotificationState(NotificationType.GamePauseToggledMessage);
             gamePauseToggledMessage = GUILayout.Toggle(gamePauseToggledMessage, "Enable Game Pause Notification");
-            toggleNotification.SetNotificationState(NotificationType.GamePauseToggledMessage, gamePauseToggledMessage);
+            toggleNotification.CheckCurrentState(NotificationType.GamePauseToggledMessage, gamePauseToggledMessage);
 
             bool solarPanelsIneffectiveMessage = toggleNotification.GetNotificationState(NotificationType.SolarPanelsIneffectiveMessage);
             solarPanelsIneffectiveMessage = GUILayout.Toggle(solarPanelsIneffectiveMessage, "Enable Solar Panels Ineffective");
-            toggleNotification.SetNotificationState(NotificationType.SolarPanelsIneffectiveMessage, solarPanelsIneffectiveMessage);
+            toggleNotification.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, solarPanelsIneffectiveMessage);
 
             GUILayout.EndVertical();
         }
@@ -127,13 +114,13 @@ namespace ToggleNotifications
         {
             isGUIVisible = false;
         }
-        public MessageCenterMessage ConvertToMessageCenterMessage(NotificationToggle currentState)
+        public MessageCenterMessage ConvertToMessageCenterMessage(NotificationToggle toggleState)
         {
             // Implement the logic to convert the current state to a MessageCenterMessage
-            if (currentState.GetNotificationState(NotificationType.SolarPanelsIneffectiveMessage))
+            if (toggleState.GetNotificationState(NotificationType.SolarPanelsIneffectiveMessage))
             {
                 SolarPanelsIneffectiveMessage message = new SolarPanelsIneffectiveMessage();
-                message.SentOn = currentState.SentOn;
+                message.SentOn = toggleState.SentOn;
 
                 // Set any other properties of the message as needed
 
@@ -305,7 +292,7 @@ namespace ToggleNotifications
             bool flag = UITools.SmallToggleButton(isOn, txt, txt, widthOverride);
             if (flag == isOn)
                 return;
-            toggleNotification.SetNotificationState(notificationType, flag);
+            toggleNotification.CheckCurrentState(notificationType, flag);
         }
 
         public static bool DrawToggleButton(string toggleStr, ref bool toggle)
@@ -318,37 +305,28 @@ namespace ToggleNotifications
         }
         private void CreateTabs()
         {
-            if (InitDone)
-                return;
+            tabs.Pages.Add(new ToggleNotificationsPage { PageIndex = 0 });
+            tabs.Pages.Add(new ToggleNotificationsPage { PageIndex = 1 });
             //tabs.pages.Add(new SolarPage(mainPlugin, notificationToggle));
             //tabs.pages.Add(new CommRangePage(mainPlugin, notificationToggle));
             //tabs.pages.Add(new ThrottlePage(mainPlugin, notificationToggle));
             //tabs.pages.Add(new NodePage(mainPlugin, notificationToggle));
-            this.tabs.pages.Add((IPageContent)new GamePausedPage());
+            //this.tabs.Pages.Add((IPageContent)new GamePausedPage());
             //tabs.pages.Add(new ThrottlePage(mainPlugin, notificationToggle));
         }
         public void OnGUI()
         {
-            this.CreateTabs();
-            string situation = mainPlugin.CurrentState.ToString();
+            //this.CreateTabs();
+            string situation = mainPlugin.ToString();
             string notificationList = string.Join(", ", toggleNotification.NotificationList); // Access the notification list from the toggleNotification instance
             GUILayout.Label($"Situation: {situation} {notificationList}");
 
 
-            // Handle Selection
-            if (this.Selection.ListGUI())
-                return;
-
             // Refresh notifications and states
-            TNUtility.RefreshNotifications();
-            TNUtility.RefreshStates();
+            TNUtility.RefreshNotificationsUtil();
+            TNUtility.RefreshStatesUtil();
 
             this.tabs.OnGUI();
-
-            // Process SetOption for Game Pause
-            bool isGamePauseToggledSelected = this.Selection.IsGamePauseToggledSelected();
-            SetOption setOption = new SetOption("GamePauseToggledMessage", isGamePauseToggledSelected ? "Enabled" : "Disabled");
-            setOption.ProcessOption();
 
             GUILayout.Label("Game Pause Toggled:");
             GamePausedGUI = GUILayout.Toggle(GamePausedGUI, "Enable Game Pause");

@@ -1,4 +1,4 @@
-using System.Globalization;
+ï»¿using System.Globalization;
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
@@ -109,7 +109,7 @@ namespace ToggleNotifications.TNTools.UI
         public static float HeadingSlider(string txt, float value, string tooltip = "")
         {
             string str = value.ToString("N" + 1.ToString());
-            GUILayout.Label(txt + " : " + str + " °", TNBaseStyle.SliderText);
+            GUILayout.Label(txt + " : " + str + " ï¿½", TNBaseStyle.SliderText);
             GUILayout.BeginHorizontal();
             value = GUILayout.HorizontalSlider(value, -180f, 180f, TNBaseStyle.SliderLine, TNBaseStyle.SliderNode);
             int num1 = 45;

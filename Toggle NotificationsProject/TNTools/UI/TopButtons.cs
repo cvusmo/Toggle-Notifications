@@ -1,5 +1,4 @@
-﻿using ToggleNotifications.TNTools.UI;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {

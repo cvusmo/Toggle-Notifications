@@ -1,30 +1,28 @@
-﻿
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
     public class SimpleAccordion
     {
-        public List<SimpleAccordion.Chapter> Chapters = new List<SimpleAccordion.Chapter>();
+        public List<Chapter> Chapters = new List<Chapter>();
         public bool SingleChapter;
 
         public void OnGui()
         {
             GUILayout.BeginVertical();
-            for (int index1 = 0; index1 < this.Chapters.Count; ++index1)
+            for (int index1 = 0; index1 < Chapters.Count; ++index1)
             {
-                SimpleAccordion.Chapter chapter = this.Chapters[index1];
+                Chapter chapter = Chapters[index1];
                 GUIStyle style = chapter.Opened ? TNBaseStyle.FoldoutOpen : TNBaseStyle.FoldoutClose;
                 if (GUILayout.Button(chapter.Title, style))
                 {
                     chapter.Opened = !chapter.Opened;
-                    if (chapter.Opened && this.SingleChapter)
+                    if (chapter.Opened && SingleChapter)
                     {
-                        for (int index2 = 0; index2 < this.Chapters.Count; ++index2)
+                        for (int index2 = 0; index2 < Chapters.Count; ++index2)
                         {
                             if (index1 != index2)
-                                this.Chapters[index2].Opened = false;
+                                Chapters[index2].Opened = false;
                         }
                     }
                 }
@@ -41,22 +39,22 @@ namespace ToggleNotifications.TNTools.UI
             GUILayout.EndVertical();
         }
 
-        public void AddChapter(string title, SimpleAccordion.OnChapterUI chapterUI) => this.Chapters.Add(new SimpleAccordion.Chapter(title, chapterUI));
+        public void AddChapter(string title, OnChapterUI chapterUI) => Chapters.Add(new Chapter(title, chapterUI));
 
-        public int Count => this.Chapters.Count;
+        public int Count => Chapters.Count;
 
         public delegate void OnChapterUI();
 
         public class Chapter
         {
             public string Title;
-            public SimpleAccordion.OnChapterUI ChapterUI;
+            public OnChapterUI ChapterUI;
             public bool Opened;
 
-            public Chapter(string Title, SimpleAccordion.OnChapterUI chapterUI)
+            public Chapter(string Title, OnChapterUI chapterUI)
             {
                 this.Title = Title;
-                this.ChapterUI = chapterUI;
+                ChapterUI = chapterUI;
             }
         }
     }

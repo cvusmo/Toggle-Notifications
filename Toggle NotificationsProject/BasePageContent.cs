@@ -17,23 +17,12 @@ namespace ToggleNotifications
         }
         protected MessageCenterMessage Refreshing => MainUI.Refreshing;
         protected NotificationEvents RefreshingNotification => MainUI.RefreshingNotification;
-        public void CheckCurrentState()
-        {
-            // Check the refreshing state of the UI
-            bool isRefreshing = Refreshing != null;
 
-            // Check the refreshing state of notifications
-            bool isRefreshingNotification = RefreshingNotification != null;
-
-            // Use the values as needed
-            Debug.Log($"UI Refreshing: {isRefreshing}");
-            Debug.Log($"Notification Refreshing: {isRefreshingNotification}");
-        }
 
         // Assuming you have some default values for these.
         public virtual string Name => throw new NotImplementedException();
         public virtual GUIContent Icon => throw new NotImplementedException();
-        MessageCenterMessage IPageContent.ConvertToMessageCenterMessage(NotificationToggle currentState)
+        MessageCenterMessage IPageContent.ConvertToMessageCenterMessage(NotificationToggle toggleState)
         {
             //throw new NotImplementedException();
             return null;
@@ -44,7 +33,21 @@ namespace ToggleNotifications
             get => this.uiVisible;
             set => this.uiVisible = value;
         }
-        public virtual bool IsActive => throw new NotImplementedException();
-        public virtual void OnGUI() => throw new NotImplementedException();
+        public virtual bool IsActive
+        {
+            get { return uiVisible; }
+        }
+        public virtual void OnGUI()
+        {
+            // Define your GUI elements and interactions here
+            GUILayout.Label("Toggle Notifications");
+
+            if (GUILayout.Button("Click Me"))
+            {
+                // Handle button click
+                Debug.Log("Button Clicked!");
+            }
+        }
+
     }
 }

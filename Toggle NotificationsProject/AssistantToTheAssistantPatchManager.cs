@@ -8,25 +8,17 @@ namespace ToggleNotifications
     public static class AssistantToTheAssistantPatchManager
     {
         [HarmonyPatch(typeof(NotificationEvents))]
+        [HarmonyPatch(typeof(ToggleNotificationPatch))]
         public static class ToggleNotificationPatch
         {
-            private static readonly NotificationToggle notificationToggle;
             private static readonly ToggleNotificationsPlugin mainPlugin;
-
-            public static NotificationToggle NotificationToggle => notificationToggle;
+            public static NotificationToggle NotificationToggle { get; }
 
             [HarmonyPrefix]
             [HarmonyPatch(nameof(NotificationEvents.SolarPanelsIneffectiveMessage))]
             public static bool SolarPanelsIneffectiveMessage(NotificationEvents __instance)
             {
                 return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.SolarPanelsIneffectiveMessage);
-            }
-
-            [HarmonyPrefix]
-            [HarmonyPatch(nameof(NotificationEvents.VesselLeftCommunicationRangeMessage))]
-            public static bool VesselLeftCommunicationRangeMessage(NotificationEvents __instance)
-            {
-                return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.VesselLeftCommunicationRangeMessage);
             }
 
             [HarmonyPrefix]
@@ -54,6 +46,7 @@ namespace ToggleNotifications
         }
 
         [HarmonyPatch(typeof(GameStateMachine), "OnStateChange")]
+        [HarmonyPatch(typeof(DisablePauseGUIPatch))]
         public static class DisablePauseGUIPatch
         {
             private static void Prefix(GameStateMachine __instance, GameStateChangedMessage stateChangedMessage)
@@ -68,6 +61,7 @@ namespace ToggleNotifications
         }
 
         [HarmonyPatch(typeof(NotificationUIAlert))]
+        [HarmonyPatch(typeof(UIAlertPatch))]
         public static class UIAlertPatch
 
 
@@ -82,7 +76,6 @@ namespace ToggleNotifications
             {
                 if (!NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.GamePauseToggledMessage))
                 {
-                    // Check if the notification is the "GamePauseToggledMessage" and return false to prevent showing it
                     if (notificationId == "GamePauseToggledMessage")
                         return false;
                 }

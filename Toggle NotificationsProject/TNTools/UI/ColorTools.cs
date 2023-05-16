@@ -3,200 +3,142 @@ using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
-
     public class ColorTools
     {
-
         public static void ToHSV(Color col, out float h, out float s, out float v)
         {
-            float _min, _max, _delta;
-
-            float _r = col.r;
-            float _g = col.g;
-            float _b = col.b;
-
-            _min = Mathf.Min(_r, Mathf.Min(_g, _b));
-            _max = Mathf.Max(_r, Mathf.Max(_g, _b));
-            v = _max;                // _v
-
-            _delta = _max - _min;
-
-
-            if (_delta != 0)
+            float r = col.r;
+            float g = col.g;
+            float b = col.b;
+            float num1 = Mathf.Min(r, Mathf.Min(g, b));
+            float num2 = Mathf.Max(r, Mathf.Max(g, b));
+            v = num2;
+            float num3 = num2 - num1;
+            if ((double)num3 != 0.0)
             {
-                s = _delta / _max;        // _s
+                s = num3 / num2;
+                h = (double)r != (double)num2 ? (double)g != (double)num2 ? (float)(4.0 + ((double)r - (double)g) / (double)num3) : (float)(2.0 + ((double)b - (double)r) / (double)num3) : (g - b) / num3;
+                h *= 0.166666672f;
+                if ((double)h >= 0.0)
+                    return;
+                ++h;
             }
             else
             {
-                // _r = _g = _b = 0		// _s = 0, _v is undefined
-                s = 0;
-                h = 0;
-                return;
+                s = 0.0f;
+                h = 0.0f;
             }
-
-            if (_r == _max)
-            {
-                h = (_g - _b) / _delta;        // between yellow & magenta
-            }
-            else if (_g == _max)
-            {
-                h = 2 + (_b - _r) / _delta;    // between cyan & yellow
-            }
-            else
-            {
-                h = 4 + (_r - _g) / _delta;    // between magenta & cyan
-            }
-
-            h *= 60f / 360;             // 0-1
-
-            if (h < 0)
-                h += 1;
         }
 
-        /// <summary>
-        /// Convert a color from HSV values. any value is vetween 0 and one
-        /// </summary>
         public static Color FromHSV(float hue, float saturation, float value, float alpha)
         {
-            hue *= 360;
-            //Debug.Log("hue : " + hue);
-
-            int _hi = (int)Mathf.Floor(hue / 60f) % 6;
-            //Debug.Log("_hi : " + _hi);
-            float _f = hue / 60f - Mathf.Floor(hue / 60f);
-            //Debug.Log("_f : " + _f);
-
-            float _v = value;
-            float _p = value * (1 - saturation);
-            float _q = value * (1 - _f * saturation);
-            float _t = value * (1 - (1 - _f) * saturation);
-
-            if (_hi == 0)
-                return new Color(_v, _t, _p, alpha);
-            else if (_hi == 1)
-                return new Color(_q, _v, _p, alpha);
-            else if (_hi == 2)
-                return new Color(_p, _v, _t, alpha);
-            else if (_hi == 3)
-                return new Color(_p, _q, _v, alpha);
-            else if (_hi == 4)
-                return new Color(_t, _p, _v, alpha);
-            else
-                return new Color(_v, _p, _q, alpha);
+            hue *= 360f;
+            int num1 = (int)Mathf.Floor(hue / 60f) % 6;
+            float num2 = hue / 60f - Mathf.Floor(hue / 60f);
+            float num3 = value;
+            float num4 = value * (1f - saturation);
+            float num5 = value * (float)(1.0 - (double)num2 * (double)saturation);
+            float num6 = value * (float)(1.0 - (1.0 - (double)num2) * (double)saturation);
+            switch (num1)
+            {
+                case 0:
+                    return new Color(num3, num6, num4, alpha);
+                case 1:
+                    return new Color(num5, num3, num4, alpha);
+                case 2:
+                    return new Color(num4, num3, num6, alpha);
+                case 3:
+                    return new Color(num4, num5, num3, alpha);
+                case 4:
+                    return new Color(num6, num4, num3, alpha);
+                default:
+                    return new Color(num3, num4, num5, alpha);
+            }
         }
 
-        /// <summary>
-        /// Parse a color as a string 
-        /// </summary>
-        /// <param name="color">the string representing the color
-        /// Under can be any of the predefined color by Unity 
-        /// Or a html rgb color ex FF0000 is red
-        /// </param>
-        /// <returns>the parsed Color</returns>
-        static public Color ParseColor(string color)
+        public static Color ParseColor(string color)
         {
-            if (color == "") return Color.white;
+            if (color == "")
+                return Color.white;
             color = color.ToLower();
             switch (color)
             {
-                case "black": return Color.black;
-                case "blue": return Color.blue;
-                case "clear": return Color.clear;
-                case "cyan": return Color.cyan;
-                case "gray": return Color.gray;
-                case "green": return Color.green;
-                case "grey": return Color.grey;
-                case "magenta": return Color.magenta;
-                case "red": return Color.red;
-                case "white": return Color.white;
-                case "yellow": return Color.yellow;
-                case "orange": return new Color(1f, 0.76f, 0f);
+                case "black":
+                    return Color.black;
+                case "blue":
+                    return Color.blue;
+                case "clear":
+                    return Color.clear;
+                case "cyan":
+                    return Color.cyan;
+                case "gray":
+                    return Color.gray;
+                case "green":
+                    return Color.green;
+                case "grey":
+                    return Color.grey;
+                case "magenta":
+                    return Color.magenta;
+                case "orange":
+                    return new Color(1f, 0.76f, 0.0f);
+                case "red":
+                    return Color.red;
+                case "white":
+                    return Color.white;
+                case "yellow":
+                    return Color.yellow;
                 default:
-                    {
-                        if (color.StartsWith("#"))
-                            color = color.Substring(1);
-
-                        while (color.Length < 6)
-                            color += "0";
-
-
-                        int.TryParse(color.Substring(0, 2), NumberStyles.AllowHexSpecifier,
-                            CultureInfo.InvariantCulture.NumberFormat, out int r);
-                        int.TryParse(color.Substring(2, 2), NumberStyles.AllowHexSpecifier,
-                            CultureInfo.InvariantCulture.NumberFormat, out int g);
-                        int.TryParse(color.Substring(4, 2), NumberStyles.AllowHexSpecifier,
-                            CultureInfo.InvariantCulture.NumberFormat, out int b);
-
-                        return new Color(
-                            (float)r / 255,
-                            (float)g / 255,
-                            (float)b / 255);
-                    }
+                    if (color.StartsWith("#"))
+                        color = color.Substring(1);
+                    while (color.Length < 6)
+                        color += "0";
+                    int result1;
+                    int.TryParse(color.Substring(0, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture.NumberFormat, out result1);
+                    int result2;
+                    int.TryParse(color.Substring(2, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture.NumberFormat, out result2);
+                    int result3;
+                    int.TryParse(color.Substring(4, 2), NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture.NumberFormat, out result3);
+                    return new Color(result1 / (float)byte.MaxValue, result2 / (float)byte.MaxValue, result3 / (float)byte.MaxValue);
             }
         }
 
-        static public string FormatColorHtml(Color col)
+        public static string FormatColorHtml(Color col) => string.Format("{0:X2}{1:X2}{2:X2}", (int)(col.r * (double)byte.MaxValue), (int)(col.g * (double)byte.MaxValue), (int)(col.b * (double)byte.MaxValue));
+
+        public static Color[] GetRandomColorArray(int Nb, float saturation = 1f)
         {
-            int _r = (int)(col.r * 255);
-            int _g = (int)(col.g * 255);
-            int _b = (int)(col.b * 255);
-            return string.Format("{0:X2}{1:X2}{2:X2}", _r, _g, _b);
-        }
-
-        // just a list of really differnts _colors  that can be used for unitary test
-        // any color is far enough from the next one to be fully visible 
-        static public Color[] GetRandomColorArray(int Nb, float saturation = 1)
-        {
-
-            float _delta = 1f / Nb;
-            Color[] _colors = new Color[Nb];
-
-            float _h = UnityEngine.Random.Range(0f, 1);
-
-            for (int i = 0; i < Nb; i++)
+            float num = 1f / Nb;
+            Color[] randomColorArray = new Color[Nb];
+            float hue = UnityEngine.Random.Range(0.0f, 1f);
+            for (int index = 0; index < Nb; ++index)
             {
-                _colors[i] = FromHSV(_h, saturation, 1, 1);
-                _h += _delta;
+                randomColorArray[index] = FromHSV(hue, saturation, 1f, 1f);
+                hue += num;
             }
-
-            return _colors;
+            return randomColorArray;
         }
 
-        // just a list of really differnts _colors  that can be used for unitary test
-        // any color is far enough from the next one to be fully visible 
-        static public Color[] GetRainbowColorArray(int Nb)
+        public static Color[] GetRainbowColorArray(int Nb)
         {
-            float _delta = 1f / Nb;
-            Color[] _colors = new Color[Nb];
-
-            float _h = 0;
-
-            for (int i = 0; i < Nb; i++)
+            float num = 1f / Nb;
+            Color[] rainbowColorArray = new Color[Nb];
+            float hue = 0.0f;
+            for (int index = 0; index < Nb; ++index)
             {
-                _colors[i] = FromHSV(_h, 1, 1, 1);
-                _h += _delta;
+                rainbowColorArray[index] = FromHSV(hue, 1f, 1f, 1f);
+                hue += num;
             }
-
-            return _colors;
+            return rainbowColorArray;
         }
 
-        static public Color RandomColor()
+        public static Color RandomColor() => FromHSV(UnityEngine.Random.Range(0.0f, 1f), 1f, 1f, 1f);
+
+        public static Color ChangeColorHSV(Color source, float deltaH, float deltaS, float deltaV)
         {
-            float _h = UnityEngine.Random.Range(0f, 1);
-            //  float _v = UnityEngine.Random.Range(0.5f, 1);
-            return FromHSV(_h, 1, 1, 1);
-
-        }
-
-        static public Color ChangeColorHSV(Color source, float deltaH, float deltaS, float deltaV)
-        {
-            ToHSV(source, out float _h, out float _s, out float _v);
-
-            _h += deltaH;
-            _s += deltaS;
-            _v += deltaV;
-
-            return FromHSV(_h, _s, _v, source.a);
+            float h;
+            float s;
+            float v;
+            ToHSV(source, out h, out s, out v);
+            return FromHSV(h + deltaH, s + deltaS, v + deltaV, source.a);
         }
     }
 }

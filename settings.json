@@ -1,14 +1,5 @@
 {
   "WindowXPos": "3340",
   "WindowYPos": "1333",
-  {
-    "General": {
-      "EnablePlugin": true,
-      "SolarPanelIneffectiveMessageConfig": true,
-      "CommunicationRangeMessageConfig": true,
-      "ThrottleLockedWarpMessageConfig": true,
-      "ManeuverNodeOutOfFuelMessageConfig": true,
-      "GamePauseToggledMessageConfig": true
-    }
-  }
+  "EnablePlugin": true,   
 }

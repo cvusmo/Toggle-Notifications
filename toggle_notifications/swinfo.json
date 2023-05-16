@@ -1,11 +1,11 @@
 {
-  "mod_id": "toggle_notifications",
+  "mod_id": "ToggleNotifications",
   "author": "cvusmo",
   "name": "Toggle Notifications",
   "description": "Toggle Notifications on and off",
   "license": "MIT",
   "source": "https://github.com/cvusmo/Toggle-Notifications",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "version_check": "https://raw.githubusercontent.com/cvusmo/Toggle-Notifications/master/Toggle_Notifications/swinfo.json",
   "dependencies": [
     {
