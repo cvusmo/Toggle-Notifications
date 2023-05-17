@@ -2,6 +2,7 @@
 using HarmonyLib;
 using KSP.Game;
 using KSP.Messages;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ToggleNotifications.TNTools.UI;
 
 namespace ToggleNotifications
@@ -10,7 +11,7 @@ namespace ToggleNotifications
     {
         public static ManualLogSource Logger { get; set; }
         public static NotificationToggle NotificationToggle { get; set; }
-
+        //Game Pause Patches
         [HarmonyPatch(typeof(NotificationEvents))]
         public static class NotificationEventsPatch
         {
@@ -19,22 +20,32 @@ namespace ToggleNotifications
             public static bool Prefix(NotificationEvents __instance)
             {
                 Logger.LogInfo("Prefix Loaded for NotificationEvents");
-                // Perform your logic here
                 return false;
             }
         }
 
-        [HarmonyPatch(typeof(PauseStateChangedMessage))]
-        public static class PauseStateChangedPatch
+        [HarmonyPatch(typeof(MessageCenter))]
+        public static class MessageCenterPublishPatch
         {
             [HarmonyPrefix]
-            [HarmonyPatch("PauseStateChangedMessage")]
-            public static bool Prefix(PauseStateChangedMessage __instance)
+            [HarmonyPatch(nameof(MessageCenter.Publish), typeof(System.Type), typeof(MessageCenterMessage))]
+            public static bool Prefix(System.Type type, MessageCenterMessage message)
             {
-                Logger.LogInfo("Prefix Loaded for PauseStateChangedMessage");
-                Logger.LogInfo("Paused: " + __instance.Paused);
-                // Perform your logic here
-                return false;
+                if (type == typeof(PauseStateChangedMessage))
+                {
+                    PauseStateChangedMessage pauseMessage = (PauseStateChangedMessage)message;
+                    if (pauseMessage.Paused)
+                    {
+                        Logger.LogInfo("Game is paused");
+                        return true;
+                    }
+                    else
+                    {
+                        Logger.LogInfo("Game is unpaused");
+                        return true;
+                    }
+                }
+                return true;
             }
         }
 
@@ -43,13 +54,37 @@ namespace ToggleNotifications
         {
             [HarmonyPrefix]
             [HarmonyPatch("SetPauseVisible")]
-            public static void Prefix(UIManager __instance, bool isVisible)
+            public static bool Prefix(UIManager __instance, bool isVisible)
             {
-                Logger.LogInfo("Prefix Loaded for SetPauseVisible");
-                Logger.LogInfo("IsVisible: " + isVisible);
+                if (Logger != null)
+                {
+                    Logger.LogInfo("Prefix Loaded for SetPauseVisible");
+                    Logger.LogInfo("IsVisible: " + isVisible);
+                }
+
+                if (isVisible)
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
-
+        //Solar Panel Patches
+        [HarmonyPatch(typeof(NotificationEvents))]
+        public static class SolarPanelsIneffectiveMessagePatch
+        {
+            [HarmonyPrefix]
+            [HarmonyPatch("SolarPanelsIneffectiveMessage")]
+            public static bool Prefix(NotificationEvents __instance, MessageCenterMessage msg)
+            {
+                if (Logger != null)
+                {
+                    Logger.LogInfo("Prefix Loaded for SolarPanelsIneffectiveMessage in NotificationEvents");
+                }
+                return false;
+            }
+        }
         public static void ApplyPatches()
         {
             Harmony harmony = new Harmony("com.github.cvusmo.Toggle-Notifications");
