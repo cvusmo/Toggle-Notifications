@@ -1,7 +1,6 @@
 ﻿using BepInEx.Logging;
 using KSP.Game;
 using KSP.Messages;
-using TNUtilities;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 using static ToggleNotifications.TNTools.UI.NotificationToggle;
@@ -24,12 +23,13 @@ namespace ToggleNotifications
         public bool RefreshNotification { get; set; }
         public bool GamePausedGUI { get; set; }
         public static ToggleNotificationsUI Instance => ToggleNotificationsUI.instance;
+
         public ToggleNotificationsUI(ToggleNotificationsPlugin plugin)
         {
             ToggleNotificationsUI.instance = this;
             plugin = mainPlugin;
-
         }
+
         public void Update()
         {
             if (!InitDone)
@@ -42,6 +42,7 @@ namespace ToggleNotifications
 
             tabs.Update();
         }
+
         public bool RefreshState
         {
             get
@@ -60,6 +61,7 @@ namespace ToggleNotifications
                 return false;
             }
         }
+
         public bool RefreshNotifications()
         {
             if (RefreshNotification)
@@ -107,6 +109,8 @@ namespace ToggleNotifications
             bool solarPanelsIneffectiveMessage = toggleNotification.GetNotificationState(NotificationType.SolarPanelsIneffectiveMessage);
             solarPanelsIneffectiveMessage = GUILayout.Toggle(solarPanelsIneffectiveMessage, "Enable Solar Panels Ineffective");
             toggleNotification.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, solarPanelsIneffectiveMessage);
+
+            // Add other GUI elements specific to your mod here
 
             GUILayout.EndVertical();
         }
@@ -316,17 +320,11 @@ namespace ToggleNotifications
         }
         public void OnGUI()
         {
-            //this.CreateTabs();
-            string situation = mainPlugin.ToString();
-            string notificationList = string.Join(", ", toggleNotification.NotificationList); // Access the notification list from the toggleNotification instance
-            GUILayout.Label($"Situation: {situation} {notificationList}");
-
-
             // Refresh notifications and states
-            TNUtility.RefreshNotificationsUtil();
-            TNUtility.RefreshStatesUtil();
+            RefreshNotifications();
+            bool refreshState = RefreshState;
 
-            this.tabs.OnGUI();
+            tabs.OnGUI();
 
             GUILayout.Label("Game Pause Toggled:");
             GamePausedGUI = GUILayout.Toggle(GamePausedGUI, "Enable Game Pause");

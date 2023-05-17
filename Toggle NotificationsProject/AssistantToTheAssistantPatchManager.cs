@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx.Logging;
+using HarmonyLib;
 using KSP.Game;
 using KSP.Messages;
 using ToggleNotifications.TNTools.UI;
@@ -7,81 +8,53 @@ namespace ToggleNotifications
 {
     public static class AssistantToTheAssistantPatchManager
     {
+        public static ManualLogSource Logger { get; set; }
+        public static NotificationToggle NotificationToggle { get; set; }
+
         [HarmonyPatch(typeof(NotificationEvents))]
-        [HarmonyPatch(typeof(ToggleNotificationPatch))]
-        public static class ToggleNotificationPatch
+        public static class NotificationEventsPatch
         {
-            private static readonly ToggleNotificationsPlugin mainPlugin;
-            public static NotificationToggle NotificationToggle { get; }
-
             [HarmonyPrefix]
-            [HarmonyPatch(nameof(NotificationEvents.SolarPanelsIneffectiveMessage))]
-            public static bool SolarPanelsIneffectiveMessage(NotificationEvents __instance)
+            [HarmonyPatch("GamePauseToggledMessage")]
+            public static bool Prefix(NotificationEvents __instance)
             {
-                return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.SolarPanelsIneffectiveMessage);
-            }
-
-            [HarmonyPrefix]
-            [HarmonyPatch(nameof(NotificationEvents.VesselThrottleLockedDueToTimewarpingMessage))]
-            public static bool VesselThrottleLockedDueToTimewarpingMessage(NotificationEvents __instance)
-            {
-                return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.VesselThrottleLockedDueToTimewarpingMessage);
-            }
-
-            [HarmonyPrefix]
-            [HarmonyPatch(nameof(NotificationEvents.CannotPlaceManeuverNodeWhileOutOfFuelMessage))]
-            public static bool CannotPlaceManeuverNodeWhileOutOfFuelMessage(NotificationEvents __instance)
-            {
-                return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage);
-            }
-
-            [HarmonyPrefix]
-            [HarmonyPatch(nameof(NotificationEvents.GamePauseToggledMessage))]
-            public static bool GamePauseToggledMessage(NotificationEvents __instance)
-            {
-                return !NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.GamePauseToggledMessage);
-            }
-
-            // You can add more Harmony patches for other notification events here
-        }
-
-        [HarmonyPatch(typeof(GameStateMachine), "OnStateChange")]
-        [HarmonyPatch(typeof(DisablePauseGUIPatch))]
-        public static class DisablePauseGUIPatch
-        {
-            private static void Prefix(GameStateMachine __instance, GameStateChangedMessage stateChangedMessage)
-            {
-                if (__instance.Paused)
-                {
-                    UIManager uiManager = __instance.Game.UI;
-                    uiManager.HidePause();
-                    uiManager.SetPauseVisible(true);
-                }
+                Logger.LogInfo("Prefix Loaded for NotificationEvents");
+                // Perform your logic here
+                return false;
             }
         }
 
-        [HarmonyPatch(typeof(NotificationUIAlert))]
-        [HarmonyPatch(typeof(UIAlertPatch))]
-        public static class UIAlertPatch
-
-
+        [HarmonyPatch(typeof(PauseStateChangedMessage))]
+        public static class PauseStateChangedPatch
         {
-            private static readonly NotificationToggle notificationToggle;
-
-            public static NotificationToggle NotificationToggle => notificationToggle;
-
             [HarmonyPrefix]
-            [HarmonyPatch("ShowNotification")]
-            public static bool ShowNotification(ref string notificationId)
+            [HarmonyPatch("PauseStateChangedMessage")]
+            public static bool Prefix(PauseStateChangedMessage __instance)
             {
-                if (!NotificationToggle.GetNotificationState(NotificationToggle.NotificationType.GamePauseToggledMessage))
-                {
-                    if (notificationId == "GamePauseToggledMessage")
-                        return false;
-                }
-
-                return true;
+                Logger.LogInfo("Prefix Loaded for PauseStateChangedMessage");
+                Logger.LogInfo("Paused: " + __instance.Paused);
+                // Perform your logic here
+                return false;
             }
+        }
+
+        [HarmonyPatch(typeof(UIManager))]
+        public static class SetPauseVisiblePatch
+        {
+            [HarmonyPrefix]
+            [HarmonyPatch("SetPauseVisible")]
+            public static void Prefix(UIManager __instance, bool isVisible)
+            {
+                Logger.LogInfo("Prefix Loaded for SetPauseVisible");
+                Logger.LogInfo("IsVisible: " + isVisible);
+                // Perform your logic here
+            }
+        }
+
+        public static void ApplyPatches()
+        {
+            Harmony harmony = new Harmony("com.github.cvusmo.Toggle-Notifications");
+            harmony.PatchAll(typeof(AssistantToTheAssistantPatchManager).Assembly);
         }
     }
 }

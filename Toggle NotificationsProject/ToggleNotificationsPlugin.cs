@@ -35,6 +35,8 @@ namespace ToggleNotifications
         public ToggleNotificationsPlugin mainPlugin;
         private NotificationToggle notificationToggle;
         public GameInstance game;
+        private bool solarPanelsIneffectiveMessageToggle = true;
+        private bool gamePauseToggledMessageToggle = true;
 
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
         private static string assemblyFolder;
@@ -59,24 +61,32 @@ namespace ToggleNotifications
             ToggleNotificationsPlugin.Instance = this;
             game = GameManager.Instance.Game;
 
-            ToggleNotificationsPlugin.Logger = Logger;
-            ToggleNotificationsPlugin.Logger.LogInfo((object)"Loaded");
-
+            Logger = base.Logger;
+            Logger.LogInfo("Loaded");
 
             //Register Flight AppBar button
             Appbar.RegisterAppButton(
             "Toggle Notifications",
             ToolbarFlightButtonID,
-            AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
+            AssetManager.GetAsset<Texture2D>($"togglenotifications/images/icon.png"),
             isOpen =>
             {
                 isWindowOpen = isOpen;
                 GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
+                Debug.Log($"Initial isWindowOpen value: {isWindowOpen}");
             }
         );
 
+            // Initialize and pass the notification toggle instance to the patch manager
+            var notificationToggle = new NotificationToggle(this, new Dictionary<NotificationToggle.NotificationType, bool>());
+            AssistantToTheAssistantPatchManager.NotificationToggle = notificationToggle;
+
+
+            solarPanelsIneffectiveMessageToggle = true;
+            gamePauseToggledMessageToggle = true;
+
             // Register all Harmony patches in the project
-            Harmony.CreateAndPatchAll(typeof(ToggleNotificationsPlugin).Assembly);
+            AssistantToTheAssistantPatchManager.ApplyPatches();
 
             // Fetch a configuration value or create a default one if it does not exist
             var defaultValue = "Enabled";
@@ -103,6 +113,11 @@ namespace ToggleNotifications
             this.MainUI.Update();
 
         }
+        public NotificationToggle GetNotificationToggle()
+        {
+            return notificationToggle;
+        }
+
         public void saverectpos()
         {
             TNBaseSettings.WindowXPos = (int)this.windowRect.xMin;
