@@ -2,6 +2,7 @@
 using HarmonyLib;
 using KSP.Game;
 using KSP.Messages;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ToggleNotifications.TNTools.UI;
 
 namespace ToggleNotifications
@@ -10,7 +11,7 @@ namespace ToggleNotifications
     {
         public static ManualLogSource Logger { get; set; }
         public static NotificationToggle NotificationToggle { get; set; }
-
+        //Game Pause Patches
         [HarmonyPatch(typeof(NotificationEvents))]
         public static class NotificationEventsPatch
         {
@@ -47,7 +48,7 @@ namespace ToggleNotifications
                 return true;
             }
         }
-
+        
         [HarmonyPatch(typeof(UIManager))]
         public static class SetPauseVisiblePatch
         {
@@ -69,16 +70,18 @@ namespace ToggleNotifications
                 return true; 
             }
         }
-
+        //Solar Panel Patches
         [HarmonyPatch(typeof(NotificationEvents))]
-        public static class SolarPanelEventsPatch
+        public static class SolarPanelsIneffectiveMessagePatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("SolarPanelsIneffectiveMessage")]
-
-            public static bool Prefix(NotificationEvents __instance)
+            public static bool Prefix(NotificationEvents __instance, MessageCenterMessage msg)
             {
-                Logger.LogInfo("Prefix Loaded for SolarPanel NotificationEvents");
+                if (Logger != null)
+                {
+                    Logger.LogInfo("Prefix Loaded for SolarPanelsIneffectiveMessage in NotificationEvents");
+                }
                 return false;
             }
         }
