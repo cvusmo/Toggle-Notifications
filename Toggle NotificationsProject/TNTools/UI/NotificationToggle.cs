@@ -1,10 +1,17 @@
+//purpose of the NotificationToggle class is to control and display options for when a notification type should occur.
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
-    //handles the individual notification states, 
     public class NotificationToggle
     {
+        private readonly ToggleNotificationsPlugin mainPlugin;
+        public Dictionary<NotificationType, bool> notificationStates;
+        private ToggleNotificationsPlugin toggleNotificationsPlugin;
+        private Dictionary<NotificationToggle.NotificationType, bool> dictionary;
+
+        public long SentOn { get; internal set; }
+        public List<string> NotificationList { get; } = new List<string>();
         public enum NotificationType
         {
             SolarPanelsIneffectiveMessage,
@@ -13,13 +20,6 @@ namespace ToggleNotifications.TNTools.UI
             GamePauseToggledMessage,
             None
         }
-
-        private readonly ToggleNotificationsPlugin mainPlugin;
-        public Dictionary<NotificationType, bool> notificationStates;
-
-        public long SentOn { get; internal set; }
-        public List<string> NotificationList { get; } = new List<string>();
-
         public NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
         {
             this.mainPlugin = mainPlugin;
@@ -34,7 +34,6 @@ namespace ToggleNotifications.TNTools.UI
                 }
             }
         }
-
         public bool GetNotificationState(NotificationType notificationType)
         {
             return notificationStates.TryGetValue(notificationType, out bool state) ? state : false;
@@ -65,7 +64,6 @@ namespace ToggleNotifications.TNTools.UI
                     }
                 }
             }
-
             return true; // Indicate that a change has occurred
         }
     }
