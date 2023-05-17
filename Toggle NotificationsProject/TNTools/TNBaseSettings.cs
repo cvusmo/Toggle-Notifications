@@ -1,31 +1,30 @@
-﻿
-
-namespace ToggleNotifications.TNTools
+﻿namespace ToggleNotifications.TNTools
 {
-    public class TNBaseSettings : TNSettings
+    public class TNBaseSettings
     {
-        public static SettingsFile sfile = null;
+        public static SettingsFile SFile = null;
         public static string SettingsPath;
+
         public static void Init(string settingsPath)
         {
-            sfile = new SettingsFile(settingsPath);
+            SFile = new SettingsFile(settingsPath);
         }
         public static int WindowXPos
         {
-            get => sfile.GetInt("WindowXPos", 70);
-            set { sfile.SetInt("WindowXPos", value); }
+            get => SFile.GetInt("WindowXPos", 70);
+            set { SFile.SetInt("WindowXPos", value); }
         }
 
         public static int WindowYPos
         {
-            get => sfile.GetInt("WindowYPos", 50);
-            set { sfile.SetInt("WindowYPos", value); }
+            get => SFile.GetInt("WindowYPos", 50);
+            set { SFile.SetInt("WindowYPos", value); }
         }
 
         public static int MainTabIndex
         {
-            get { return sfile.GetInt("MainTabIndex", 0); }
-            set { sfile.SetInt("MainTabIndex", value); }
+            get { return SFile.GetInt("MainTabIndex", 0); }
+            set { SFile.SetInt("MainTabIndex", value); }
         }
     }
 }

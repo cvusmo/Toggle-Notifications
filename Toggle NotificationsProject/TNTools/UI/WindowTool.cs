@@ -1,47 +1,42 @@
-﻿using ToggleNotifications.TNTools;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace ToggleNotifications.TNTools.UI;
-
-public class WindowTool
+namespace ToggleNotifications.TNTools.UI
 {
-    public static void CheckWindowPos(ref Rect windowFrame)
+    public class WindowTool
     {
-        if (windowFrame.xMax > Screen.width)
+        public static void CheckWindowPos(ref Rect windowFrame)
         {
-            float _dx = Screen.width - windowFrame.xMax;
-            windowFrame.x += _dx;
-        }
-        if (windowFrame.yMax > Screen.height)
-        {
-            float _dy = Screen.height - windowFrame.yMax;
-            windowFrame.y += _dy;
-        }
-        if (windowFrame.xMin < 0)
-        {
-            windowFrame.x = 0;
-        }
-        if (windowFrame.yMin < 0)
-        {
-            windowFrame.y = 0;
-        }
-    }
-    public static void CheckMainWindowPos(ref Rect windowFrame)
-    {
-        if (windowFrame == Rect.zero)
-        {
-            int _xPos = TNBaseSettings.WindowXPos;
-            int _yPos = TNBaseSettings.WindowYPos;
-
-            if (_xPos == -1)
+            if ((double)windowFrame.xMax > (double)Screen.width)
             {
-                _xPos = 100;
-                _yPos = 50;
+                float num = (float)Screen.width - windowFrame.xMax;
+                windowFrame.x += num;
             }
-
-            windowFrame = new Rect(_xPos, _yPos, 500, 100);
+            if ((double)windowFrame.yMax > (double)Screen.height)
+            {
+                float num = (float)Screen.height - windowFrame.yMax;
+                windowFrame.y += num;
+            }
+            if ((double)windowFrame.xMin < 0.0)
+                windowFrame.x = 0.0f;
+            if ((double)windowFrame.yMin >= 0.0)
+                return;
+            windowFrame.y = 0.0f;
         }
 
-        CheckWindowPos(ref windowFrame);
+        public static void CheckMainWindowPos(ref Rect windowFrame)
+        {
+            if (windowFrame == Rect.zero)
+            {
+                int x = TNBaseSettings.WindowXPos;
+                int y = TNBaseSettings.WindowYPos;
+                if (x == -1)
+                {
+                    x = 100;
+                    y = 50;
+                }
+                windowFrame = new Rect((float)x, (float)y, 500f, 100f);
+            }
+            WindowTool.CheckWindowPos(ref windowFrame);
+        }
     }
 }

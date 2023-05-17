@@ -5,12 +5,9 @@ namespace ToggleNotifications
     public class TNSettings
     {
         private static ConfigFile s_config_file;
-        private static string s_settingspath;
-
-        public static void Init(string settingspath)
+        public static void Init(string configurationpath)
         {
-            s_settingspath = settingspath;
-            s_config_file = new ConfigFile(settingspath, true);
+            s_config_file = new ConfigFile(configurationpath, true);
         }
 
         public static T GetValue<T>(string key, T defaultValue)
@@ -23,11 +20,16 @@ namespace ToggleNotifications
             s_config_file.Bind("", key, value).Value = value;
             s_config_file.Save();
         }
-
         public static bool SolarPanelsIneffectiveMessage
         {
             get => GetValue(nameof(SolarPanelsIneffectiveMessage), true);
             set { SetValue(nameof(SolarPanelsIneffectiveMessage), value); }
+        }
+
+        public static bool SolarPanelsIneffectiveTimeToWaitTill
+        {
+            get => GetValue(nameof(SolarPanelsIneffectiveTimeToWaitTill), true);
+            set { SetValue(nameof(SolarPanelsIneffectiveTimeToWaitTill), value); }
         }
 
         public static bool VesselLeftCommunicationRangeMessage

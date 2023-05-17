@@ -1,169 +1,93 @@
-﻿using ToggleNotifications.TNTools.UI;
-using ToggleNotifications.TNTools;
-using UnityEngine;
-using KSP.Messages;
+﻿using UnityEngine;
 
-namespace ToggleNotifications.TNTools.UI;
-
-public interface IPageContent
+namespace ToggleNotifications.TNTools.UI
 {
-    MessageCenterMessage ConvertToMessageCenterMessage(NotificationToggle currentState);
-    string Name { get; }
-    GUIContent Icon { get; }
-    bool IsRunning { get; }
-    bool IsActive { get; }
-    bool UIVisible { get; set; }
-
-    void OnGUI();
-}
-
-public class TabsUI
-{
-    private List<string> tabNames = new List<string>();
-    private Dictionary<string, string> tabContents = new Dictionary<string, string>();
-    private Dictionary<string, BasePageContent> tabPages = new Dictionary<string, BasePageContent>();
-    public static NotificationToggle currentState;
-
-    public List<IPageContent> pages = new List<IPageContent>();
-
-    private List<IPageContent> filteredPages = new List<IPageContent>();
-
-    IPageContent CurrentPage = null;
-
-    // must be called after adding pages
-    private bool tabButton(bool isCurrent, bool IsActive, string txt, GUIContent icon)
+    public class TabsUI
     {
-        GUIStyle style = IsActive ? TNBaseStyle.TabActive : TNBaseStyle.TabNormal;
-        if (icon == null)
-            return GUILayout.Toggle(isCurrent, txt, style, GUILayout.ExpandWidth(true));
-        else
-            return GUILayout.Toggle(isCurrent, icon, style, GUILayout.ExpandWidth(true));
-    }
+        public List<IPageContent> Pages = new List<IPageContent>();
+        private List<IPageContent> _filteredPages = new List<IPageContent>();
+        private IPageContent CurrentPage;
+        private List<float> TabsWidth = new List<float>();
 
-    List<float> TabsWidth = new();
-
-    public int DrawTabs(int current, float maxWidth = 300)
-    {
-        current = GeneralTools.ClampInt(current, 0, filteredPages.Count - 1);
-        GUILayout.BeginHorizontal();
-
-        int result = current;
-
-        // compute sizes
-        if (TabsWidth.Count != filteredPages.Count)
+        private bool tabButton(bool isCurrent, bool isActive, string txt, GUIContent icon)
         {
-            TabsWidth.Clear();
-            for (int index = 0; index < filteredPages.Count; index++)
-            {
-                var page = filteredPages[index];
-                TNBaseStyle.TabNormal.CalcMinMaxWidth(new GUIContent(page.Name, ""), out float _minWidth, out _);
-                TabsWidth.Add(_minWidth);
-            }
+            GUIStyle style = isActive ? TNBaseStyle.TabActive : TNBaseStyle.TabNormal;
+            return icon == null ? GUILayout.Toggle((isCurrent ? 1 : 0) != 0, txt, style, GUILayout.ExpandWidth(true)) : GUILayout.Toggle((isCurrent ? 1 : 0) != 0, icon, style, GUILayout.ExpandWidth(true));
         }
-        float _xPos = 0;
 
-        for (int index = 0; index < filteredPages.Count; index++)
+        public int DrawTabs(int current, float maxWidth = 300f)
         {
-            IPageContent page = filteredPages[index];
-
-            float _width = TabsWidth[index];
-
-            if (_xPos > maxWidth)
+            current = GeneralTools.ClampInt(current, 0, this._filteredPages.Count - 1);
+            GUILayout.BeginHorizontal();
+            int num1 = current;
+            if (this.TabsWidth.Count != this._filteredPages.Count)
             {
-                GUILayout.EndHorizontal();
-                GUILayout.BeginHorizontal();
-                _xPos = 0;
+                this.TabsWidth.Clear();
+                for (int index = 0; index < this._filteredPages.Count; ++index)
+                {
+                    IPageContent filteredPage = this._filteredPages[index];
+                    float minWidth;
+                    TNBaseStyle.TabNormal.CalcMinMaxWidth(new GUIContent(filteredPage.Name, ""), out minWidth, out float _);
+                    this.TabsWidth.Add(minWidth);
+                }
             }
-            _xPos += _width;
-
-            bool _isCurrent = current == index;
-            if (tabButton(_isCurrent, page.IsRunning, page.Name, page.Icon))
+            float num2 = 0.0f;
+            for (int index = 0; index < this._filteredPages.Count; ++index)
             {
-                if (!_isCurrent)
+                IPageContent filteredPage = this._filteredPages[index];
+                float num3 = this.TabsWidth[index];
+                if ((double)num2 > (double)maxWidth)
+                {
+                    GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    num2 = 0.0f;
+                }
+                num2 += num3;
+                bool isCurrent = current == index;
+                if (this.tabButton(isCurrent, filteredPage.IsRunning, filteredPage.Name, filteredPage.Icon) && !isCurrent)
+                    num1 = index;
+            }
+            GUILayout.EndHorizontal();
+            UITools.Separator();
+            return num1;
+        }
 
-                    result = index;
+        public void Init()
+        {
+            this.CurrentPage = this.Pages[TNBaseSettings.MainTabIndex];
+            this.CurrentPage.UIVisible = true;
+        }
+
+        public void Update()
+        {
+            this._filteredPages = new List<IPageContent>();
+            for (int index = 0; index < this.Pages.Count; ++index)
+            {
+                if (this.Pages[index].IsActive)
+                    this._filteredPages.Add(this.Pages[index]);
             }
         }
 
-        /*  if (_xPos < _maxWidth * 0.7f)
-          {
-              GUILayout.FlexibleSpace();
-          }*/
-        GUILayout.EndHorizontal();
-
-        UITools.Separator();
-        return result;
-    }
-    public void AddTab(string name, ToggleNotificationsPlugin plugin)
-    {
-        if (!tabContents.ContainsKey(name))
+        public void OnGUI()
         {
-            tabContents.Add(name, "");
-            tabPages.Add(name, new SolarPage(plugin));
+            int mainTabIndex = TNBaseSettings.MainTabIndex;
+            if (this._filteredPages.Count == 0)
+            {
+                UITools.Error("NO active Tab tage !!!");
+            }
+            else
+            {
+                int index = GeneralTools.ClampInt(this._filteredPages.Count != 1 ? this.DrawTabs(mainTabIndex) : 0, 0, this._filteredPages.Count - 1);
+                IPageContent filteredPage = this._filteredPages[index];
+                if (filteredPage != this.CurrentPage)
+                {
+                    this.CurrentPage.UIVisible = false;
+                    this.CurrentPage = filteredPage;
+                    this.CurrentPage.UIVisible = true;
+                }
+                TNBaseSettings.MainTabIndex = index;
+                this.CurrentPage.OnGUI();
+            }
         }
-    }
-
-    public void AddContent(string name, string selection, ToggleNotificationsPlugin plugin)
-    {
-        if (!tabContents.ContainsKey(name))
-        {
-            tabContents.Add(name, "");
-            tabPages.Add(name, new SolarPage(plugin));
-        }
-        // add the selection content to the corresponding tab
-        tabContents[name] += selection;
-    }
-
-    public void Init()
-    {
-        CurrentPage = pages[TNBaseSettings.MainTabIndex];
-        CurrentPage.UIVisible = true;
-    }
-
-    // must be called to rebuild the filteredPages list 
-    public void Update()
-    {
-        filteredPages = new List<IPageContent>();
-        for (int index = 0; index < pages.Count; index++)
-        {
-            if (pages[index].IsActive)
-                filteredPages.Add(pages[index]);
-        }
-    }
-
-    public void OnGUI()
-    {
-        int _currentIndex = TNBaseSettings.MainTabIndex;
-
-        if (filteredPages.Count == 0)
-        {
-            UITools.Error("NO active Tab tage !!!");
-            return;
-        }
-        int result;
-        if (filteredPages.Count == 1)
-        {
-            result = 0;
-        }
-        else
-        {
-            result = DrawTabs(_currentIndex);
-        }
-
-        result = GeneralTools.ClampInt(result, 0, filteredPages.Count - 1);
-        IPageContent page = filteredPages[result];
-
-        if (page != CurrentPage)
-        {
-            CurrentPage.UIVisible = false;
-            //TNBaseSettings.MainTabIndex = result;
-            //CurrentPage = filteredPages[result];
-            CurrentPage = page;
-            CurrentPage.UIVisible = true;
-        }
-
-        TNBaseSettings.MainTabIndex = result;
-
-        CurrentPage.OnGUI();
     }
 }
