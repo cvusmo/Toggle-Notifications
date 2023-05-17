@@ -54,8 +54,7 @@ namespace ToggleNotifications.TNTools.UI
 
         public void Init()
         {
-            this.CurrentPage = this.Pages[TNBaseSettings.MainTabIndex];
-            this.CurrentPage.UIVisible = true;
+           //
         }
 
         public void Update()

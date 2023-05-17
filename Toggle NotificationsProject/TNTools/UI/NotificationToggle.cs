@@ -65,7 +65,6 @@ namespace ToggleNotifications.TNTools.UI
                     }
                 }
             }
-
             return true; // Indicate that a change has occurred
         }
     }
