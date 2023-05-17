@@ -1,4 +1,5 @@
 using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HarmonyLib;
@@ -38,8 +39,13 @@ namespace ToggleNotifications
         public ToggleNotificationsPlugin mainPlugin;
         public GameInstance game;
         private NotificationToggle notificationToggle;
-        private bool solarPanelsIneffectiveMessageToggle = true;
-        private bool gamePauseToggledMessageToggle = true;
+        private bool solarPanelsIneffectiveMessageToggle;
+        private bool gamePauseToggledMessageToggle;
+
+        //config
+        public ConfigEntry<bool> TNconfig;
+        protected bool defaultValue;
+        public static bool IsPatchingEnabled { get; set; }
 
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
         private static string assemblyFolder;
@@ -63,28 +69,45 @@ namespace ToggleNotifications
             Logger = base.Logger;
             Logger.LogInfo("Loaded");
 
-            //Register Flight AppBar button
+            // Configuration settings
+            TNconfig = Config.Bind("Notification Settings", "Toggle Notifications", defaultValue, "Toggle Notifications is a mod that allows you to enable or disable notifications");
+            defaultValue = TNconfig.Value;
+            TNconfig.Value = true;
+
+            ToggleNotificationsPlugin.Logger.LogInfo($"Toggle Notifications: {TNconfig.Value}");
+
+            // Register Flight AppBar button
             Appbar.RegisterAppButton(
-            "Toggle Notifications",
-            ToolbarFlightButtonID,
-            AssetManager.GetAsset<Texture2D>($"togglenotifications/images/icon.png"),
-            isOpen =>
-            {
-                isWindowOpen = isOpen;
-                GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
-                Debug.Log($"Initial isWindowOpen value: {isWindowOpen}");
-            }
-        );
+                "Toggle Notifications",
+                ToolbarFlightButtonID,
+                AssetManager.GetAsset<Texture2D>($"togglenotifications/images/icon.png"),
+                isOpen =>
+                {
+                    isWindowOpen = isOpen;
+                    GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
+                    Debug.Log($"Initial isWindowOpen value: {isWindowOpen}");
+                }
+            );
+
             // Register all Harmony patches in the project
-            AssistantToTheAssistantPatchManager.NotificationToggle = notificationToggle;
             solarPanelsIneffectiveMessageToggle = true;
             gamePauseToggledMessageToggle = true;
+
+            // Register all Harmony patches in the project
             AssistantToTheAssistantPatchManager.ApplyPatches();
 
-            // configuration value 
-            var defaultValue = "Enabled";
-            var configValue = Config.Bind<string>("Notification Settings", "Toggle Notifications", defaultValue, "Option description");
-            ToggleNotificationsPlugin.Logger.LogInfo($"Toggle Notifications: {configValue.Value}");
+            // Config buttons
+            defaultValue = TNconfig.Value;
+            if (defaultValue)
+            {
+                defaultValue = false;
+                Debug.Log("Configuration is true");
+            }
+            else
+            {
+                defaultValue = true;
+                Debug.Log("Configuration is false");
+            }
         }
         public void ToggleButton(bool toggle)
         {
