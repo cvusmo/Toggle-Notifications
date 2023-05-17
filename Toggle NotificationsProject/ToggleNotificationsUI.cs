@@ -61,7 +61,6 @@ namespace ToggleNotifications
                 return false;
             }
         }
-
         public bool RefreshNotifications()
         {
             if (RefreshNotification)
@@ -82,7 +81,6 @@ namespace ToggleNotifications
                 return false;
             }
         }
-
         public void CheckCurrentState()
         {
             // Check the refreshing state of the UI
@@ -216,7 +214,6 @@ namespace ToggleNotifications
             GUILayout.EndHorizontal();
             GUILayout.Space((float)TNStyles.SpacingAfterEntry);
         }
-
         public static double DrawEntryTextField(
             string entryName,
             double value,
@@ -242,7 +239,6 @@ namespace ToggleNotifications
             GUILayout.Space((float)TNStyles.SpacingAfterTallEntry);
             return value;
         }
-
         public static double DrawLabelWithTextField(string entryName, double value, string unit = "")
         {
             GUILayout.BeginHorizontal();
@@ -255,7 +251,6 @@ namespace ToggleNotifications
             GUILayout.Space((float)TNStyles.SpacingAfterEntry);
             return value;
         }
-
         public static double DrawToggleButtonWithTextField(
             string runString,
             NotificationType type,
@@ -309,23 +304,14 @@ namespace ToggleNotifications
         }
         private void CreateTabs()
         {
-            tabs.Pages.Add(new ToggleNotificationsPage { PageIndex = 0 });
-            tabs.Pages.Add(new ToggleNotificationsPage { PageIndex = 1 });
-            //tabs.pages.Add(new SolarPage(mainPlugin, notificationToggle));
-            //tabs.pages.Add(new CommRangePage(mainPlugin, notificationToggle));
-            //tabs.pages.Add(new ThrottlePage(mainPlugin, notificationToggle));
-            //tabs.pages.Add(new NodePage(mainPlugin, notificationToggle));
-            //this.tabs.Pages.Add((IPageContent)new GamePausedPage());
-            //tabs.pages.Add(new ThrottlePage(mainPlugin, notificationToggle));
+            //tabs.Pages.Add(new ToggleNotificationsPage { PageIndex = 0 });
+            //tabs.Pages.Add(new ToggleNotificationsPage { PageIndex = 1 });
         }
         public void OnGUI()
         {
             // Refresh notifications and states
             RefreshNotifications();
             bool refreshState = RefreshState;
-
-            tabs.OnGUI();
-
             GUILayout.Label("Game Pause Toggled:");
             GamePausedGUI = GUILayout.Toggle(GamePausedGUI, "Enable Game Pause");
         }
