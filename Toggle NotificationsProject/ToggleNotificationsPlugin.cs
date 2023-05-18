@@ -62,10 +62,11 @@ namespace ToggleNotifications
             game = GameManager.Instance.Game;
 
             // Register Flight AppBar button
+
             Appbar.RegisterAppButton(
                 "Toggle Notifications",
                 ToolbarFlightButtonID,
-                AssetManager.GetAsset<Texture2D>($"togglenotifications/images/icon.png"),
+                AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
                 isOpen =>
                 {
                     isWindowOpen = isOpen;
