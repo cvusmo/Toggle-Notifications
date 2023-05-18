@@ -1,4 +1,4 @@
-//purpose of the NotificationToggle class is to control and display options for when a notification type should occur.
+// Purpose of the NotificationToggle class is to control and display options for when a notification type should occur.
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
@@ -7,19 +7,8 @@ namespace ToggleNotifications.TNTools.UI
     {
         private readonly ToggleNotificationsPlugin mainPlugin;
         public Dictionary<NotificationType, bool> notificationStates;
-        private ToggleNotificationsPlugin toggleNotificationsPlugin;
-        private Dictionary<NotificationToggle.NotificationType, bool> dictionary;
-
         public long SentOn { get; internal set; }
         public List<string> NotificationList { get; } = new List<string>();
-        public enum NotificationType
-        {
-            SolarPanelsIneffectiveMessage,
-            VesselThrottleLockedDueToTimewarpingMessage,
-            CannotPlaceManeuverNodeWhileOutOfFuelMessage,
-            GamePauseToggledMessage,
-            None
-        }
         public NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
         {
             this.mainPlugin = mainPlugin;
@@ -38,13 +27,14 @@ namespace ToggleNotifications.TNTools.UI
         {
             return notificationStates.TryGetValue(notificationType, out bool state) ? state : false;
         }
-
         public void CheckCurrentState(NotificationType notificationType, bool flag)
         {
-            bool solarPanelsIneffectiveMessageToggle = GetNotificationState(NotificationType.SolarPanelsIneffectiveMessage);
-            bool gamePauseToggledMessageToggle = GetNotificationState(NotificationType.GamePauseToggledMessage);
+            notificationStates[notificationType] = flag;
+            if (AssistantToTheAssistantPatchManager.NotificationToggle != null)
+            {
+                AssistantToTheAssistantPatchManager.NotificationToggle.CheckCurrentState(notificationType, flag);
+            }
         }
-
         public bool ListGUI()
         {
             GUI.enabled = true;
@@ -60,10 +50,20 @@ namespace ToggleNotifications.TNTools.UI
                     if (newToggleState != toggleState)
                     {
                         notificationStates[notificationType] = newToggleState;
-                        mainPlugin.CheckCurrentState(); // Update the current state in the plugin
+                        mainPlugin.LogCurrentState(); // Update the current state in the plugin
                     }
                 }
             }
+
+            if (mainPlugin.isGUIVisible)
+            {
+                mainPlugin.MainUI.ShowGUI(); // Call ShowGUI method to display the GUI elements
+            }
+            else
+            {
+                mainPlugin.MainUI.HideGUI(); // Call HideGUI method to hide the GUI elements
+            }
+
             return true; // Indicate that a change has occurred
         }
     }

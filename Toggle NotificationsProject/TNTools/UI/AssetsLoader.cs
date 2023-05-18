@@ -7,7 +7,7 @@ namespace ToggleNotifications.TNTools.UI
     {
         public static Texture2D LoadIcon(string path)
         {
-            Texture2D imageTexture = AssetManager.GetAsset<Texture2D>($"togglenotifications/images/{path}.png");
+            Texture2D imageTexture = AssetManager.GetAsset<Texture2D>($"assets/images/{path}.png");
 
             // Check if the texture is null
             if (imageTexture == null)

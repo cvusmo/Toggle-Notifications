@@ -2,7 +2,6 @@
 using HarmonyLib;
 using KSP.Game;
 using KSP.Messages;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ToggleNotifications.TNTools.UI;
 
 namespace ToggleNotifications

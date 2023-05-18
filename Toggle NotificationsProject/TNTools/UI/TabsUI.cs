@@ -54,7 +54,7 @@ namespace ToggleNotifications.TNTools.UI
 
         public void Init()
         {
-           //
+            Pages.Add(new MainPage());
         }
 
         public void Update()

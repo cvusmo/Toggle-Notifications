@@ -14,7 +14,6 @@ namespace ToggleNotifications
         public static int SpacingAfterSection = 5;
         public static int SpacingAfterEntry = 2;
         public static int SpacingAfterTallEntry = -3;
-
         public static bool Init()
         {
             if (TNStyles.guiLoaded)
@@ -31,11 +30,8 @@ namespace ToggleNotifications
             TNStyles.guiLoaded = true;
             return true;
         }
-
         public static bool SquareButton(string txt) => GUILayout.Button(txt, TNBaseStyle.BigButton, GUILayout.Height(60f), GUILayout.Width(60f));
-
         public static bool SquareButton(Texture2D icon) => GUILayout.Button((Texture)icon, TNBaseStyle.BigButton, GUILayout.Height(60f), GUILayout.Width(60f));
-
         public static void DrawSectionHeader(
           string sectionName,
           string value = "",
@@ -53,7 +49,7 @@ namespace ToggleNotifications
             GUILayout.Label(value, valueStyle);
             GUILayout.Space(5f);
             GUILayout.EndHorizontal();
-            GUILayout.Space((float)TNStyles.SpacingAfterHeader);
+            GUILayout.Space((float) TNStyles.SpacingAfterHeader);
         }
     }
 }
