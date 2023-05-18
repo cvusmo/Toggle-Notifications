@@ -24,7 +24,7 @@ namespace ToggleNotifications
         public const string ModVer = MyPluginInfo.PLUGIN_VERSION;
 
         //core
-        private bool isWindowOpen;
+        public bool isWindowOpen;
         public bool isGUIVisible = true;
         private Rect windowRect = Rect.zero;
         private int windowWidth = 250;
@@ -117,39 +117,49 @@ namespace ToggleNotifications
             TNBaseSettings.WindowYPos = (int)windowRect.yMin;
         }
 
-        public void OnGUI()
+        private void OnGUI()
         {
-            GameState? gameState = BaseSpaceWarpPlugin.Game?.GlobalGameState?.GetState();
+            if (!isGUIVisible)
+                return;         
 
+            GameState? gameState = game?.GlobalGameState?.GetState();
             if (gameState == GameState.FlightView || gameState == GameState.Map3DView)
+
             {
-                this.isGUIVisible = true;
+                TNBaseStyle.Init();
+                TNStyles.Init();
+                Debug.Log("GUI is visible " + isGUIVisible);
+                Texture2D imageTexture = AssetsLoader.LoadIcon("window");
+                WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
+                GUILayout.Window(
+                    GUIUtility.GetControlID(FocusType.Passive),
+                    windowRect,
+                    FillWindow,
+                    "<color=#696DFF>TOGGLE NOTIFICATIONS</color>"
+                );
+                saverectpos();
             }
-
-            TNStyles.Init();
-            WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
-            GUI.skin = TNBaseStyle.Skin;
-            windowRect = GUILayout.Window(
-                GUIUtility.GetControlID(FocusType.Passive),
-                windowRect,
-                FillWindow,
-                "<color=#696DFF>TOGGLE NOTIFICATIONS</color>"
-            );
-
-            saverectpos();
-            ToggleButton(true, true);
         }
-
         public void FillWindow(int windowID)
         {
-            GUI.Label(new Rect(9f, 2f, 29f, 29f), TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
-
-            if (TopButtons.Button(TNBaseStyle.Cross))
-                CloseWindow();
+            Debug.Log("FillWindow called");
+            GUILayout.Label("Game Pause Notification", TNBaseStyle.Title);
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Enable", notificationToggle.GetNotificationState(NotificationType.GamePauseToggledMessage) ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle))
+            {
+                notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
+                notificationToggle.CheckCurrentState(NotificationType.PauseStateChangedMessageToggle, false);
+            }
+            if (GUILayout.Button("Disable", notificationToggle.GetNotificationState(NotificationType.PauseStateChangedMessageToggle) ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle))
+            {
+                notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
+                notificationToggle.CheckCurrentState(NotificationType.PauseStateChangedMessageToggle, true);
+            }
+            GUILayout.EndHorizontal();
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
         }
-
         public void CloseWindow()
         {
             isGUIVisible = false;

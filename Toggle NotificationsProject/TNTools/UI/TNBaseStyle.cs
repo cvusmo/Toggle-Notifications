@@ -18,15 +18,12 @@ namespace ToggleNotifications.TNTools.UI
         public static GUIStyle PhaseError;
         public static GUIStyle IconsLabel;
         public static GUIStyle Title;
-        public static GUIStyle SliderText;
         public static GUIStyle TextInputStyle;
         public static GUIStyle NameLabelStyle;
         public static GUIStyle ValueLabelStyle;
         public static GUIStyle UnitLabelStyle;
         public static string UnitColorHex;
         public static GUIStyle Separator;
-        public static GUIStyle SliderLine;
-        public static GUIStyle SliderNode;
         public static Texture2D Gear;
         public static Texture2D Icon;
         public static Texture2D TNIcon;
@@ -54,12 +51,10 @@ namespace ToggleNotifications.TNTools.UI
                 return true;
             TNBaseStyle.Skin = ScriptableObject.CreateInstance<GUISkin>();
             TNBaseStyle.BuildFrames();
-            TNBaseStyle.BuildSliders();
             TNBaseStyle.BuildButtons();
             TNBaseStyle.BuildTabs();
             TNBaseStyle.BuildFoldout();
             TNBaseStyle.BuildToggle();
-            TNBaseStyle.BuildProgressBar();
             TNBaseStyle.BuildIcons();
             TNBaseStyle.BuildLabels();
             guiLoaded = true;
@@ -88,11 +83,6 @@ namespace ToggleNotifications.TNTools.UI
             TNBaseStyle.ConsoleText.normal.textColor = ColorTools.ParseColor("#B6B8FA");
             TNBaseStyle.ConsoleText.padding = new RectOffset(0, 0, 0, 0);
             TNBaseStyle.ConsoleText.margin = new RectOffset(0, 0, 0, 0);
-            TNBaseStyle.SliderText = new GUIStyle(ConsoleText);
-            TNBaseStyle.SliderText.normal.textColor = ColorTools.ParseColor("#C0C1E2");
-            TNBaseStyle.MidText = new GUIStyle(SliderText);
-            TNBaseStyle.SliderText.margin = new RectOffset(5, 0, 0, 0);
-            TNBaseStyle.SliderText.contentOffset = new Vector2(8f, 5f);
             TNBaseStyle.Label = new GUIStyle(GUI.skin.GetStyle("Label"))
             {
                 margin = new RectOffset(0, 0, 0, 0),
@@ -178,40 +168,11 @@ namespace ToggleNotifications.TNTools.UI
             TNBaseStyle.SetAllFromNormal(TNBaseStyle.Separator);
         }
 
-        private static void BuildSliders()
-        {
-            TNBaseStyle.SliderLine = new GUIStyle(GUI.skin.horizontalSlider);
-            TNBaseStyle.SliderLine.normal.background = AssetsLoader.LoadIcon("Slider");
-            TNBaseStyle.SetAllFromNormal(TNBaseStyle.SliderLine);
-            TNBaseStyle.SliderLine.border = new RectOffset(5, 5, 0, 0);
-            TNBaseStyle.SliderLine.border = new RectOffset(12, 14, 0, 0);
-            TNBaseStyle.SliderLine.fixedWidth = 0.0f;
-            TNBaseStyle.SliderLine.fixedHeight = 21f;
-            TNBaseStyle.SliderLine.margin = new RectOffset(0, 0, 2, 5);
-            TNBaseStyle.SliderLine = new GUIStyle(GUI.skin.horizontalSliderThumb);
-            TNBaseStyle.SliderLine.normal.background = AssetsLoader.LoadIcon("SliderNode");
-            TNBaseStyle.SetAllFromNormal(SliderNode);
-            TNBaseStyle.SliderLine.border = new RectOffset(0, 0, 0, 0);
-            TNBaseStyle.SliderLine.fixedWidth = 21f;
-            TNBaseStyle.SliderLine.fixedHeight = 21f;
-        }
         private static void BuildIcons()
         {
             TNBaseStyle.Gear = AssetsLoader.LoadIcon("Gear");
             TNBaseStyle.Icon = AssetsLoader.LoadIcon("Icon");
             TNBaseStyle.Cross = AssetsLoader.LoadIcon("Cross");
-        }
-        private static void BuildProgressBar()
-        {
-            TNBaseStyle.ProgressBarEmpty = new GUIStyle(GUI.skin.box);
-            TNBaseStyle.ProgressBarEmpty.normal.background = AssetsLoader.LoadIcon("progress_empty");
-            TNBaseStyle.ProgressBarEmpty.border = new RectOffset(2, 2, 2, 2);
-            TNBaseStyle.ProgressBarEmpty.margin = new RectOffset(5, 5, 5, 5);
-            TNBaseStyle.ProgressBarEmpty.fixedHeight = 20f;
-            TNBaseStyle.SetAllFromNormal(TNBaseStyle.ProgressBarEmpty);
-            TNBaseStyle.ProgressBarFull = new GUIStyle(TNBaseStyle.ProgressBarEmpty);
-            TNBaseStyle.ProgressBarFull.normal.background = AssetsLoader.LoadIcon("progress_full");
-            TNBaseStyle.SetAllFromNormal(TNBaseStyle.ProgressBarEmpty);
         }
         private static void BuildButtons()
         {
@@ -370,10 +331,6 @@ namespace ToggleNotifications.TNTools.UI
             button = new GUIStyle(source.button),
             toggle = new GUIStyle(source.toggle),
             window = new GUIStyle(source.window),
-            horizontalSlider = new GUIStyle(source.horizontalSlider),
-            horizontalSliderThumb = new GUIStyle(source.horizontalSliderThumb),
-            verticalSlider = new GUIStyle(source.verticalSlider),
-            verticalSliderThumb = new GUIStyle(source.verticalSliderThumb),
             horizontalScrollbar = new GUIStyle(source.horizontalScrollbar),
             horizontalScrollbarThumb = new GUIStyle(source.horizontalScrollbarThumb),
             horizontalScrollbarLeftButton = new GUIStyle(source.horizontalScrollbarLeftButton),

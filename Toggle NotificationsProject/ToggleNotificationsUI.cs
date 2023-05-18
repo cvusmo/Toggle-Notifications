@@ -48,34 +48,6 @@ namespace ToggleNotifications
 
             tabs.Update();
         }
-        public void ShowGUI()
-        {
-            TNUtility.Instance.RefreshCurrentState();
-            isGUIVisible = true;
-
-            GUILayout.BeginVertical();
-            GUILayout.Label("Toggle Notifications");
-
-            foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
-            {
-                if (notificationType != NotificationType.None)
-                {
-                    bool toggleState = toggleNotification.GetNotificationState(notificationType);
-                    bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString());
-                    if (newToggleState != toggleState)
-                    {
-                        toggleNotification.CheckCurrentState(notificationType, newToggleState);
-                        mainPlugin.LogCurrentState(); // Update the current state in the plugin
-                    }
-                }
-            }
-
-            GUILayout.EndVertical();
-        }
-        public void HideGUI()
-        {
-            mainPlugin.CloseWindow();
-        }
         public static void DrawSoloToggle(string toggleStr, ref bool toggle)
         {
             GUILayout.Space((float)TNStyles.SpacingAfterSection);
@@ -191,6 +163,34 @@ namespace ToggleNotifications
             GUILayout.Space(-TNStyles.SpacingAfterSection);
             return toggle;
         }
+        public void ShowGUI()
+        {
+            TNUtility.Instance.RefreshCurrentState();
+            isGUIVisible = true;
+
+            GUILayout.BeginVertical();
+            GUILayout.Label("Toggle Notifications");
+
+            foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
+            {
+                if (notificationType != NotificationType.None)
+                {
+                    bool toggleState = toggleNotification.GetNotificationState(notificationType);
+                    bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString());
+                    if (newToggleState != toggleState)
+                    {
+                        toggleNotification.CheckCurrentState(notificationType, newToggleState);
+                        mainPlugin.LogCurrentState(); // Update the current state in the plugin
+                    }
+                }
+            }
+
+            GUILayout.EndVertical();
+        }
+        public void HideGUI()
+        {
+            mainPlugin.CloseWindow();
+        }
         public bool OnGUI()
         {
             GUI.enabled = true;
@@ -198,15 +198,6 @@ namespace ToggleNotifications
             bool refreshState = TNUtility.Instance.RefreshState;
             GUILayout.Label("Game Pause Toggled:");
             GamePausedGUI = GUILayout.Toggle(GamePausedGUI, "Enable Game Pause");
-            if (mainPlugin.isGUIVisible)
-            {
-                mainPlugin.MainUI.ShowGUI(); // Call ShowGUI method to display the GUI elements
-            }
-            else
-            {
-                mainPlugin.MainUI.HideGUI(); // Call HideGUI method to hide the GUI elements
-            }
-
             return true; // Indicate that a change has occurred
         }
     }
