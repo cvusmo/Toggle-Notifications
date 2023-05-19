@@ -36,6 +36,9 @@ namespace ToggleNotifications
         //config
         public ConfigEntry<bool> TNconfig;
         protected bool defaultValue;
+        public ConfigEntry<bool> SolarToggleConfig { get; private set; }
+        public ConfigEntry<bool> PauseToggleConfig { get; private set; }
+        
 
         //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
@@ -54,6 +57,11 @@ namespace ToggleNotifications
             //initialize
             base.OnInitialized();
             TNBaseSettings.Init(SettingsPath);
+            //config initalize
+            Dictionary<NotificationType, bool> initialNotificationStates = new Dictionary<NotificationType, bool>();
+            SolarToggleConfig = Config.Bind("Notification Settings", "Solar Config", true, "Solar configuration value");
+            PauseToggleConfig = Config.Bind("Notification Settings", "Pause Toggle State Config", true, "Game Pause Toggle State configuration value");
+
             Instance = this;
             Logger = base.Logger;
             Logger.LogInfo("Loaded");
@@ -62,7 +70,6 @@ namespace ToggleNotifications
             game = GameManager.Instance.Game;
 
             // Register Flight AppBar button
-
             Appbar.RegisterAppButton(
                 "Toggle Notifications",
                 ToolbarFlightButtonID,
@@ -74,12 +81,16 @@ namespace ToggleNotifications
                     Debug.Log($"Initial isWindowOpen value: {isWindowOpen}");
                 }
             );
-
             //configuration
             TNconfig = Config.Bind("Notification Settings", "Toggle Notifications", defaultValue, "Toggle Notifications is a mod that allows you to enable or disable notifications");
             defaultValue = TNconfig.Value;
             TNconfig.Value = true;
-
+            notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
+            {
+                [NotificationType.GamePauseToggledMessage] = PauseToggleConfig.Value,
+                [NotificationType.PauseStateChangedMessageToggle] = PauseToggleConfig.Value,
+                [NotificationType.SolarPanelsIneffectiveMessage] = SolarToggleConfig.Value
+            });
             // Register Harmony patches
             AssistantToTheAssistantPatchManager.ApplyPatches();
         }
@@ -116,7 +127,6 @@ namespace ToggleNotifications
             TNBaseSettings.WindowXPos = (int)windowRect.xMin;
             TNBaseSettings.WindowYPos = (int)windowRect.yMin;
         }
-
         private void OnGUI()
         {
             if (!isGUIVisible)
@@ -134,7 +144,8 @@ namespace ToggleNotifications
                     GUIUtility.GetControlID(FocusType.Passive),
                     windowRect,
                     FillWindow,
-                    "<color=#696DFF>TOGGLE NOTIFICATIONS</color>"
+                    "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
+                    TNBaseStyle.Skin.window
                 );
                 saverectpos();
             }
@@ -142,7 +153,7 @@ namespace ToggleNotifications
         public void FillWindow(int windowID)
         {
             Debug.Log("FillWindow called");
-            GUILayout.Label("Game Pause Notification", TNBaseStyle.Title);
+            TNStyles.DrawSectionHeader("Game Pause Notification", labelWidth: 150f);
             GUILayout.Space(10);
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Enable", notificationToggle.GetNotificationState(NotificationType.GamePauseToggledMessage) ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle))
