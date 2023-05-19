@@ -105,7 +105,6 @@ namespace ToggleNotifications
             }
             if (isGUIVisible)
             {
-                OnGUI();
                 MainUI.OnGUI();
             }
         }

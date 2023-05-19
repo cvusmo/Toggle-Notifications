@@ -54,16 +54,6 @@ namespace ToggleNotifications.TNTools.UI
                     }
                 }
             }
-
-            if (mainPlugin.isGUIVisible)
-            {
-                mainPlugin.MainUI.ShowGUI(); // Call ShowGUI method to display the GUI elements
-            }
-            else
-            {
-                mainPlugin.MainUI.HideGUI(); // Call HideGUI method to hide the GUI elements
-            }
-
             return true; // Indicate that a change has occurred
         }
     }

@@ -163,10 +163,13 @@ namespace ToggleNotifications
             GUILayout.Space(-TNStyles.SpacingAfterSection);
             return toggle;
         }
-        public void ShowGUI()
+        public bool OnGUI()
         {
+            DrawEntry("Game Pause Notification", "", "");
+            TNUtility.Instance.RefreshNotifications();
             TNUtility.Instance.RefreshCurrentState();
-            isGUIVisible = true;
+            GUILayout.Label("Game Pause Toggled:");
+            GamePausedGUI = GUILayout.Toggle(GamePausedGUI, "Enable Game Pause");
 
             GUILayout.BeginVertical();
             GUILayout.Label("Toggle Notifications");
@@ -185,20 +188,12 @@ namespace ToggleNotifications
                 }
             }
 
+            NotificationToggle notificationToggle = new NotificationToggle(mainPlugin, toggleNotification.notificationStates);
+            notificationToggle.ListGUI();
+
             GUILayout.EndVertical();
-        }
-        public void HideGUI()
-        {
-            mainPlugin.CloseWindow();
-        }
-        public bool OnGUI()
-        {
-            GUI.enabled = true;
-            TNUtility.Instance.RefreshNotifications();
-            bool refreshState = TNUtility.Instance.RefreshState;
-            GUILayout.Label("Game Pause Toggled:");
-            GamePausedGUI = GUILayout.Toggle(GamePausedGUI, "Enable Game Pause");
-            return true; // Indicate that a change has occurred
+
+            return true;
         }
     }
 }
