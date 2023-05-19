@@ -1,56 +1,92 @@
 ﻿using BepInEx.Logging;
+using KSP.Messages;
+using KSP.Game;
 using ToggleNotifications;
 using ToggleNotifications.TNTools.UI;
+using UnityEngine;
+using static ToggleNotifications.TNTools.UI.NotificationToggle;
 
 namespace TNUtilities
 {
-    //provides utility methods to interact with and manage those notification states.
     public class TNUtility
     {
+        public List<string> NotificationList = new List<string>();
         private static TNUtility _instance;
         public static TNUtility Instance { get => _instance; }
-
-        public ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TNUtility");
+        public static ToggleNotificationsUI instance;
+        public static NotificationToggle toggleNotification;
+        public ToggleNotificationsPlugin mainPlugin;
+        public MessageCenterMessage Refreshing;
+        public NotificationEvents RefreshingNotification;
+        public bool RefreshNotification { get; set; }
         public static NotificationToggle toggleState;
         public static NotificationToggle notificationToggle;
 
+        public ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TNUtility");
         public TNUtility()
         {
             _instance = this;
+            instance = ToggleNotificationsUI.Instance;
+            toggleNotification = ToggleNotificationsUI.toggleNotification;
         }
 
-        public static void RefreshNotificationsUtil()
+        public bool RefreshState
         {
-            if (ToggleNotificationsUI.toggleNotification != null)
+            get
             {
-                toggleState = ToggleNotificationsUI.toggleNotification;
+                RefreshNotifications();
+                string[] notificationsToCheck = { "SolarPanelsIneffectiveMessage", "VesselLeftCommunicationRangeMessage", "VesselThrottleLockedDueToTimewarpingMessage", "CannotPlaceManeuverNodeWhileOutOfFuelMessage", "GamePauseToggledMessage" };
+
+                foreach (string notificationName in notificationsToCheck)
+                {
+                    if (Enum.TryParse(notificationName, out NotificationType notificationType) && toggleState.GetNotificationState(notificationType))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        public bool RefreshNotifications()
+        {
+            if (RefreshNotification)
+            {
+                NotificationList.Clear();
+                foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
+                {
+                    if (notificationType != NotificationType.None)
+                    {
+                        NotificationList.Add(notificationType.ToString());
+                    }
+                }
+
+                return true;
             }
             else
             {
-                Instance.Logger.LogWarning("ToggleNotification is null.");
+                return false;
             }
         }
 
-        public static void RefreshStatesUtil()
+        public void RefreshCurrentState()
         {
-            if (ToggleNotificationsUI.toggleState != null)
-            {
-                toggleState = ToggleNotificationsUI.toggleState;
-            }
-            else
-            {
-                Instance.Logger.LogWarning("ToggleState is null.");
-            }
-        }
-
-        public void CheckCurrentStateUtil()
-        {
-            bool isRefreshing = ToggleNotificationsUI.instance.Refreshing != null;
-            bool isRefreshingNotification = ToggleNotificationsUI.instance.RefreshingNotification != null;
+            bool isRefreshing = instance.Refreshing != null;
+            bool isRefreshingNotification = instance.RefreshingNotification != null;
 
             // Use the values as needed
-            Logger.LogInfo($"UI Refreshing: {isRefreshing}");
-            Logger.LogInfo($"Notification Refreshing: {isRefreshingNotification}");
+            Debug.Log($"UI Refreshing: {isRefreshing}");
+            Debug.Log($"Notification Refreshing: {isRefreshingNotification}");
+        }
+
+        public static void DrawToggleButton(string toggleStr, NotificationType notificationType, int widthOverride = 0)
+        {
+            bool isOn = toggleNotification.GetNotificationState(notificationType);
+            bool flag = UITools.SmallToggleButton(isOn, toggleStr, toggleStr, widthOverride);
+            if (flag == isOn)
+                return;
+            toggleNotification.CheckCurrentState(notificationType, flag);
         }
     }
 }

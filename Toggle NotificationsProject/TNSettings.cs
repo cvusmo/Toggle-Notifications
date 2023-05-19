@@ -20,40 +20,15 @@ namespace ToggleNotifications
             s_config_file.Bind("", key, value).Value = value;
             s_config_file.Save();
         }
-        public static bool SolarPanelsIneffectiveMessage
+
+        public static bool GetNotificationState(NotificationType notificationType)
         {
-            get => GetValue(nameof(SolarPanelsIneffectiveMessage), true);
-            set { SetValue(nameof(SolarPanelsIneffectiveMessage), value); }
+            return GetValue(notificationType.ToString(), true);
         }
 
-        public static bool SolarPanelsIneffectiveTimeToWaitTill
+        public static void SetNotificationState(NotificationType notificationType, bool value)
         {
-            get => GetValue(nameof(SolarPanelsIneffectiveTimeToWaitTill), true);
-            set { SetValue(nameof(SolarPanelsIneffectiveTimeToWaitTill), value); }
-        }
-
-        public static bool VesselLeftCommunicationRangeMessage
-        {
-            get => GetValue(nameof(VesselLeftCommunicationRangeMessage), true);
-            set { SetValue(nameof(VesselLeftCommunicationRangeMessage), value); }
-        }
-
-        public static bool VesselThrottleLockedDueToTimewarpingMessage
-        {
-            get => GetValue(nameof(VesselThrottleLockedDueToTimewarpingMessage), true);
-            set { SetValue(nameof(VesselThrottleLockedDueToTimewarpingMessage), value); }
-        }
-
-        public static bool CannotPlaceManeuverNodeWhileOutOfFuelMessage
-        {
-            get => GetValue(nameof(CannotPlaceManeuverNodeWhileOutOfFuelMessage), true);
-            set { SetValue(nameof(CannotPlaceManeuverNodeWhileOutOfFuelMessage), value); }
-        }
-
-        public static bool GamePauseToggledMessage
-        {
-            get => GetValue(nameof(GamePauseToggledMessage), true);
-            set { SetValue(nameof(GamePauseToggledMessage), value); }
+            SetValue(notificationType.ToString(), value);
         }
     }
 }
