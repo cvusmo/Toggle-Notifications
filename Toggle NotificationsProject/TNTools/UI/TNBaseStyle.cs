@@ -52,7 +52,7 @@ namespace ToggleNotifications.TNTools.UI
         {
             if (TNBaseStyle.guiLoaded)
                 return true;
-            TNBaseStyle.Skin = ScriptableObject.CreateInstance<GUISkin>();
+            TNBaseStyle.Skin = TNBaseStyle.CopySkin(Skins.ConsoleSkin);
             TNBaseStyle.BuildFrames();
             TNBaseStyle.BuildButtons();
             TNBaseStyle.BuildTabs();
@@ -132,10 +132,8 @@ namespace ToggleNotifications.TNTools.UI
                 overflow = new RectOffset(0, 0, 0, 0),
                 contentOffset = new Vector2(31f, -40f)
             };
-            Debug.Log("Attempting window");
             guiStyle.normal.background = AssetsLoader.LoadIcon("window");
             guiStyle.normal.background = AssetsLoader.LoadIcon("box");
-            Debug.Log("Did it work?");
             guiStyle.normal.textColor = Color.black;
             TNBaseStyle.SetAllFromNormal(guiStyle);
             guiStyle.alignment = TextAnchor.UpperLeft;

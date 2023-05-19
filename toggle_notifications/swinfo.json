@@ -6,7 +6,6 @@
   "license": "MIT",
   "source": "https://github.com/cvusmo/Toggle-Notifications",
   "version": "0.2.2",
-  "version_check": "https://raw.githubusercontent.com/cvusmo/Toggle-Notifications/dev/ToggleNotifications/swinfo.json",
   "dependencies": [
     {
       "id": "SpaceWarp",

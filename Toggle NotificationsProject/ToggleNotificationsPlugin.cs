@@ -23,7 +23,7 @@ namespace ToggleNotifications
         public const string ModName = MyPluginInfo.PLUGIN_NAME;
         public const string ModVer = MyPluginInfo.PLUGIN_VERSION;
         //core
-        public bool isWindowOpen;
+        public bool interfaceEnabled;
         public bool isGUIVisible = false;
         private Rect windowRect = Rect.zero;
         private int windowWidth = 250;
@@ -46,69 +46,70 @@ namespace ToggleNotifications
 
         public static ToggleNotificationsPlugin Instance { get; private set; }
         public new static ManualLogSource Logger { get; set; }
-
-        public void Awake()
-        {
-            TNStyles.Init();
-        }
         public override void OnInitialized()
         {
             // initialize
             base.OnInitialized();
             TNBaseSettings.Init(SettingsPath);
+
             // config initialize
             Dictionary<NotificationType, bool> initialNotificationStates = new Dictionary<NotificationType, bool>();
             SolarToggleConfig = Config.Bind("Notification Settings", "Solar Config", true, "Solar configuration value");
             PauseToggleConfig = Config.Bind("Notification Settings", "Pause Toggle State Config", true, "Game Pause Toggle State configuration value");
+
             Instance = this;
             Logger = base.Logger;
             Logger.LogInfo("Loaded");
             MainUI = new ToggleNotificationsUI(this, isGUIVisible);
             Debug.Log("MainUI instantiated");
             game = GameManager.Instance.Game;
+
             // Register Flight AppBar button
             Appbar.RegisterAppButton(
                 "Toggle Notifications",
                 ToolbarFlightButtonID,
-                AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
+                AssetManager.GetAsset<Texture2D>($"{this.SpaceWarpMetadata.ModID}/images/icon.png"),
                 isOpen =>
                 {
-                    ToggleButton(isOpen, isOpen); // Update GUI visibility and window open state
-                    Debug.Log($"Initial isWindowOpen value: {isWindowOpen}");
+                    ToggleButton(isOpen, isOpen);
+                    Debug.Log($"Initial isWindowOpen value: {interfaceEnabled}");
                 }
             );
-
-            // Set initial GUI visibility and window open state based on the appbar button value
-            isWindowOpen = GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.GetValue() ?? false;
 
             // configuration
             TNconfig = Config.Bind("Notification Settings", "Toggle Notifications", defaultValue, "Toggle Notifications is a mod that allows you to enable or disable notifications");
             defaultValue = TNconfig.Value;
             TNconfig.Value = true;
+
             notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
             {
                 [NotificationType.GamePauseToggledMessage] = PauseToggleConfig.Value,
                 [NotificationType.PauseStateChangedMessageToggle] = PauseToggleConfig.Value,
                 [NotificationType.SolarPanelsIneffectiveMessage] = SolarToggleConfig.Value
             });
-            AssistantToTheAssistantPatchManager.ApplyPatches();
+            AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
         }
 
         public void ToggleButton(bool toggle, bool isOpen)
         {
+            interfaceEnabled = isOpen;
             isGUIVisible = toggle;
-            isWindowOpen = isOpen;
             GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isGUIVisible);
         }
         public void Update()
         {
             if (Input.GetKey(KeyCode.RightAlt) && Input.GetKeyDown(KeyCode.P))
             {
-                this.ToggleButton(!this.isGUIVisible, !this.isWindowOpen);
+                this.ToggleButton(!this.interfaceEnabled, !this.isGUIVisible);
                 Logger.LogInfo("Update: Toggle Notifications UI toggled with hotkey");
             }
-            MainUI?.Update();
+            if (isGUIVisible)
+            {
+                OnGUI();
+                MainUI.OnGUI();
+            }
         }
+
         public void LogCurrentState()
         {
             bool solarPanelsIneffectiveMessageToggle = notificationToggle.GetNotificationState(NotificationType.SolarPanelsIneffectiveMessage);
@@ -129,15 +130,17 @@ namespace ToggleNotifications
             if (!isGUIVisible)
                 return;
 
+            TNStyles.Init();
+            Texture2D windowTexture = AssetsLoader.LoadIcon("window");
             WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
             GUI.skin = TNBaseStyle.Skin;
-            GUILayout.Window(
+            this.windowRect = GUILayout.Window(
                 GUIUtility.GetControlID(FocusType.Passive),
-                windowRect,
-                FillWindow,
+                this.windowRect,
+                new GUI.WindowFunction(this.FillWindow),
                 "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
-                GUILayout.Height(0),
-                GUILayout.Width(windowWidth)
+                GUILayout.Height(0.0f),
+                GUILayout.Width((float)this.windowWidth)
             );
 
             saverectpos();
@@ -161,14 +164,12 @@ namespace ToggleNotifications
         }
         public void FillWindow(int windowID)
         {
-            GUILayout.BeginHorizontal();
-            GUILayout.Label(AssetsLoader.LoadIcon("logo_icon"), GUIStyle.none, GUILayout.Width(24), GUILayout.Height(24));
-            GUILayout.Label("Toggle Notifications v0.2.1", TNBaseStyle.Label);
-            GUILayout.EndHorizontal();
-
+            TopButtons.Init(this.windowRect.width);
+            GUI.Label(new Rect(9f, 2f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
+            if (TopButtons.Button(TNBaseStyle.Cross))
+                this.CloseWindow();
             GUILayout.Space(10);
 
-            GUILayout.BeginHorizontal();
             if (GUILayout.Toggle(selectedRadioButton == 1, AssetsLoader.LoadIcon("Toggle_On"), GUIStyle.none))
             {
                 RadioButtonToggle(1);
@@ -177,14 +178,16 @@ namespace ToggleNotifications
             {
                 RadioButtonToggle(0);
             }
-            GUILayout.EndHorizontal();
 
+            MainUI.OnGUI();
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
         }
 
         public void CloseWindow()
         {
-            isGUIVisible = false;
+            GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(false);
+            interfaceEnabled = false;
+            ToggleButton(false, false);
         }
     }
 }

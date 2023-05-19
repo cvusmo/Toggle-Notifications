@@ -2,6 +2,7 @@
 using HarmonyLib;
 using KSP.Game;
 using KSP.Messages;
+using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 
 namespace ToggleNotifications
@@ -10,16 +11,25 @@ namespace ToggleNotifications
     {
         public static ManualLogSource Logger { get; set; }
         public static NotificationToggle NotificationToggle { get; set; }
-        //Game Pause Patches
+
+
         [HarmonyPatch(typeof(NotificationEvents))]
-        public static class NotificationEventsPatch
+        public static class GamePauseTogglePatch
         {
-            [HarmonyPrefix]
-            [HarmonyPatch("GamePauseToggledMessage")]
-            public static bool Prefix(NotificationEvents __instance)
+            public static NotificationToggle NotificationToggle { get; internal set; }
+
+            public static void Prefix(ref bool __instance, NotificationToggle notificationToggle)
             {
-                Logger.LogInfo("Prefix Loaded for NotificationEvents");
-                return false;
+                bool gamePauseToggledMessageToggle = notificationToggle.GetNotificationState(NotificationType.GamePauseToggledMessage);
+
+                if (!gamePauseToggledMessageToggle)
+                {
+                    __instance = true;
+                }
+                else
+                {
+                    __instance = false;
+                }
             }
         }
 
@@ -84,10 +94,14 @@ namespace ToggleNotifications
                 return false;
             }
         }
-        public static void ApplyPatches()
+        public static void ApplyPatches(NotificationToggle notificationToggle)
         {
             Harmony harmony = new Harmony("com.github.cvusmo.Toggle-Notifications");
             harmony.PatchAll(typeof(AssistantToTheAssistantPatchManager).Assembly);
+
+            // Pass the NotificationToggle instance to the GamePauseTogglePatch class
+            GamePauseTogglePatch.NotificationToggle = notificationToggle;
         }
+
     }
 }

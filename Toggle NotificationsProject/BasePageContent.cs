@@ -31,7 +31,7 @@ namespace ToggleNotifications
         public virtual GUIContent Icon => throw new NotImplementedException();
         public bool IsRunning => false;
         public bool UIVisible { get => this.isGUIVisible; set => this.isGUIVisible = value; }
-        public bool IsActive => mainPlugin.isWindowOpen;
+        public bool IsActive => mainPlugin.interfaceEnabled;
 
         public virtual void OnGUI()
         {

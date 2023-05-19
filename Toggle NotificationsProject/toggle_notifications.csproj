@@ -20,39 +20,6 @@
     <RepositoryUrl>https://github.com/cvusmo/Toggle-Notifications</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="assets\images\BigButton_Active.png" />
-    <None Remove="assets\images\Capsule_x2v3_50.png" />
-    <None Remove="assets\images\Chapter_Off_Active.png" />
-    <None Remove="assets\images\Chapter_Off_Hover.png" />
-    <None Remove="assets\images\Chapter_Off_Normal.png" />
-    <None Remove="assets\images\Chapter_On_Active.png" />
-    <None Remove="assets\images\Chapter_On_Hover.png" />
-    <None Remove="assets\images\Chapter_On_Normal.png" />
-    <None Remove="assets\images\Cross.png" />
-    <None Remove="assets\images\gear.png" />
-    <None Remove="assets\images\icon.png" />
-    <None Remove="assets\images\k2d2_big_icon.png" />
-    <None Remove="assets\images\k2d2_icon.png" />
-    <None Remove="assets\images\line.png" />
-    <None Remove="assets\images\mnc_icon.png" />
-    <None Remove="assets\images\mnc_icon_bw.png" />
-    <None Remove="assets\images\mnc_icon_bw_100.png" />
-    <None Remove="assets\images\mnc_icon_bw_240.png" />
-    <None Remove="assets\images\mnc_icon_bw_50.png" />
-    <None Remove="assets\images\mnc_icon_white.png" />
-    <None Remove="assets\images\mnc_icon_white_100.png" />
-    <None Remove="assets\images\mnc_icon_white_240.png" />
-    <None Remove="assets\images\mnc_icon_white_50.png" />
-    <None Remove="assets\images\mnc_new_icon.png" />
-    <None Remove="assets\images\mnc_new_icon_100.png" />
-    <None Remove="assets\images\mnc_new_icon_240.png" />
-    <None Remove="assets\images\mnc_new_icon_50.png" />
-    <None Remove="assets\images\Moon_white_50.png" />
-    <None Remove="assets\images\OSM_50.png" />
-    <None Remove="assets\images\OTM_50_Moon.png" />
-    <None Remove="assets\images\OTM_50_Planet.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="assets\images\BigButton_Active.png" />
     <Content Include="assets\images\Capsule_x2v3_50.png" />
     <Content Include="assets\images\Chapter_Off_Active.png" />
@@ -114,7 +81,6 @@
     <Content Include="assets\images\VerticalScroll.png" />
     <Content Include="assets\images\VerticalScroll_thumb.png" />
     <Content Include="assets\images\window.png" />
-    <Content Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
