@@ -1,0 +1,23 @@
+{
+  "mod_id": "ToggleNotifications",
+  "author": "cvusmo",
+  "name": "Toggle Notifications",
+  "description": "Toggle Notifications on and off",
+  "license": "MIT",
+  "source": "https://github.com/cvusmo/Toggle-Notifications",
+  "version": "0.2.2",
+  "version_check": "https://raw.githubusercontent.com/cvusmo/Toggle-Notifications/dev/ToggleNotifications/swinfo.json",
+  "dependencies": [
+    {
+      "id": "SpaceWarp",
+      "version": {
+        "min": "1.1.1",
+        "max": "*"
+      }
+    }
+  ],
+  "ksp2_version": {
+    "min": "0.1.0",
+    "max": "*"
+  }
+}
