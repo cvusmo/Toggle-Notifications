@@ -1,11 +1,11 @@
-﻿using ToggleNotifications.TNTools.UI;
+using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
 namespace ToggleNotifications
 {
     public class TNStyles
     {
-        private static bool guiLoaded = false;
+        public static bool guiLoaded = false;
         public static Texture2D TNBigIcon;
         public static Texture2D TNIcon;
         public static GUIStyle Status;
