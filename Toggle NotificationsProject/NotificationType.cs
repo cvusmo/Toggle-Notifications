@@ -1,6 +1,6 @@
 ﻿namespace ToggleNotifications
 {
-    public enum NotificationType
+    internal enum NotificationType
     {
         SolarPanelsIneffectiveMessage,
         VesselThrottleLockedDueToTimewarpingMessage,

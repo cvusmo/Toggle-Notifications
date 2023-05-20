@@ -3,13 +3,13 @@ using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
-    public class NotificationToggle
+    internal class NotificationToggle
     {
         private readonly ToggleNotificationsPlugin mainPlugin;
-        public Dictionary<NotificationType, bool> notificationStates;
-        public long SentOn { get; internal set; }
-        public List<string> NotificationList { get; } = new List<string>();
-        public NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
+        internal Dictionary<NotificationType, bool> notificationStates;
+        internal long SentOn { get; internal set; }
+        internal List<string> NotificationList { get; } = new List<string>();
+        internal NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
         {
             this.mainPlugin = mainPlugin;
             this.notificationStates = notificationStates;
@@ -23,11 +23,11 @@ namespace ToggleNotifications.TNTools.UI
                 }
             }
         }
-        public bool GetNotificationState(NotificationType notificationType)
+        internal bool GetNotificationState(NotificationType notificationType)
         {
             return notificationStates.TryGetValue(notificationType, out bool state) ? state : false;
         }
-        public void CheckCurrentState(NotificationType notificationType, bool flag)
+        internal void CheckCurrentState(NotificationType notificationType, bool flag)
         {
             notificationStates[notificationType] = flag;
             if (AssistantToTheAssistantPatchManager.NotificationToggle != null)
@@ -35,7 +35,7 @@ namespace ToggleNotifications.TNTools.UI
                 AssistantToTheAssistantPatchManager.NotificationToggle.CheckCurrentState(notificationType, flag);
             }
         }
-        public bool ListGUI()
+        internal bool ListGUI()
         {
             GUI.enabled = true;
 

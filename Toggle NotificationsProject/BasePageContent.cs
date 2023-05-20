@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ToggleNotifications
 {
-    public class BasePageContent : IPageContent
+    internal class BasePageContent : IPageContent
     {
         protected ToggleNotificationsPlugin mainPlugin;
         protected ToggleNotificationsUI MainUI;
@@ -15,8 +15,8 @@ namespace ToggleNotifications
         private bool uiVisible;
         private Rect windowRect = Rect.zero;
         private int windowWidth = 250;
-        public bool isGUIVisible = false;
-        public BasePageContent()
+        internal bool isGUIVisible = false;
+        internal BasePageContent()
         {
             this.MainUI = ToggleNotificationsUI.Instance;
             this.mainPlugin = ToggleNotificationsPlugin.Instance;
@@ -25,13 +25,13 @@ namespace ToggleNotifications
         protected MessageCenterMessage Refreshing => MainUI.Refreshing;
         protected NotificationEvents RefreshingNotification => MainUI.RefreshingNotification;
 
-        public virtual string Name => throw new NotImplementedException();
-        public virtual GUIContent Icon => throw new NotImplementedException();
-        public bool IsRunning => false;
-        public bool UIVisible { get => this.isGUIVisible; set => this.isGUIVisible = value; }
-        public bool IsActive => mainPlugin.interfaceEnabled;
+        internal virtual string Name => throw new NotImplementedException();
+        internal virtual GUIContent Icon => throw new NotImplementedException();
+        internal bool IsRunning => false;
+        internal bool UIVisible { get => this.isGUIVisible; set => this.isGUIVisible = value; }
+        internal bool IsActive => mainPlugin.interfaceEnabled;
 
-        public virtual void OnGUI()
+        internal virtual void OnGUI()
         {
             Debug.Log("OnGUI BasePageContent called");
             if (!mainPlugin.isGUIVisible)

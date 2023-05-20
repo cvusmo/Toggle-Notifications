@@ -4,51 +4,51 @@ using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
-    public class TNBaseStyle
+    internal class TNBaseStyle
     {
-        public static GUISkin Skin;
+        internal static GUISkin Skin;
         private static bool guiLoaded;
-        public static GUIStyle Error;
-        public static GUIStyle Warning;
-        public static GUIStyle Label;
-        public static GUIStyle MidText;
-        public static GUIStyle ConsoleText;
-        public static GUIStyle PhaseOk;
-        public static GUIStyle PhaseWarning;
-        public static GUIStyle PhaseError;
-        public static GUIStyle IconsLabel;
-        public static GUIStyle Title;
-        public static GUIStyle TextInputStyle;
-        public static GUIStyle NameLabelStyle;
-        public static GUIStyle ValueLabelStyle;
-        public static GUIStyle UnitLabelStyle;
-        public static string UnitColorHex;
-        public static GUIStyle Separator;
-        public static Texture2D Gear;
-        public static Texture2D Icon;
-        public static Texture2D TNIcon;
-        public static Texture2D Cross;
-        public static GUIStyle ProgressBarEmpty;
-        public static GUIStyle ProgressBarFull;
-        public static GUIStyle BigiconButton;
-        public static GUIStyle IconButton;
-        public static GUIStyle SmallButton;
-        public static GUIStyle BigButton;
-        public static GUIStyle Button;
-        public static GUIStyle CtrlButton;
-        public static GUIStyle TabNormal;
-        public static GUIStyle TabActive;
-        public static GUIStyle FoldoutClose;
-        public static GUIStyle FoldoutOpen;
-        public static GUIStyle Toggle;
-        public static GUIStyle ToggleError;
+        internal static GUIStyle Error;
+        internal static GUIStyle Warning;
+        internal static GUIStyle Label;
+        internal static GUIStyle MidText;
+        internal static GUIStyle ConsoleText;
+        internal static GUIStyle PhaseOk;
+        internal static GUIStyle PhaseWarning;
+        internal static GUIStyle PhaseError;
+        internal static GUIStyle IconsLabel;
+        internal static GUIStyle Title;
+        internal static GUIStyle TextInputStyle;
+        internal static GUIStyle NameLabelStyle;
+        internal static GUIStyle ValueLabelStyle;
+        internal static GUIStyle UnitLabelStyle;
+        internal static string UnitColorHex;
+        internal static GUIStyle Separator;
+        internal static Texture2D Gear;
+        internal static Texture2D Icon;
+        internal static Texture2D TNIcon;
+        internal static Texture2D Cross;
+        internal static GUIStyle ProgressBarEmpty;
+        internal static GUIStyle ProgressBarFull;
+        internal static GUIStyle BigiconButton;
+        internal static GUIStyle IconButton;
+        internal static GUIStyle SmallButton;
+        internal static GUIStyle BigButton;
+        internal static GUIStyle Button;
+        internal static GUIStyle CtrlButton;
+        internal static GUIStyle TabNormal;
+        internal static GUIStyle TabActive;
+        internal static GUIStyle FoldoutClose;
+        internal static GUIStyle FoldoutOpen;
+        internal static GUIStyle Toggle;
+        internal static GUIStyle ToggleError;
 
 
-        public static bool Init()
+        internal static bool Init()
         {
            return BuildStyles();
         }
-        public static bool BuildStyles()
+        internal static bool BuildStyles()
         {
             if (TNBaseStyle.guiLoaded)
                 return true;

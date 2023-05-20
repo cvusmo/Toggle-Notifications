@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
-    public class AssetsLoader
+    internal class AssetsLoader
     {
-        public static Texture2D LoadIcon(string path)
+        internal static Texture2D LoadIcon(string path)
         {
             Texture2D imageTexture = AssetManager.GetAsset<Texture2D>("togglenotifications/images/" + path + ".png");
 

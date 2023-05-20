@@ -2,9 +2,9 @@
 
 namespace ToggleNotifications.TNTools.UI
 {
-    public class TabsUI
+    internal class TabsUI
     {
-        public List<IPageContent> Pages = new List<IPageContent>();
+        internal List<IPageContent> Pages = new List<IPageContent>();
         private List<IPageContent> _filteredPages = new List<IPageContent>();
         private IPageContent CurrentPage;
         private List<float> TabsWidth = new List<float>();
@@ -15,7 +15,7 @@ namespace ToggleNotifications.TNTools.UI
             return icon == null ? GUILayout.Toggle((isCurrent ? 1 : 0) != 0, txt, style, GUILayout.ExpandWidth(true)) : GUILayout.Toggle((isCurrent ? 1 : 0) != 0, icon, style, GUILayout.ExpandWidth(true));
         }
 
-        public int DrawTabs(int current, float maxWidth = 300f)
+        internal int DrawTabs(int current, float maxWidth = 300f)
         {
             current = GeneralTools.ClampInt(current, 0, this._filteredPages.Count - 1);
             GUILayout.BeginHorizontal();
@@ -52,12 +52,12 @@ namespace ToggleNotifications.TNTools.UI
             return num1;
         }
 
-        public void Init()
+        internal void Init()
         {
             Pages.Add(new BasePageContent());
         }
 
-        public void Update()
+        internal void Update()
         {
             this._filteredPages = new List<IPageContent>();
             for (int index = 0; index < this.Pages.Count; ++index)
@@ -67,7 +67,7 @@ namespace ToggleNotifications.TNTools.UI
             }
         }
 
-        public void OnGUI()
+        internal void OnGUI()
         {
             int mainTabIndex = TNBaseSettings.MainTabIndex;
             if (this._filteredPages.Count == 0)

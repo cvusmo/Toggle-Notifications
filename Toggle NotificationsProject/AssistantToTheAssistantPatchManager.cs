@@ -6,30 +6,29 @@ using ToggleNotifications.TNTools.UI;
 
 namespace ToggleNotifications
 {
-    public static class AssistantToTheAssistantPatchManager
+    internal static class AssistantToTheAssistantPatchManager
     {
-        public static ManualLogSource Logger { get; set; }
-        public static NotificationToggle NotificationToggle { get; set; }
+        internal static ManualLogSource Logger { get; set; }
+        internal static NotificationToggle NotificationToggle { get; set; }
 
         [HarmonyPatch(typeof(NotificationEvents))]
-        public static class NotificationEventsPatch
+        internal static class NotificationEventsPatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("GamePauseToggledMessage")]
-            public static bool Prefix(NotificationEvents __instance)
+            internal static bool Prefix(NotificationEvents __instance)
             {
                 Logger.LogInfo("Prefix Loaded for NotificationEvents");
                 return false;
             }
         }
 
-
         [HarmonyPatch(typeof(MessageCenter))]
-        public static class MessageCenterPublishPatch
+        internal static class MessageCenterPublishPatch
         {
             [HarmonyPrefix]
             [HarmonyPatch(nameof(MessageCenter.Publish), typeof(System.Type), typeof(MessageCenterMessage))]
-            public static bool Prefix(System.Type type, MessageCenterMessage message)
+            internal static bool Prefix(System.Type type, MessageCenterMessage message)
             {
                 if (type == typeof(PauseStateChangedMessage))
                 {
@@ -50,11 +49,11 @@ namespace ToggleNotifications
         }
 
         [HarmonyPatch(typeof(UIManager))]
-        public static class SetPauseVisiblePatch
+        internal static class SetPauseVisiblePatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("SetPauseVisible")]
-            public static bool Prefix(UIManager __instance, bool isVisible)
+            internal static bool Prefix(UIManager __instance, bool isVisible)
             {
                 if (Logger != null)
                 {
@@ -72,11 +71,11 @@ namespace ToggleNotifications
         }
         //Solar Panel Patches
         [HarmonyPatch(typeof(NotificationEvents))]
-        public static class SolarPanelsIneffectiveMessagePatch
+        internal static class SolarPanelsIneffectiveMessagePatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("SolarPanelsIneffectiveMessage")]
-            public static bool Prefix(NotificationEvents __instance, MessageCenterMessage msg)
+            internal static bool Prefix(NotificationEvents __instance, MessageCenterMessage msg)
             {
                 if (Logger != null)
                 {
@@ -85,7 +84,7 @@ namespace ToggleNotifications
                 return false;
             }
         }
-        public static void ApplyPatches(NotificationToggle notificationToggle)
+        internal static void ApplyPatches(NotificationToggle notificationToggle)
         {
             Harmony harmony = new Harmony("com.github.cvusmo.Toggle-Notifications");
             harmony.PatchAll(typeof(AssistantToTheAssistantPatchManager).Assembly);

@@ -8,29 +8,29 @@ using static ToggleNotifications.TNTools.UI.NotificationToggle;
 
 namespace TNUtilities
 {
-    public class TNUtility
+    internal class TNUtility
     {
-        public List<string> NotificationList = new List<string>();
+        internal List<string> NotificationList = new List<string>();
         private static TNUtility _instance;
-        public static TNUtility Instance { get => _instance; }
-        public static ToggleNotificationsUI instance;
-        public static NotificationToggle toggleNotification;
-        public ToggleNotificationsPlugin mainPlugin;
-        public MessageCenterMessage Refreshing;
-        public NotificationEvents RefreshingNotification;
-        public bool RefreshNotification { get; set; }
-        public static NotificationToggle toggleState;
-        public static NotificationToggle notificationToggle;
+        internal static TNUtility Instance { get => _instance; }
+        internal static ToggleNotificationsUI instance;
+        internal static NotificationToggle toggleNotification;
+        internal ToggleNotificationsPlugin mainPlugin;
+        internal MessageCenterMessage Refreshing;
+        internal NotificationEvents RefreshingNotification;
+        internal bool RefreshNotification { get; set; }
+        internal static NotificationToggle toggleState;
+        internal static NotificationToggle notificationToggle;
 
-        public ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TNUtility");
-        public TNUtility()
+        internal ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TNUtility");
+        internal TNUtility()
         {
             _instance = this;
             instance = ToggleNotificationsUI.Instance;
             toggleNotification = ToggleNotificationsUI.toggleNotification;
         }
 
-        public bool RefreshState
+        internal bool RefreshState
         {
             get
             {
@@ -49,7 +49,7 @@ namespace TNUtilities
             }
         }
 
-        public bool RefreshNotifications()
+        internal bool RefreshNotifications()
         {
             if (RefreshNotification)
             {
@@ -70,7 +70,7 @@ namespace TNUtilities
             }
         }
 
-        public void RefreshCurrentState()
+        internal void RefreshCurrentState()
         {
             bool isRefreshing = instance.Refreshing != null;
             bool isRefreshingNotification = instance.RefreshingNotification != null;
@@ -80,7 +80,7 @@ namespace TNUtilities
             Debug.Log($"Notification Refreshing: {isRefreshingNotification}");
         }
 
-        public static void DrawToggleButton(string toggleStr, NotificationType notificationType, int widthOverride = 0)
+        internal static void DrawToggleButton(string toggleStr, NotificationType notificationType, int widthOverride = 0)
         {
             bool isOn = toggleNotification.GetNotificationState(notificationType);
             bool flag = UITools.SmallToggleButton(isOn, toggleStr, toggleStr, widthOverride);

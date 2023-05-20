@@ -7,22 +7,22 @@ using static ToggleNotifications.TNTools.UI.NotificationToggle;
 
 namespace ToggleNotifications
 {
-    public class ToggleNotificationsUI
+    internal class ToggleNotificationsUI
     {
-        public List<string> NotificationList = new List<string>();
-        public static ToggleNotificationsUI instance;
-        public static NotificationToggle toggleNotification;
-        public ToggleNotificationsPlugin mainPlugin;
-        public MessageCenterMessage Refreshing;
-        public NotificationEvents RefreshingNotification;
-        public static NotificationToggle toggleState;
+        internal List<string> NotificationList = new List<string>();
+        internal static ToggleNotificationsUI instance;
+        internal static NotificationToggle toggleNotification;
+        internal ToggleNotificationsPlugin mainPlugin;
+        internal MessageCenterMessage Refreshing;
+        internal NotificationEvents RefreshingNotification;
+        internal static NotificationToggle toggleState;
         private bool InitDone;
         private bool isGUIVisible;
         private TabsUI tabs;
-        public bool RefreshNotification { get; set; }
-        public bool GamePausedGUI { get; set; }
-        public static ToggleNotificationsUI Instance => ToggleNotificationsUI.instance;
-        public ToggleNotificationsUI(ToggleNotificationsPlugin plugin, bool isGUIVisible)
+        internal bool RefreshNotification { get; set; }
+        internal bool GamePausedGUI { get; set; }
+        internal static ToggleNotificationsUI Instance => ToggleNotificationsUI.instance;
+        internal ToggleNotificationsUI(ToggleNotificationsPlugin plugin, bool isGUIVisible)
         {
             instance = this;
             mainPlugin = plugin;
@@ -30,7 +30,7 @@ namespace ToggleNotifications
             tabs.Init();
             this.isGUIVisible = isGUIVisible;
         }
-        public void Update()
+        internal void Update()
         {
             if (!InitDone)
             {
@@ -47,7 +47,7 @@ namespace ToggleNotifications
 
             tabs.Update();
         }
-        public static void DrawSoloToggle(string toggleStr, ref bool toggle)
+        internal static void DrawSoloToggle(string toggleStr, ref bool toggle)
         {
             GUILayout.Space((float)TNStyles.SpacingAfterSection);
             GUILayout.BeginHorizontal();
@@ -56,7 +56,7 @@ namespace ToggleNotifications
             GUILayout.EndHorizontal();
             GUILayout.Space((float)-TNStyles.SpacingAfterSection);
         }
-        public static bool DrawSoloToggle(string toggleStr, bool toggle, bool error = false)
+        internal static bool DrawSoloToggle(string toggleStr, bool toggle, bool error = false)
         {
             GUILayout.Space((float)TNStyles.SpacingAfterSection);
             GUILayout.BeginHorizontal();
@@ -72,7 +72,7 @@ namespace ToggleNotifications
             GUILayout.Space((float)-TNStyles.SpacingAfterSection);
             return toggle;
         }
-        public static void DrawEntry(string entryName, string value = "", string unit = "")
+        internal static void DrawEntry(string entryName, string value = "", string unit = "")
         {
             GUILayout.BeginHorizontal();
             UITools.Label(entryName);
@@ -89,7 +89,7 @@ namespace ToggleNotifications
             GUILayout.EndHorizontal();
             GUILayout.Space((float)TNStyles.SpacingAfterEntry);
         }
-        public static void DrawEntryButton(
+        internal static void DrawEntryButton(
             string entryName,
             ref bool button,
             string buttonStr,
@@ -106,7 +106,7 @@ namespace ToggleNotifications
             GUILayout.EndHorizontal();
             GUILayout.Space((float)TNStyles.SpacingAfterEntry);
         }
-        public static void DrawEntry2Button(
+        internal static void DrawEntry2Button(
             string entryName,
             ref bool button1,
             string button1Str,
@@ -129,7 +129,7 @@ namespace ToggleNotifications
             GUILayout.EndHorizontal();
             GUILayout.Space((float)TNStyles.SpacingAfterEntry);
         }
-        public static void DrawToggleButtonWithLabel(
+        internal static void DrawToggleButtonWithLabel(
             string runString,
             NotificationType type,
             string label = "",
@@ -145,7 +145,7 @@ namespace ToggleNotifications
             GUILayout.EndHorizontal();
             GUILayout.Space((float)TNStyles.SpacingAfterTallEntry);
         }
-        public static void DrawToggleButton(string txt, NotificationType notificationType, int widthOverride = 0)
+        internal static void DrawToggleButton(string txt, NotificationType notificationType, int widthOverride = 0)
         {
             bool isOn = toggleNotification.GetNotificationState(notificationType);
             bool flag = UITools.SmallToggleButton(isOn, txt, txt, widthOverride);
@@ -154,7 +154,7 @@ namespace ToggleNotifications
             toggleNotification.CheckCurrentState(notificationType, flag);
         }
 
-        public static bool DrawToggleButton(string toggleStr, ref bool toggle)
+        internal static bool DrawToggleButton(string toggleStr, ref bool toggle)
         {
             GUILayout.Space(TNStyles.SpacingAfterSection);
             toggle = GUILayout.Toggle(toggle, toggleStr, TNBaseStyle.Toggle);
@@ -162,7 +162,7 @@ namespace ToggleNotifications
             GUILayout.Space(-TNStyles.SpacingAfterSection);
             return toggle;
         }
-        public bool OnGUI()
+        internal bool OnGUI()
         {
             TNUtility.Instance.RefreshNotifications();
             TNUtility.Instance.RefreshCurrentState();
