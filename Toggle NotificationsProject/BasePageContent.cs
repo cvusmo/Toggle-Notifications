@@ -16,14 +16,12 @@ namespace ToggleNotifications
         private Rect windowRect = Rect.zero;
         private int windowWidth = 250;
         public bool isGUIVisible = false;
-
         public BasePageContent()
         {
             this.MainUI = ToggleNotificationsUI.Instance;
             this.mainPlugin = ToggleNotificationsPlugin.Instance;
             this.windowTool = new WindowTool();
         }
-
         protected MessageCenterMessage Refreshing => MainUI.Refreshing;
         protected NotificationEvents RefreshingNotification => MainUI.RefreshingNotification;
 

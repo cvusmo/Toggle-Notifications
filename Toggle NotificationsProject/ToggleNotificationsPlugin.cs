@@ -131,7 +131,7 @@ namespace ToggleNotifications
                 "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
                 GUILayout.Height(0.0f),
                 GUILayout.Width((float)this.windowWidth),
-                GUILayout.MinHeight(200) // Adjust the value to your desired height
+                GUILayout.MinHeight(400) // Adjust the value to your desired height
             );
 
             saverectpos();
@@ -146,11 +146,13 @@ namespace ToggleNotifications
             {
                 notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
                 notificationToggle.CheckCurrentState(NotificationType.PauseStateChangedMessageToggle, true);
+                PauseToggleConfig.Value = true;
             }
             else if (selectedRadioButton == 0)
             {
                 notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
                 notificationToggle.CheckCurrentState(NotificationType.PauseStateChangedMessageToggle, false);
+                PauseToggleConfig.Value = false;
             }
         }
         public void FillWindow(int windowID)
@@ -161,7 +163,7 @@ namespace ToggleNotifications
             GUILayout.BeginHorizontal();
 
             // MENU BAR
-            GUI.Label(new Rect(10f, 2f, 29f, 29f), TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
+            GUILayout.FlexibleSpace();
 
             Rect closeButtonPosition = new Rect(this.windowRect.width - 10, 4f, 23f, 23f);
             TopButtons.SetPosition(closeButtonPosition);
@@ -175,20 +177,37 @@ namespace ToggleNotifications
             {
                 // Handle the gear button action here if needed
             }
+
             GUILayout.EndHorizontal();
 
-            // Radio Buttons
+            // Notification Toggle Buttons
             GUILayout.BeginVertical();
-            // Set the height of the vertical group based on the available space in the window
+
+            GUILayout.FlexibleSpace();
+
+            GUIStyle nameLabelStyle = new GUIStyle()
+            {
+                border = new RectOffset(0, 0, 5, 5),
+                padding = new RectOffset(0, 0, 4, 4),
+                overflow = new RectOffset(0, 0, 0, 0),
+                normal = { textColor = ColorTools.ParseColor("#C0C1E2") },
+                alignment = TextAnchor.UpperLeft
+            };
+
+            GUILayout.Label("Game Pause Notifications", nameLabelStyle, GUILayout.Width(200), GUILayout.Height(20));
+
             float verticalGroupHeight = this.windowRect.height - GUILayoutUtility.GetLastRect().height - 10f;
             GUILayout.BeginArea(new Rect(0f, GUILayoutUtility.GetLastRect().yMax, this.windowRect.width, verticalGroupHeight));
-            bool radioButton1 = GUI.Toggle(new Rect(10, 40, 120, 20), selectedRadioButton == 1, "Enable", TNBaseStyle.ToggleRadio);
+
+            bool radioButton1 = GUI.Toggle(new Rect(this.windowRect.width - 140, 40, 120, 20), selectedRadioButton == 1, "Enable", TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton == 1 ? ColorTools.ParseColor("#C0E2DC") : ColorTools.ParseColor("#C0C1E2");
             if (radioButton1)
             {
                 selectedRadioButton = 1;
             }
 
-            bool radioButton2 = GUI.Toggle(new Rect(10, 90, 120, 20), selectedRadioButton == 2, "Disable", TNBaseStyle.ToggleRadio);
+            bool radioButton2 = GUI.Toggle(new Rect(this.windowRect.width - 140, 90, 120, 20), selectedRadioButton == 2, "Disable", TNBaseStyle.ToggleError);
+            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton == 2 ? ColorTools.ParseColor("#C0E2DC") : Color.red;
             if (radioButton2)
             {
                 selectedRadioButton = 2;
@@ -198,7 +217,6 @@ namespace ToggleNotifications
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
 
-            // Save the window position
             saverectpos();
         }
         public void CloseWindow()

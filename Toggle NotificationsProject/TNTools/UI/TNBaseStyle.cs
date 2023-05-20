@@ -42,7 +42,7 @@ namespace ToggleNotifications.TNTools.UI
         public static GUIStyle FoldoutOpen;
         public static GUIStyle Toggle;
         public static GUIStyle ToggleError;
-        public static GUIStyle ToggleRadio;
+
 
         public static bool Init()
         {
@@ -293,19 +293,7 @@ namespace ToggleNotifications.TNTools.UI
             TNBaseStyle.Toggle.overflow = new RectOffset(0, 0, 0, 2);
             TNBaseStyle.ToggleError = new GUIStyle(TNBaseStyle.Toggle);
             TNBaseStyle.ToggleError.normal.textColor = Color.red;
-            // Additional modification for radio button behavior
-            TNBaseStyle.ToggleRadio = new GUIStyle(GUI.skin.GetStyle("Button"));
-            TNBaseStyle.ToggleRadio.normal.background = AssetsLoader.LoadIcon("Toggle_Off");
-            TNBaseStyle.ToggleRadio.normal.textColor = ColorTools.ParseColor("#C0C1E2");
-            TNBaseStyle.SetAllFromNormal(TNBaseStyle.ToggleRadio);
-            TNBaseStyle.ToggleRadio.onNormal.background = AssetsLoader.LoadIcon("Toggle_On");
-            TNBaseStyle.ToggleRadio.onNormal.textColor = ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.SetFromOn(TNBaseStyle.ToggleRadio);
-            TNBaseStyle.ToggleRadio.fixedHeight = 32f;
-            TNBaseStyle.ToggleRadio.stretchWidth = false;
-            TNBaseStyle.ToggleRadio.border = new RectOffset(45, 5, 5, 5);
-            TNBaseStyle.ToggleRadio.padding = new RectOffset(34, 16, 0, 0);
-            TNBaseStyle.ToggleRadio.overflow = new RectOffset(0, 0, 0, 2);
+
         }
         private static void SetAllFromNormal(GUIStyle style)
         {
