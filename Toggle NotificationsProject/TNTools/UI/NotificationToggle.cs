@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
-    internal class NotificationToggle
+    public class NotificationToggle
     {
         private readonly ToggleNotificationsPlugin mainPlugin;
-        internal Dictionary<NotificationType, bool> notificationStates;
-        internal long SentOn { get; internal set; }
+        private Dictionary<NotificationType, bool> notificationStates;
+        public long SentOn { get; internal set; }
         internal List<string> NotificationList { get; } = new List<string>();
         internal NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
         {
