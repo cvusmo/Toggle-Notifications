@@ -29,14 +29,18 @@ namespace ToggleNotifications
         private Rect windowRect = Rect.zero;
         private int windowWidth = 250;
         internal ToggleNotificationsUI MainUI;
+        private int selectedRadioButton = 1;
+        private int selectedRadioButton2 = 1;
+        private int selectedRadioButton3 = 1;
+        private int selectedRadioButton4 = 1;
         internal ToggleNotificationsPlugin mainPlugin;
         internal GameInstance game;
         private NotificationToggle notificationToggle;
         //config
-        public ConfigEntry<bool> tnConfig;
-        protected bool defaultValue;
-        public ConfigEntry<bool> SolarToggleConfig { get; private set; }
-        public ConfigEntry<bool> PauseToggleConfig { get; private set; }
+       public ConfigEntry<bool> tnConfig;
+       protected bool defaultValue;
+       // public ConfigEntry<bool> SolarToggleConfig { get; private set; }
+       // public ConfigEntry<bool> PauseToggleConfig { get; private set; }
         //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
         private static string assemblyFolder;
@@ -51,8 +55,8 @@ namespace ToggleNotifications
         {
             TNBaseSettings.Init(SettingsPath);
 
-            SolarToggleConfig = Config.Bind("Notification Settings", "Solar Config", true, "Solar configuration value");
-            PauseToggleConfig = Config.Bind("Notification Settings", "Pause Toggle State Config", true, "Game Pause Toggle State configuration value");
+           // SolarToggleConfig = Config.Bind("Notification Settings", "Solar Config", true, "Solar configuration value");
+           // PauseToggleConfig = Config.Bind("Notification Settings", "Pause Toggle State Config", true, "Game Pause Toggle State configuration value");
 
             base.OnInitialized();
             
@@ -76,16 +80,16 @@ namespace ToggleNotifications
             );
 
             // configuration
-            tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", defaultValue, "Toggle Notifications is a mod that allows you to enable or disable notifications");
-            defaultValue = tnConfig.Value;
-            tnConfig.Value = true;
+           tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", defaultValue, "Toggle Notifications is a mod that allows you to enable or disable notifications");
+          defaultValue = tnConfig.Value;
+           tnConfig.Value = true;
 
-            notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
-            {
-                [NotificationType.GamePauseToggledMessage] = PauseToggleConfig.Value,
-                [NotificationType.PauseStateChangedMessageToggle] = PauseToggleConfig.Value,
-                [NotificationType.SolarPanelsIneffectiveMessage] = SolarToggleConfig.Value
-            });
+          //  notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
+           // {
+           //     [NotificationType.GamePauseToggledMessage] = PauseToggleConfig.Value,
+            //    [NotificationType.PauseStateChangedMessageToggle] = PauseToggleConfig.Value,
+           //     [NotificationType.SolarPanelsIneffectiveMessage] = SolarToggleConfig.Value
+           // });
             AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
         }
 
@@ -136,8 +140,6 @@ namespace ToggleNotifications
 
             saverectpos();
         }
-
-        private int selectedRadioButton = 1; // Start with "on" selected
         private void RadioButtonToggle(int toggleValue)
         {
             selectedRadioButton = toggleValue;
@@ -146,17 +148,14 @@ namespace ToggleNotifications
             {
                 notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
                 notificationToggle.CheckCurrentState(NotificationType.PauseStateChangedMessageToggle, true);
-                PauseToggleConfig.Value = true;
+                ///PauseToggleConfig.Value = true;
             }
             else if (selectedRadioButton == 0)
             {
                 notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
                 notificationToggle.CheckCurrentState(NotificationType.PauseStateChangedMessageToggle, false);
-                PauseToggleConfig.Value = false;
             }
         }
-
-        private int selectedRadioButton2 = 1;
         private void RadioButtonToggle2(int toggleValue)
         {
             selectedRadioButton2 = toggleValue;
@@ -164,12 +163,42 @@ namespace ToggleNotifications
             if (selectedRadioButton2 == 1)
             {
                 notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
-                SolarToggleConfig.Value = true;
+                //SolarToggleConfig.Value = true;
             }
             else if (selectedRadioButton2 == 0)
             {
                 notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
-                SolarToggleConfig.Value = false;
+                //SolarToggleConfig.Value = false;
+            }
+        }
+
+        private void RadioButtonToggle3(int toggleValue)
+        {
+            selectedRadioButton3 = toggleValue;
+
+            if (selectedRadioButton3 == 1)
+            {
+                notificationToggle.CheckCurrentState(NotificationType.VesselThrottleLockedDueToTimewarpingMessage, true);
+            }
+            else if (selectedRadioButton3 == 0)
+            {
+                notificationToggle.CheckCurrentState(NotificationType.VesselThrottleLockedDueToTimewarpingMessage, false);
+            }
+        }
+
+        private void RadioButtonToggle4(int toggleValue)
+        {
+            selectedRadioButton4 = toggleValue;
+
+            if (selectedRadioButton4 == 1)
+            {
+                notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, true);
+                //SolarToggleConfig.Value = true;
+            }
+            else if (selectedRadioButton4 == 0)
+            {
+                notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, false);
+                //SolarToggleConfig.Value = false;
             }
         }
 
@@ -207,64 +236,57 @@ namespace ToggleNotifications
 
             GUILayout.FlexibleSpace();
 
-            // Group 1: Pause Notification
-            GUILayout.BeginVertical();
-
-            GUIStyle gamePauseStyle = new GUIStyle()
-            {
-                border = new RectOffset(3, 3, 5, 5),
-                padding = new RectOffset(3, 3, 4, 4),
-                overflow = new RectOffset(0, 0, 0, 0),
-                normal = { textColor = ColorTools.ParseColor("#C0C1E2") },
-                alignment = TextAnchor.UpperLeft
-            };
-            GUILayout.Label("Pause Notification", gamePauseStyle, GUILayout.Height(68));
-
-            GUIStyle solarStyle = new GUIStyle()
-            {
-                border = new RectOffset(3, 3, 5, 5),
-                padding = new RectOffset(3, 3, 4, 4),
-                overflow = new RectOffset(0, 0, 0, 0),
-                normal = { textColor = ColorTools.ParseColor("#C0C1E2") },
-                alignment = TextAnchor.UpperLeft
-            };
-            GUILayout.Label("Solar Panels Ineffective", solarStyle, GUILayout.Height(151));
-
-            GUILayout.EndVertical();
-
             // Group 2: Toggle Buttons
             GUILayout.BeginVertical(GUILayout.Height(60));
 
-            bool radioButton1 = GUI.Toggle(new Rect(this.windowRect.width - 140, 53, 120, 20), selectedRadioButton == 1, "Enable", TNBaseStyle.ToggleError);
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton == 0 ? ColorTools.ParseColor("#C0E2DC") : Color.red;
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton == 1 ? ColorTools.ParseColor("#C0E2DC") : ColorTools.ParseColor("#C0C1E2");
+            int buttonWidth = (int)(windowRect.width - 12); // Subtract 3 on each side for padding
+
+            bool radioButton1 = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), selectedRadioButton == 1, "Game Pause", selectedRadioButton == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);            
+            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton1)
             {
                 selectedRadioButton = 1;
             }
-
-            bool radioButton2 = GUI.Toggle(new Rect(this.windowRect.width - 140, 93, 120, 20), selectedRadioButton == 0, "Disable", TNBaseStyle.ToggleError);
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton == 0 ? ColorTools.ParseColor("#C0E2DC") : Color.red;
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton == 1 ? ColorTools.ParseColor("#C0E2DC") : ColorTools.ParseColor("#C0C1E2");
-            if (radioButton2)
+            else
             {
                 selectedRadioButton = 0;
             }
 
-            bool radioButton3 = GUI.Toggle(new Rect(this.windowRect.width - 140, 133, 120, 20), selectedRadioButton2 == 1, "Enable", TNBaseStyle.ToggleError);
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton2 == 0 ? ColorTools.ParseColor("#C0E2DC") : Color.red;
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton2 == 1 ? ColorTools.ParseColor("#C0E2DC") : ColorTools.ParseColor("#C0C1E2");
-            if (radioButton3)
+            bool radioButton2 = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), selectedRadioButton2 == 1, "Solar Panel Ineffective", selectedRadioButton2 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);         
+            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton2 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton2 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            if (radioButton2)
             {
                 selectedRadioButton2 = 1;
             }
-
-            bool radioButton4 = GUI.Toggle(new Rect(this.windowRect.width - 140, 173, 120, 20), selectedRadioButton2 == 0, "Disable", TNBaseStyle.ToggleError);
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton2 == 0 ? ColorTools.ParseColor("#C0E2DC") : Color.red;
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton2 == 1 ? ColorTools.ParseColor("#C0E2DC") : ColorTools.ParseColor("#C0C1E2");
-            if (radioButton4)
+            else
             {
                 selectedRadioButton2 = 0;
+            }
+
+            bool radioButton3 = GUI.Toggle(new Rect(3, 133, buttonWidth, 20), selectedRadioButton3 == 1, "Active", selectedRadioButton3 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);     
+            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton3 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton3 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            if (radioButton3)
+            {
+                selectedRadioButton3 = 1;
+            }
+            else
+            {
+                selectedRadioButton3 = 0;
+            }
+
+            bool radioButton4 = GUI.Toggle(new Rect(3, 173, buttonWidth, 20), selectedRadioButton4 == 1, "Active", selectedRadioButton4 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton4 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton4 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            if (radioButton4)
+            {
+                selectedRadioButton4 = 1;
+            }
+            else
+            {
+                selectedRadioButton4 = 0;
             }
 
             GUILayout.EndVertical();

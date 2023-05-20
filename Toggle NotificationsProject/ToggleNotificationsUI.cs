@@ -162,11 +162,5 @@ namespace ToggleNotifications
             GUILayout.Space(-TNStyles.SpacingAfterSection);
             return toggle;
         }
-        internal bool OnGUI()
-        {
-            TNUtility.Instance.RefreshNotifications();
-            TNUtility.Instance.RefreshCurrentState();
-            return true;
-        }
     }
 }
