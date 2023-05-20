@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using KSP.Game;
+using KSP.Networking.OnlineServices.Authentication.Models;
 using KSP.UI.Binding;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
@@ -130,7 +131,6 @@ namespace ToggleNotifications
                 return;
 
             TNStyles.Init();
-            Texture2D windowTexture = AssetsLoader.LoadIcon("window");
             WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
             GUI.skin = TNBaseStyle.Skin;
             this.windowRect = GUILayout.Window(
@@ -138,7 +138,7 @@ namespace ToggleNotifications
                 this.windowRect,
                 new GUI.WindowFunction(this.FillWindow),
                 "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
-                GUILayout.Height(0.0f),
+                GUILayout.Height(2f),
                 GUILayout.Width((float)this.windowWidth)
             );
 
@@ -163,30 +163,59 @@ namespace ToggleNotifications
         }
         public void FillWindow(int windowID)
         {
+            // Initialize the position of the buttons
             TopButtons.Init(this.windowRect.width);
             GUI.Label(new Rect(9f, 2f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
+
+            // MENU BAR
+            GUILayout.BeginHorizontal();
+            if (TopButtons.Button(TNBaseStyle.Icon))
+            {
+                // Handle the icon button action here if needed
+            }
+            Rect closeButtonPosition = new Rect(this.windowRect.width - 30, 4f, 23f, 23f);
+            TopButtons.SetPosition(closeButtonPosition);
+
             if (TopButtons.Button(TNBaseStyle.Cross))
                 this.CloseWindow();
             GUILayout.Space(10);
 
-            if (GUILayout.Toggle(selectedRadioButton == 1, AssetsLoader.LoadIcon("Toggle_On"), GUIStyle.none))
+            if (TopButtons.Button(TNBaseStyle.Gear))
             {
-                RadioButtonToggle(1);
+                // Handle the gear button action here if needed
             }
-            if (GUILayout.Toggle(selectedRadioButton == 0, AssetsLoader.LoadIcon("Toggle_Off"), GUIStyle.none))
+            GUILayout.EndHorizontal();
+
+            // Radio Buttons
+            GUILayout.BeginHorizontal();
+            bool radioButton1 = GUILayout.Toggle(selectedRadioButton == 1, "Enable", TNBaseStyle.ToggleRadio);
+            if (radioButton1)
             {
-                RadioButtonToggle(0);
+                selectedRadioButton = 1;
+                mainPlugin.LogCurrentState(); // Update the current state in the plugin
             }
 
-            MainUI.OnGUI();
+            bool radioButton2 = GUILayout.Toggle(selectedRadioButton == 2, "Disable", TNBaseStyle.ToggleRadio);
+            if (radioButton2)
+            {
+                selectedRadioButton = 2;
+                mainPlugin.LogCurrentState(); // Update the current state in the plugin
+            }
+            GUILayout.EndHorizontal();
+
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
         }
+
 
         public void CloseWindow()
         {
             GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(false);
             interfaceEnabled = false;
             ToggleButton(false, false);
+            Rect closeButtonPosition = new Rect(windowRect.width - 30, 4f, 23f, 23f);
+            TopButtons.SetPosition(closeButtonPosition);
+            if (TopButtons.Button(TNBaseStyle.Cross))
+                this.CloseWindow();
         }
     }
 }

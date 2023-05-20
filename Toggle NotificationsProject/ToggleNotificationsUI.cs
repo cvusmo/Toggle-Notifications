@@ -1,5 +1,4 @@
-﻿
-using KSP.Game;
+﻿using KSP.Game;
 using KSP.Messages;
 using TNUtilities;
 using ToggleNotifications.TNTools.UI;
@@ -165,34 +164,9 @@ namespace ToggleNotifications
         }
         public bool OnGUI()
         {
-            DrawEntry("Game Pause Notification", "", "");
+
             TNUtility.Instance.RefreshNotifications();
             TNUtility.Instance.RefreshCurrentState();
-            GUILayout.Label("Game Pause Toggled:");
-            GamePausedGUI = GUILayout.Toggle(GamePausedGUI, "Enable Game Pause");
-
-            GUILayout.BeginVertical();
-            GUILayout.Label("Toggle Notifications");
-
-            foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
-            {
-                if (notificationType != NotificationType.None)
-                {
-                    bool toggleState = toggleNotification.GetNotificationState(notificationType);
-                    bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString());
-                    if (newToggleState != toggleState)
-                    {
-                        toggleNotification.CheckCurrentState(notificationType, newToggleState);
-                        mainPlugin.LogCurrentState(); // Update the current state in the plugin
-                    }
-                }
-            }
-
-            NotificationToggle notificationToggle = new NotificationToggle(mainPlugin, toggleNotification.notificationStates);
-            notificationToggle.ListGUI();
-
-            GUILayout.EndVertical();
-
             return true;
         }
     }
