@@ -180,15 +180,38 @@ namespace ToggleNotifications
             {
                 // Handle the gear button action here if needed
             }
-
+            //GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
             GUILayout.EndHorizontal();
+
+            
+            GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
+           
 
             // Notification Toggle Buttons
             GUILayout.BeginVertical();
 
             GUILayout.FlexibleSpace();
 
+            //version number
             GUIStyle nameLabelStyle = new GUIStyle()
+            {
+                border = new RectOffset(3, 3, 5, 5),
+                padding = new RectOffset(3, 3, 4, 4),
+                overflow = new RectOffset(0, 0, 0, 0),
+                normal = { textColor = ColorTools.ParseColor("#C0C1E2") },
+                alignment = TextAnchor.MiddleRight
+            };
+ 
+            GUILayout.Label("v0.2.2", nameLabelStyle, GUILayout.Height(10));
+
+            GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
+
+            //notifications
+
+            float verticalGroupHeight = this.windowRect.height - GUILayoutUtility.GetLastRect().height - 10f;
+            GUILayout.BeginArea(new Rect(0f, GUILayoutUtility.GetLastRect().yMax, this.windowRect.width, verticalGroupHeight));
+
+            GUIStyle gamePauseStyle = new GUIStyle()
             {
                 border = new RectOffset(3, 3, 5, 5),
                 padding = new RectOffset(3, 3, 4, 4),
@@ -197,24 +220,25 @@ namespace ToggleNotifications
                 alignment = TextAnchor.MiddleLeft
             };
 
-            GUILayout.Label("Game Pause Notifications", nameLabelStyle, GUILayout.Height(20));
+            GUILayout.Label("Pause Notification", gamePauseStyle, GUILayout.Height(10));
 
-            float verticalGroupHeight = this.windowRect.height - GUILayoutUtility.GetLastRect().height - 10f;
-            GUILayout.BeginArea(new Rect(0f, GUILayoutUtility.GetLastRect().yMax, this.windowRect.width, verticalGroupHeight));
 
-            bool radioButton1 = GUI.Toggle(new Rect(this.windowRect.width - 140, 40, 120, 20), selectedRadioButton == 1, "Enable", TNBaseStyle.Toggle);
+            bool radioButton1 = GUI.Toggle(new Rect(this.windowRect.width - 140, 70, 120, 20), selectedRadioButton == 1, "Enable", TNBaseStyle.Toggle);
             TNBaseStyle.Toggle.normal.textColor = selectedRadioButton == 1 ? ColorTools.ParseColor("#C0E2DC") : ColorTools.ParseColor("#C0C1E2");
             if (radioButton1)
             {
                 selectedRadioButton = 1;
             }
 
-            bool radioButton2 = GUI.Toggle(new Rect(this.windowRect.width - 140, 90, 120, 20), selectedRadioButton == 2, "Disable", TNBaseStyle.ToggleError);
+            bool radioButton2 = GUI.Toggle(new Rect(this.windowRect.width - 140, 110, 120, 20), selectedRadioButton == 2, "Disable", TNBaseStyle.ToggleError);
             TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton == 2 ? ColorTools.ParseColor("#C0E2DC") : Color.red;
             if (radioButton2)
             {
                 selectedRadioButton = 2;
             }
+
+            GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
+
             GUILayout.EndArea();
             GUILayout.EndVertical();
 
