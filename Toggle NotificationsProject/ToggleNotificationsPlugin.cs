@@ -7,10 +7,12 @@ using SpaceWarp;
 using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI.Appbar;
+using System.Drawing;
 using System.Reflection;
 using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
+using Color = UnityEngine.Color;
 
 namespace ToggleNotifications
 {
@@ -165,6 +167,7 @@ namespace ToggleNotifications
             // MENU BAR
             GUILayout.FlexibleSpace();
 
+            GUI.Label(new Rect(10f, 2f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
             Rect closeButtonPosition = new Rect(this.windowRect.width - 10, 4f, 23f, 23f);
             TopButtons.SetPosition(closeButtonPosition);
 
@@ -187,14 +190,14 @@ namespace ToggleNotifications
 
             GUIStyle nameLabelStyle = new GUIStyle()
             {
-                border = new RectOffset(0, 0, 5, 5),
-                padding = new RectOffset(0, 0, 4, 4),
+                border = new RectOffset(3, 3, 5, 5),
+                padding = new RectOffset(3, 3, 4, 4),
                 overflow = new RectOffset(0, 0, 0, 0),
                 normal = { textColor = ColorTools.ParseColor("#C0C1E2") },
-                alignment = TextAnchor.UpperLeft
+                alignment = TextAnchor.MiddleLeft
             };
 
-            GUILayout.Label("Game Pause Notifications", nameLabelStyle, GUILayout.Width(200), GUILayout.Height(20));
+            GUILayout.Label("Game Pause Notifications", nameLabelStyle, GUILayout.Height(20));
 
             float verticalGroupHeight = this.windowRect.height - GUILayoutUtility.GetLastRect().height - 10f;
             GUILayout.BeginArea(new Rect(0f, GUILayoutUtility.GetLastRect().yMax, this.windowRect.width, verticalGroupHeight));
