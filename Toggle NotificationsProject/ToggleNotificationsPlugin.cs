@@ -3,7 +3,6 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using KSP.Game;
 using KSP.UI.Binding;
-using MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
@@ -29,15 +28,15 @@ namespace ToggleNotifications
         internal bool isGUIVisible = false;
         private Rect windowRect = Rect.zero;
         private int windowWidth = 250;
-        private ToggleNotificationsUI MainUI;
+        internal ToggleNotificationsUI MainUI;
         internal ToggleNotificationsPlugin mainPlugin;
         internal GameInstance game;
         private NotificationToggle notificationToggle;
         //config
-        internal ConfigEntry<bool> tnConfig;
-        internal ConfigEntry<bool> SolarToggleConfig;
-        internal ConfigEntry<bool> PauseToggleConfig;
-        internal bool defaultValue;
+        public ConfigEntry<bool> tnConfig;
+        protected bool defaultValue;
+        public ConfigEntry<bool> SolarToggleConfig { get; private set; }
+        public ConfigEntry<bool> PauseToggleConfig { get; private set; }
         //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
         private static string assemblyFolder;
@@ -50,10 +49,13 @@ namespace ToggleNotifications
         internal new static ManualLogSource Logger { get; set; }
         public override void OnInitialized()
         {
-            // initialize
-            base.OnInitialized();
             TNBaseSettings.Init(SettingsPath);
 
+            SolarToggleConfig = Config.Bind("Notification Settings", "Solar Config", true, "Solar configuration value");
+            PauseToggleConfig = Config.Bind("Notification Settings", "Pause Toggle State Config", true, "Game Pause Toggle State configuration value");
+
+            base.OnInitialized();
+            
             Instance = this;
             Logger = base.Logger;
             Logger.LogInfo("Loaded");
@@ -78,18 +80,16 @@ namespace ToggleNotifications
             defaultValue = tnConfig.Value;
             tnConfig.Value = true;
 
-            // Create the initialNotificationStates dictionary and populate it
-            Dictionary<NotificationType, bool> initialNotificationStates = new Dictionary<NotificationType, bool>()
+            notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
             {
-                { NotificationType.GamePauseToggledMessage, PauseToggleConfig.Value },
-                { NotificationType.PauseStateChangedMessageToggle, PauseToggleConfig.Value },
-                { NotificationType.SolarPanelsIneffectiveMessage, SolarToggleConfig.Value }
-            };
-
-            notificationToggle = new NotificationToggle(this, initialNotificationStates);
-
+                [NotificationType.GamePauseToggledMessage] = PauseToggleConfig.Value,
+                [NotificationType.PauseStateChangedMessageToggle] = PauseToggleConfig.Value,
+                [NotificationType.SolarPanelsIneffectiveMessage] = SolarToggleConfig.Value
+            });
             AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
         }
+
+
         internal void ToggleButton(bool toggle, bool isOpen)
         {
             interfaceEnabled = isOpen;
