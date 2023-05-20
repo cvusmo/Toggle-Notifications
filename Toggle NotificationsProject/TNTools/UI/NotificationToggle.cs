@@ -50,7 +50,6 @@ namespace ToggleNotifications.TNTools.UI
                     if (newToggleState != toggleState)
                     {
                         notificationStates[notificationType] = newToggleState;
-                        mainPlugin.LogCurrentState(); // Update the current state in the plugin
                     }
                 }
             }

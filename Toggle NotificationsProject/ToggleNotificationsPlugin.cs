@@ -106,20 +106,11 @@ namespace ToggleNotifications
             }
             if (isGUIVisible)
             {
-                MainUI.OnGUI();
+                if (this.MainUI == null)
+                    return;
+                this.MainUI.Update();
             }
-        }
-
-        public void LogCurrentState()
-        {
-            bool solarPanelsIneffectiveMessageToggle = notificationToggle.GetNotificationState(NotificationType.SolarPanelsIneffectiveMessage);
-            bool gamePauseToggledMessageToggle = notificationToggle.GetNotificationState(NotificationType.GamePauseToggledMessage);
-            bool pauseStateChangedMessageToggle = notificationToggle.GetNotificationState(NotificationType.PauseStateChangedMessageToggle);
-
-            Logger.LogInfo($"Solar Panels Ineffective Message Toggle: {solarPanelsIneffectiveMessageToggle}");
-            Logger.LogInfo($"Game Pause Toggled Message Toggle: {gamePauseToggledMessageToggle}");
-            Logger.LogInfo($"Game Pause State Toggled Message Toggle: {pauseStateChangedMessageToggle}");
-        }
+        }       
         public void saverectpos()
         {
             TNBaseSettings.WindowXPos = (int)windowRect.xMin;
@@ -138,7 +129,7 @@ namespace ToggleNotifications
                 this.windowRect,
                 new GUI.WindowFunction(this.FillWindow),
                 "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
-                GUILayout.Height(2f),
+                GUILayout.Height(0.0f),
                 GUILayout.Width((float)this.windowWidth)
             );
 
@@ -165,19 +156,19 @@ namespace ToggleNotifications
         {
             // Initialize the position of the buttons
             TopButtons.Init(this.windowRect.width);
-            GUI.Label(new Rect(9f, 2f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
+
+            GUILayout.BeginHorizontal();
 
             // MENU BAR
-            GUILayout.BeginHorizontal();
-            if (TopButtons.Button(TNBaseStyle.Icon))
-            {
-                // Handle the icon button action here if needed
-            }
+            GUI.Label(new Rect(9f, 2f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
+            GUILayout.Label("<color=#696DFF>Toggle Notifications</color>", TNBaseStyle.NameLabelStyle);
+
             Rect closeButtonPosition = new Rect(this.windowRect.width - 30, 4f, 23f, 23f);
             TopButtons.SetPosition(closeButtonPosition);
 
             if (TopButtons.Button(TNBaseStyle.Cross))
                 this.CloseWindow();
+
             GUILayout.Space(10);
 
             if (TopButtons.Button(TNBaseStyle.Gear))
@@ -187,23 +178,32 @@ namespace ToggleNotifications
             GUILayout.EndHorizontal();
 
             // Radio Buttons
-            GUILayout.BeginHorizontal();
+            GUILayout.BeginVertical();
+            // Set the height of the vertical group based on the available space in the window
+            float verticalGroupHeight = this.windowRect.height - GUILayoutUtility.GetLastRect().height - 10f;
+            GUILayout.BeginArea(new Rect(0f, GUILayoutUtility.GetLastRect().yMax, this.windowRect.width, verticalGroupHeight));
+
+            // Add the radio buttons
             bool radioButton1 = GUILayout.Toggle(selectedRadioButton == 1, "Enable", TNBaseStyle.ToggleRadio);
             if (radioButton1)
             {
                 selectedRadioButton = 1;
-                mainPlugin.LogCurrentState(); // Update the current state in the plugin
             }
 
             bool radioButton2 = GUILayout.Toggle(selectedRadioButton == 2, "Disable", TNBaseStyle.ToggleRadio);
             if (radioButton2)
             {
                 selectedRadioButton = 2;
-                mainPlugin.LogCurrentState(); // Update the current state in the plugin
             }
-            GUILayout.EndHorizontal();
+
+            GUILayout.EndArea();
+
+            GUILayout.EndVertical();
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
+
+            // Save the window position
+            saverectpos();
         }
 
 

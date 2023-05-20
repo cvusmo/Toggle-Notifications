@@ -164,7 +164,6 @@ namespace ToggleNotifications
         }
         public bool OnGUI()
         {
-
             TNUtility.Instance.RefreshNotifications();
             TNUtility.Instance.RefreshCurrentState();
             return true;
