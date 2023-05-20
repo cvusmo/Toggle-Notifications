@@ -2,7 +2,6 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using KSP.Game;
-using KSP.Networking.OnlineServices.Authentication.Models;
 using KSP.UI.Binding;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
@@ -110,7 +109,7 @@ namespace ToggleNotifications
                     return;
                 this.MainUI.Update();
             }
-        }       
+        }
         public void saverectpos()
         {
             TNBaseSettings.WindowXPos = (int)windowRect.xMin;
@@ -124,13 +123,15 @@ namespace ToggleNotifications
             TNStyles.Init();
             WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
             GUI.skin = TNBaseStyle.Skin;
+
             this.windowRect = GUILayout.Window(
                 GUIUtility.GetControlID(FocusType.Passive),
                 this.windowRect,
                 new GUI.WindowFunction(this.FillWindow),
                 "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
                 GUILayout.Height(0.0f),
-                GUILayout.Width((float)this.windowWidth)
+                GUILayout.Width((float)this.windowWidth),
+                GUILayout.MinHeight(200) // Adjust the value to your desired height
             );
 
             saverectpos();
@@ -160,10 +161,9 @@ namespace ToggleNotifications
             GUILayout.BeginHorizontal();
 
             // MENU BAR
-            GUI.Label(new Rect(9f, 2f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
-            GUILayout.Label("<color=#696DFF>Toggle Notifications</color>", TNBaseStyle.NameLabelStyle);
+            GUI.Label(new Rect(10f, 2f, 29f, 29f), TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
 
-            Rect closeButtonPosition = new Rect(this.windowRect.width - 30, 4f, 23f, 23f);
+            Rect closeButtonPosition = new Rect(this.windowRect.width - 10, 4f, 23f, 23f);
             TopButtons.SetPosition(closeButtonPosition);
 
             if (TopButtons.Button(TNBaseStyle.Cross))
@@ -182,22 +182,18 @@ namespace ToggleNotifications
             // Set the height of the vertical group based on the available space in the window
             float verticalGroupHeight = this.windowRect.height - GUILayoutUtility.GetLastRect().height - 10f;
             GUILayout.BeginArea(new Rect(0f, GUILayoutUtility.GetLastRect().yMax, this.windowRect.width, verticalGroupHeight));
-
-            // Add the radio buttons
-            bool radioButton1 = GUILayout.Toggle(selectedRadioButton == 1, "Enable", TNBaseStyle.ToggleRadio);
+            bool radioButton1 = GUI.Toggle(new Rect(10, 40, 120, 20), selectedRadioButton == 1, "Enable", TNBaseStyle.ToggleRadio);
             if (radioButton1)
             {
                 selectedRadioButton = 1;
             }
 
-            bool radioButton2 = GUILayout.Toggle(selectedRadioButton == 2, "Disable", TNBaseStyle.ToggleRadio);
+            bool radioButton2 = GUI.Toggle(new Rect(10, 90, 120, 20), selectedRadioButton == 2, "Disable", TNBaseStyle.ToggleRadio);
             if (radioButton2)
             {
                 selectedRadioButton = 2;
             }
-
             GUILayout.EndArea();
-
             GUILayout.EndVertical();
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
@@ -205,8 +201,6 @@ namespace ToggleNotifications
             // Save the window position
             saverectpos();
         }
-
-
         public void CloseWindow()
         {
             GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(false);
@@ -214,8 +208,6 @@ namespace ToggleNotifications
             ToggleButton(false, false);
             Rect closeButtonPosition = new Rect(windowRect.width - 30, 4f, 23f, 23f);
             TopButtons.SetPosition(closeButtonPosition);
-            if (TopButtons.Button(TNBaseStyle.Cross))
-                this.CloseWindow();
         }
     }
 }
