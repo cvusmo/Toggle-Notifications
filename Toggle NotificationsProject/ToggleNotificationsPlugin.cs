@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using KSP.Game;
 using KSP.UI.Binding;
+using MoonSharp.Interpreter.Interop.StandardDescriptors.HardwiredDescriptors;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
@@ -36,6 +37,7 @@ namespace ToggleNotifications
         internal ConfigEntry<bool> tnConfig;
         internal ConfigEntry<bool> SolarToggleConfig;
         internal ConfigEntry<bool> PauseToggleConfig;
+        internal bool defaultValue;
         //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
         private static string assemblyFolder;
@@ -72,9 +74,19 @@ namespace ToggleNotifications
             );
 
             // configuration
-            tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", true, "Toggle Notifications is a mod that allows you to enable or disable notifications");
-            SolarToggleConfig = Config.Bind("Notification Settings", "Solar Panel Ineffective Notifications", true, "Solar Panel Notifications...");
-            PauseToggleConfig = Config.Bind("Notification Settings", "Pause Button", true, "Pause Button Notifications...");
+            tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", defaultValue, "Toggle Notifications is a mod that allows you to enable or disable notifications");
+            defaultValue = tnConfig.Value;
+            tnConfig.Value = true;
+
+            // Create the initialNotificationStates dictionary and populate it
+            Dictionary<NotificationType, bool> initialNotificationStates = new Dictionary<NotificationType, bool>()
+            {
+                { NotificationType.GamePauseToggledMessage, PauseToggleConfig.Value },
+                { NotificationType.PauseStateChangedMessageToggle, PauseToggleConfig.Value },
+                { NotificationType.SolarPanelsIneffectiveMessage, SolarToggleConfig.Value }
+            };
+
+            notificationToggle = new NotificationToggle(this, initialNotificationStates);
 
             AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
         }
