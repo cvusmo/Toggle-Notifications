@@ -212,23 +212,23 @@ namespace ToggleNotifications
 
             GUIStyle gamePauseStyle = new GUIStyle()
             {
-                border = new RectOffset(3, 50, 5, 5),
+                border = new RectOffset(3, 3, 5, 5),
                 padding = new RectOffset(3, 3, 4, 4),
                 overflow = new RectOffset(0, 0, 0, 0),
                 normal = { textColor = ColorTools.ParseColor("#C0C1E2") },
                 alignment = TextAnchor.UpperLeft
             };
-            GUILayout.Label("Pause Notification", gamePauseStyle);
+            GUILayout.Label("Pause Notification", gamePauseStyle, GUILayout.Height(68));
 
             GUIStyle solarStyle = new GUIStyle()
             {
-                border = new RectOffset(3, 100, 5, 5),
+                border = new RectOffset(3, 3, 5, 5),
                 padding = new RectOffset(3, 3, 4, 4),
                 overflow = new RectOffset(0, 0, 0, 0),
                 normal = { textColor = ColorTools.ParseColor("#C0C1E2") },
                 alignment = TextAnchor.UpperLeft
             };
-            GUILayout.Label("Solar Panels Ineffective", solarStyle);
+            GUILayout.Label("Solar Panels Ineffective", solarStyle, GUILayout.Height(151));
 
             GUILayout.EndVertical();
 
