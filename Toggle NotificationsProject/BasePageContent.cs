@@ -29,7 +29,6 @@ namespace ToggleNotifications
         public bool IsRunning => false;
         public bool UIVisible { get => this.isGUIVisible; set => this.isGUIVisible = value; }
         public bool IsActive => mainPlugin.interfaceEnabled;
-
         public virtual void OnGUI()
         {
             Debug.Log("OnGUI BasePageContent called");
@@ -48,7 +47,7 @@ namespace ToggleNotifications
                 windowRect = GUILayout.Window(
                     GUIUtility.GetControlID(FocusType.Passive),
                     windowRect,
-                    mainPlugin.FillWindow,
+                    MainUI.FillWindow,
                     "<color=#696DFF>TOGGLE NOTIFICATIONS</color>"
                 );
                 mainPlugin.saverectpos();
