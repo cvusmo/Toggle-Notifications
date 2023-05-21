@@ -7,7 +7,7 @@ using static ToggleNotifications.TNTools.UI.NotificationToggle;
 
 namespace ToggleNotifications
 {
-    internal class ToggleNotificationsUI
+    internal class ToggleNotificationsUI : MonoBehaviour
     {
         internal List<string> NotificationList = new List<string>();
         internal static ToggleNotificationsUI instance;
@@ -163,28 +163,47 @@ namespace ToggleNotifications
             return toggle;
         }
 
-        private int selectedRadioButton = 1;
+
+        private MessageCenter messageCenter;
+        private void Start()
+        {
+            messageCenter = FindObjectOfType<MessageCenter>();
+        }
+
+        //DismissAllNotificationsMessage
+        private int selectedRadioButton1 = 1;
         private int selectedRadioButton2 = 1;
         private int selectedRadioButton3 = 1;
         private int selectedRadioButton4 = 1;
 
-        private void RadioButtonToggle(int toggleValue)
-        {
-            selectedRadioButton = toggleValue;
+        private bool isGamePaused; // Initial toggle state
 
-            if (selectedRadioButton == 1)
+        private void ButtonToggle1(int toggleValue)
+        {
+            selectedRadioButton1 = toggleValue;
+
+            if (selectedRadioButton1 == 1)
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.PauseStateChangedMessageToggle, true);
-                ///PauseToggleConfig.Value = true;
+                AssistantToTheAssistantPatchManager.isGamePaused = true;
+                GamePauseToggledMessage message = new GamePauseToggledMessage();
+                message.IsPaused = true;
+
+                // Publish the message using the MessageCenter instance
+                messageCenter.Publish(message);
             }
-            else if (selectedRadioButton == 0)
+            else if (selectedRadioButton1 == 0)
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.PauseStateChangedMessageToggle, false);
+                AssistantToTheAssistantPatchManager.isGamePaused = false;
+                GamePauseToggledMessage message = new GamePauseToggledMessage();
+                message.IsPaused = false;
+
+                messageCenter.Publish(message);
             }
         }
-        private void RadioButtonToggle2(int toggleValue)
+
+        private void ButtonToggle2(int toggleValue)
         {
             selectedRadioButton2 = toggleValue;
 
@@ -200,21 +219,20 @@ namespace ToggleNotifications
             }
         }
 
-        private void RadioButtonToggle3(int toggleValue)
+        private void ButtonToggle3(int toggleValue)
         {
             selectedRadioButton3 = toggleValue;
 
             if (selectedRadioButton3 == 1)
             {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.VesselThrottleLockedDueToTimewarpingMessage, true);
+                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
             }
             else if (selectedRadioButton3 == 0)
             {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.VesselThrottleLockedDueToTimewarpingMessage, false);
+                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
             }
         }
-
-        private void RadioButtonToggle4(int toggleValue)
+        private void ButtonToggle4(int toggleValue)
         {
             selectedRadioButton4 = toggleValue;
 
@@ -229,8 +247,6 @@ namespace ToggleNotifications
                 //SolarToggleConfig.Value = false;
             }
         }
-
-
         internal void FillWindow(int windowID)
         {
             // Initialize the position of the buttons
@@ -269,16 +285,13 @@ namespace ToggleNotifications
 
             int buttonWidth = (int)(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
 
-            bool radioButton1 = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), selectedRadioButton == 1, "Game Pause", selectedRadioButton == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
-            if (radioButton1)
+            bool gamePauseToggle = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), isGamePaused, "Game Pause");
+            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton1 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton1 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            if (gamePauseToggle != isGamePaused)
             {
-                selectedRadioButton = 1;
-            }
-            else
-            {
-                selectedRadioButton = 0;
+                isGamePaused = gamePauseToggle;
+                ButtonToggle1(gamePauseToggle ? 1 : 0);
             }
 
             bool radioButton2 = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), selectedRadioButton2 == 1, "Solar Panel Ineffective", selectedRadioButton2 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
@@ -293,7 +306,7 @@ namespace ToggleNotifications
                 selectedRadioButton2 = 0;
             }
 
-            bool radioButton3 = GUI.Toggle(new Rect(3, 133, buttonWidth, 20), selectedRadioButton3 == 1, "Active", selectedRadioButton3 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            bool radioButton3 = GUI.Toggle(new Rect(3, 133, buttonWidth, 20), selectedRadioButton3 == 1, "Out of Fuel (soon.tm)", selectedRadioButton3 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
             TNBaseStyle.Toggle.normal.textColor = selectedRadioButton3 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
             TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton3 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton3)
@@ -305,7 +318,7 @@ namespace ToggleNotifications
                 selectedRadioButton3 = 0;
             }
 
-            bool radioButton4 = GUI.Toggle(new Rect(3, 173, buttonWidth, 20), selectedRadioButton4 == 1, "Active", selectedRadioButton4 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            bool radioButton4 = GUI.Toggle(new Rect(3, 173, buttonWidth, 20), selectedRadioButton4 == 1, "No Electricity (soon.tm)", selectedRadioButton4 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
             TNBaseStyle.Toggle.normal.textColor = selectedRadioButton4 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
             TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton4 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton4)
