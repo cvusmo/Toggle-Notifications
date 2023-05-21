@@ -311,25 +311,29 @@ namespace ToggleNotifications.TNTools.UI
             style.onActive = style.onNormal;
             style.onFocused = style.onNormal;
         }
-        private static GUISkin CopySkin(GUISkin source) => new GUISkin()
+        private static GUISkin CopySkin(GUISkin source)
         {
-            font = source.font,
-            box = new GUIStyle(source.box),
-            label = new GUIStyle(source.label),
-            textField = new GUIStyle(source.textField),
-            textArea = new GUIStyle(source.textArea),
-            button = new GUIStyle(source.button),
-            toggle = new GUIStyle(source.toggle),
-            window = new GUIStyle(source.window),
-            horizontalScrollbar = new GUIStyle(source.horizontalScrollbar),
-            horizontalScrollbarThumb = new GUIStyle(source.horizontalScrollbarThumb),
-            horizontalScrollbarLeftButton = new GUIStyle(source.horizontalScrollbarLeftButton),
-            horizontalScrollbarRightButton = new GUIStyle(source.horizontalScrollbarRightButton),
-            verticalScrollbar = new GUIStyle(source.verticalScrollbar),
-            verticalScrollbarThumb = new GUIStyle(source.verticalScrollbarThumb),
-            verticalScrollbarUpButton = new GUIStyle(source.verticalScrollbarUpButton),
-            verticalScrollbarDownButton = new GUIStyle(source.verticalScrollbarDownButton),
-            scrollView = new GUIStyle(source.scrollView)
-        };
+            GUISkin newSkin = ScriptableObject.CreateInstance<GUISkin>();
+            newSkin.font = source.font;
+            newSkin.box = new GUIStyle(source.box);
+            newSkin.label = new GUIStyle(source.label);
+            newSkin.textField = new GUIStyle(source.textField);
+            newSkin.textArea = new GUIStyle(source.textArea);
+            newSkin.button = new GUIStyle(source.button);
+            newSkin.toggle = new GUIStyle(source.toggle);
+            newSkin.window = new GUIStyle(source.window);
+            newSkin.horizontalScrollbar = new GUIStyle(source.horizontalScrollbar);
+            newSkin.horizontalScrollbarThumb = new GUIStyle(source.horizontalScrollbarThumb);
+            newSkin.horizontalScrollbarLeftButton = new GUIStyle(source.horizontalScrollbarLeftButton);
+            newSkin.horizontalScrollbarRightButton = new GUIStyle(source.horizontalScrollbarRightButton);
+            newSkin.verticalScrollbar = new GUIStyle(source.verticalScrollbar);
+            newSkin.verticalScrollbarThumb = new GUIStyle(source.verticalScrollbarThumb);
+            newSkin.verticalScrollbarUpButton = new GUIStyle(source.verticalScrollbarUpButton);
+            newSkin.verticalScrollbarDownButton = new GUIStyle(source.verticalScrollbarDownButton);
+            newSkin.scrollView = new GUIStyle(source.scrollView);
+
+            return newSkin;
+        }
+
     }
 }

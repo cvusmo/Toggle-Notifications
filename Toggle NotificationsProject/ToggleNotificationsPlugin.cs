@@ -2,6 +2,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using KSP.Game;
+using KSP.Messages;
 using KSP.UI.Binding;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
@@ -11,7 +12,6 @@ using System.Reflection;
 using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
-using Color = UnityEngine.Color;
 
 namespace ToggleNotifications
 {
@@ -32,10 +32,8 @@ namespace ToggleNotifications
         internal Rect windowRect = Rect.zero;
         internal int windowWidth = 250;
         internal GameInstance game;
-        
-        //config
+        internal MessageCenter messageCenter;
         public ConfigEntry<bool> tnConfig;
-        protected bool defaultValue;
 
         //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
@@ -43,7 +41,7 @@ namespace ToggleNotifications
         private static string settingsPath;
         private static string AssemblyFolder => assemblyFolder ?? (assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
         private static string SettingsPath => settingsPath ?? (settingsPath = Path.Combine(AssemblyFolder, "settings.json"));
-        
+
         internal static ToggleNotificationsPlugin Instance { get; private set; }
         internal new static ManualLogSource Logger { get; set; }
         public override void OnInitialized()
@@ -51,13 +49,14 @@ namespace ToggleNotifications
             TNBaseSettings.Init(SettingsPath);
 
             base.OnInitialized();
-            
+
             Instance = this;
             Logger = base.Logger;
             Logger.LogInfo("Loaded");
-            MainUI = new ToggleNotificationsUI(this, isGUIVisible);
 
             game = GameManager.Instance.Game;
+            messageCenter = game.Messages;
+            MainUI = new ToggleNotificationsUI(this, isGUIVisible, messageCenter);
 
             // Register Flight AppBar button
             Appbar.RegisterAppButton(
@@ -71,12 +70,20 @@ namespace ToggleNotifications
                 }
             );
 
+            notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
+            {
+                { NotificationType.GamePauseToggledMessage, true },
+                { NotificationType.PauseStateChangedMessageToggle, true },
+                { NotificationType.SolarPanelsIneffectiveMessage, false },
+            });
+
             // configuration
-           tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", defaultValue, "Toggle Notifications is a mod that allows you to enable or disable notifications");
-          defaultValue = tnConfig.Value;
-           tnConfig.Value = true;
+            tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", true, "Toggle Notifications is a mod that allows you to enable or disable notifications");
 
             AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
+
+            // Create an instance of ToggleNotificationsUI and pass the messageCenter instance to it
+            ToggleNotificationsUI toggleNotificationsUI = new ToggleNotificationsUI(this, isGUIVisible, messageCenter);
         }
 
 
@@ -97,7 +104,6 @@ namespace ToggleNotifications
             {
                 if (MainUI == null)
                     return;
-                MainUI.Update();
             }
         }
         internal void saverectpos()
@@ -125,7 +131,7 @@ namespace ToggleNotifications
             );
 
             saverectpos();
-        }    
+        }
         internal void CloseWindow()
         {
             GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(false);

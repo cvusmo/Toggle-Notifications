@@ -17,12 +17,10 @@ namespace ToggleNotifications
         internal bool isGUIVisible = false;
         internal BasePageContent()
         {
-            this.MainUI = ToggleNotificationsUI.Instance;
+            this.MainUI = ToggleNotificationsUI.instance;
             this.mainPlugin = ToggleNotificationsPlugin.Instance;
             this.windowTool = new WindowTool();
         }
-        protected MessageCenterMessage Refreshing => MainUI.Refreshing;
-        protected NotificationEvents RefreshingNotification => MainUI.RefreshingNotification;
 
         public virtual string Name => throw new NotImplementedException();
         public virtual GUIContent Icon => throw new NotImplementedException();

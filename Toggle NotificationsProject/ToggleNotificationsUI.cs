@@ -9,167 +9,22 @@ namespace ToggleNotifications
 {
     internal class ToggleNotificationsUI : MonoBehaviour
     {
-        internal List<string> NotificationList = new List<string>();
         internal static ToggleNotificationsUI instance;
         internal static NotificationToggle toggleNotification;
         internal ToggleNotificationsPlugin mainPlugin;
-        internal MessageCenterMessage Refreshing;
-        internal NotificationEvents RefreshingNotification;
-        private bool InitDone;
-        private TabsUI tabs;
-        internal bool RefreshNotification { get; set; }
-        internal bool GamePausedGUI { get; set; }
-        internal static ToggleNotificationsUI Instance => ToggleNotificationsUI.instance;
-
-        internal ToggleNotificationsUI(ToggleNotificationsPlugin MainPlugin, bool isGUIVisible)
+        internal ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool isGUIVisible, MessageCenter messageCenter)
         {
-            if (MainPlugin != null)
+            if (mainPlugin != null)
             {
                 instance = this;
-                mainPlugin = MainPlugin;
-                tabs = new TabsUI();
-                tabs.Init();
-                mainPlugin.isGUIVisible = isGUIVisible;
+                this.mainPlugin = mainPlugin;
+                this.messageCenter = messageCenter;
             }
             else
             {
                 Debug.LogError("ToggleNotificationsPlugin instance is null. ToggleNotificationUI");
             }
         }
-
-        internal void Update()
-        {
-            if (!InitDone)
-            {
-                this.Refreshing = null;
-                this.RefreshingNotification = null;
-                tabs.Init();
-                InitDone = true;
-            }
-
-            if (RefreshNotification)
-            {
-                TNUtility.Instance.RefreshNotifications();
-            }
-
-            tabs.Update();
-        }
-        internal static void DrawSoloToggle(string toggleStr, ref bool toggle)
-        {
-            GUILayout.Space((float)TNStyles.SpacingAfterSection);
-            GUILayout.BeginHorizontal();
-            toggle = GUILayout.Toggle(toggle, toggleStr, TNBaseStyle.Toggle);
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-            GUILayout.Space((float)-TNStyles.SpacingAfterSection);
-        }
-        internal static bool DrawSoloToggle(string toggleStr, bool toggle, bool error = false)
-        {
-            GUILayout.Space((float)TNStyles.SpacingAfterSection);
-            GUILayout.BeginHorizontal();
-            if (error)
-            {
-                GUILayout.Toggle(toggle, toggleStr, TNBaseStyle.ToggleError);
-                toggle = false;
-            }
-            else
-                toggle = GUILayout.Toggle(toggle, toggleStr, TNBaseStyle.Toggle);
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-            GUILayout.Space((float)-TNStyles.SpacingAfterSection);
-            return toggle;
-        }
-        internal static void DrawEntry(string entryName, string value = "", string unit = "")
-        {
-            GUILayout.BeginHorizontal();
-            UITools.Label(entryName);
-            if (value.Length > 0)
-            {
-                GUILayout.FlexibleSpace();
-                UITools.Label(value);
-                if (unit.Length > 0)
-                {
-                    GUILayout.Space(5f);
-                    UITools.Label(unit);
-                }
-            }
-            GUILayout.EndHorizontal();
-            GUILayout.Space((float)TNStyles.SpacingAfterEntry);
-        }
-        internal static void DrawEntryButton(
-            string entryName,
-            ref bool button,
-            string buttonStr,
-            string value,
-            string unit = "")
-        {
-            GUILayout.BeginHorizontal();
-            UITools.Label(entryName);
-            GUILayout.FlexibleSpace();
-            button = UITools.CtrlButton(buttonStr);
-            UITools.Label(value);
-            GUILayout.Space(5f);
-            UITools.Label(unit);
-            GUILayout.EndHorizontal();
-            GUILayout.Space((float)TNStyles.SpacingAfterEntry);
-        }
-        internal static void DrawEntry2Button(
-            string entryName,
-            ref bool button1,
-            string button1Str,
-            ref bool button2,
-            string button2Str,
-            string value,
-            string unit = "",
-            string divider = "")
-        {
-            GUILayout.BeginHorizontal();
-            UITools.Console(entryName);
-            GUILayout.FlexibleSpace();
-            button1 = UITools.CtrlButton(button1Str);
-            if (divider.Length > 0)
-                UITools.Console(divider);
-            button2 = UITools.CtrlButton(button2Str);
-            UITools.Console(value);
-            GUILayout.Space(5f);
-            UITools.Console(unit);
-            GUILayout.EndHorizontal();
-            GUILayout.Space((float)TNStyles.SpacingAfterEntry);
-        }
-        internal static void DrawToggleButtonWithLabel(
-            string runString,
-            NotificationType type,
-            string label = "",
-            string unit = "",
-            int widthOverride = 0)
-        {
-            GUILayout.BeginHorizontal();
-            DrawToggleButton(runString, type, widthOverride);
-            GUILayout.Space(10f);
-            UITools.Label(label, TNBaseStyle.NameLabelStyle);
-            GUILayout.Space(3f);
-            UITools.Label(unit, TNBaseStyle.UnitLabelStyle);
-            GUILayout.EndHorizontal();
-            GUILayout.Space((float)TNStyles.SpacingAfterTallEntry);
-        }
-        internal static void DrawToggleButton(string txt, NotificationType notificationType, int widthOverride = 0)
-        {
-            bool isOn = toggleNotification.GetNotificationState(notificationType);
-            bool flag = UITools.SmallToggleButton(isOn, txt, txt, widthOverride);
-            if (flag == isOn)
-                return;
-            toggleNotification.CheckCurrentState(notificationType, flag);
-        }
-
-        internal static bool DrawToggleButton(string toggleStr, ref bool toggle)
-        {
-            GUILayout.Space(TNStyles.SpacingAfterSection);
-            toggle = GUILayout.Toggle(toggle, toggleStr, TNBaseStyle.Toggle);
-            GUILayout.FlexibleSpace();
-            GUILayout.Space(-TNStyles.SpacingAfterSection);
-            return toggle;
-        }
-
 
         private MessageCenter messageCenter;
         private void Start()
@@ -182,15 +37,14 @@ namespace ToggleNotifications
             }
         }
 
-        //DismissAllNotificationsMessage
-        private int selectedRadioButton1 = 1;
-        private int selectedRadioButton2 = 1;
-        private int selectedRadioButton3 = 1;
-        private int selectedRadioButton4 = 1;
+        private int selectedButton1 = 1;
+        private int selectedButton2 = 1;
+        private int selectedButton3 = 1;
+        private int selectedButton4 = 1;
 
         private bool isGamePaused; // Initial toggle state
-        private bool isPauseVisible;
-        private bool isPausePublish;
+        //private bool isPauseVisible;
+        //private bool isPausePublish;
         private void ButtonToggle1(int toggleValue)
         {
             if (mainPlugin == null || mainPlugin.notificationToggle == null)
@@ -206,9 +60,9 @@ namespace ToggleNotifications
             }
 
 
-            selectedRadioButton1 = toggleValue;
+            selectedButton1 = toggleValue;
 
-            if (selectedRadioButton1 == 1)
+            if (selectedButton1 == 1)
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
                 AssistantToTheAssistantPatchManager.isGamePaused = true;
@@ -220,7 +74,7 @@ namespace ToggleNotifications
                 // Publish the message using the MessageCenter instance
                 messageCenter.Publish(message);
             }
-            else if (selectedRadioButton1 == 0)
+            else if (selectedButton1 == 0)
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
                 AssistantToTheAssistantPatchManager.isGamePaused = false;
@@ -237,45 +91,45 @@ namespace ToggleNotifications
 
         private void ButtonToggle2(int toggleValue)
         {
-            selectedRadioButton2 = toggleValue;
+            selectedButton2 = toggleValue;
 
-            if (selectedRadioButton2 == 1)
+            if (selectedButton2 == 1)
             {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
+                //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
                 //SolarToggleConfig.Value = true;
             }
-            else if (selectedRadioButton2 == 0)
+            else if (selectedButton2 == 0)
             {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
+                //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
                 //SolarToggleConfig.Value = false;
             }
         }
 
         private void ButtonToggle3(int toggleValue)
         {
-            selectedRadioButton3 = toggleValue;
+            selectedButton3 = toggleValue;
 
-            if (selectedRadioButton3 == 1)
+            if (selectedButton3 == 1)
             {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
+               // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
             }
-            else if (selectedRadioButton3 == 0)
+            else if (selectedButton3 == 0)
             {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
+               // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
             }
         }
         private void ButtonToggle4(int toggleValue)
         {
-            selectedRadioButton4 = toggleValue;
+            selectedButton4 = toggleValue;
 
-            if (selectedRadioButton4 == 1)
+            if (selectedButton4 == 1)
             {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, true);
+                //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, true);
                 //SolarToggleConfig.Value = true;
             }
-            else if (selectedRadioButton4 == 0)
+            else if (selectedButton4 == 0)
             {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, false);
+                //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, false);
                 //SolarToggleConfig.Value = false;
             }
         }
@@ -317,49 +171,49 @@ namespace ToggleNotifications
 
             int buttonWidth = (int)(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
 
-            bool gamePauseToggle = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), isGamePaused, "Game Pause", selectedRadioButton2 == 1 ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError);
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton1 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton1 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            bool gamePauseToggle = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), isGamePaused, "Game Pause", selectedButton2 == 1 ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError);
+            TNBaseStyle.Toggle.normal.textColor = selectedButton1 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedButton1 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (gamePauseToggle != isGamePaused)
             {
                 isGamePaused = gamePauseToggle;
                 ButtonToggle1(gamePauseToggle ? 1 : 0);
             }
 
-            bool radioButton2 = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), selectedRadioButton2 == 1, "Solar Panel Ineffective", selectedRadioButton2 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton2 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton2 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            bool radioButton2 = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), selectedButton2 == 1, "Solar Panel Ineffective", selectedButton2 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.normal.textColor = selectedButton2 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedButton2 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton2)
             {
-                selectedRadioButton2 = 1;
+                selectedButton2 = 1;
             }
             else
             {
-                selectedRadioButton2 = 0;
+                selectedButton2 = 0;
             }
 
-            bool radioButton3 = GUI.Toggle(new Rect(3, 133, buttonWidth, 20), selectedRadioButton3 == 1, "Out of Fuel (soon.tm)", selectedRadioButton3 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton3 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton3 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            bool radioButton3 = GUI.Toggle(new Rect(3, 133, buttonWidth, 20), selectedButton3 == 1, "Out of Fuel (soon.tm)", selectedButton3 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.normal.textColor = selectedButton3 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedButton3 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton3)
             {
-                selectedRadioButton3 = 1;
+                selectedButton3 = 1;
             }
             else
             {
-                selectedRadioButton3 = 0;
+                selectedButton3 = 0;
             }
 
-            bool radioButton4 = GUI.Toggle(new Rect(3, 173, buttonWidth, 20), selectedRadioButton4 == 1, "No Electricity (soon.tm)", selectedRadioButton4 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedRadioButton4 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton4 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            bool radioButton4 = GUI.Toggle(new Rect(3, 173, buttonWidth, 20), selectedButton4 == 1, "No Electricity (soon.tm)", selectedButton4 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.normal.textColor = selectedButton4 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedButton4 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton4)
             {
-                selectedRadioButton4 = 1;
+                selectedButton4 = 1;
             }
             else
             {
-                selectedRadioButton4 = 0;
+                selectedButton4 = 0;
             }
 
             GUILayout.EndVertical();
