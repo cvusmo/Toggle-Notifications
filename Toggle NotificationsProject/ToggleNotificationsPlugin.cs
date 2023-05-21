@@ -82,7 +82,6 @@ namespace ToggleNotifications
 
             AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
 
-            // Create an instance of ToggleNotificationsUI and pass the messageCenter instance to it
             ToggleNotificationsUI toggleNotificationsUI = new ToggleNotificationsUI(this, isGUIVisible, messageCenter);
         }
 
@@ -123,7 +122,7 @@ namespace ToggleNotifications
             this.windowRect = GUILayout.Window(
                 GUIUtility.GetControlID(FocusType.Passive),
                 this.windowRect,
-                MainUI.FillWindow, // Call the FillWindow method of the MainUI instance
+                MainUI.FillWindow, 
                 "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
                 GUILayout.Height(0.0f),
                 GUILayout.Width((float)this.windowWidth),

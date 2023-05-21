@@ -1,9 +1,6 @@
-﻿using KSP.Game;
-using KSP.Messages;
-using TNUtilities;
+﻿using KSP.Messages;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
-using static ToggleNotifications.TNTools.UI.NotificationToggle;
 
 namespace ToggleNotifications
 {
@@ -28,7 +25,7 @@ namespace ToggleNotifications
 
         private MessageCenter messageCenter;
         private void Start()
-        {           
+        {
             messageCenter = FindObjectOfType<MessageCenter>();
 
             if (messageCenter == null)
@@ -86,9 +83,8 @@ namespace ToggleNotifications
                 messageCenter.Publish(message);
             }
 
-            
-        }
 
+        }
         private void ButtonToggle2(int toggleValue)
         {
             selectedButton2 = toggleValue;
@@ -96,12 +92,10 @@ namespace ToggleNotifications
             if (selectedButton2 == 1)
             {
                 //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
-                //SolarToggleConfig.Value = true;
             }
             else if (selectedButton2 == 0)
             {
                 //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
-                //SolarToggleConfig.Value = false;
             }
         }
 
@@ -111,11 +105,11 @@ namespace ToggleNotifications
 
             if (selectedButton3 == 1)
             {
-               // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
+                // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
             }
             else if (selectedButton3 == 0)
             {
-               // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
+                // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
             }
         }
         private void ButtonToggle4(int toggleValue)
@@ -125,12 +119,10 @@ namespace ToggleNotifications
             if (selectedButton4 == 1)
             {
                 //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, true);
-                //SolarToggleConfig.Value = true;
             }
             else if (selectedButton4 == 0)
             {
                 //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, false);
-                //SolarToggleConfig.Value = false;
             }
         }
         internal void FillWindow(int windowID)
