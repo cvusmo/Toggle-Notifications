@@ -26,7 +26,6 @@ namespace ToggleNotifications
 
         //core
         internal ToggleNotificationsUI MainUI;
-        internal ToggleNotificationsPlugin mainPlugin;
         internal NotificationToggle notificationToggle;
         internal bool interfaceEnabled;
         internal bool isGUIVisible = false;
@@ -37,8 +36,6 @@ namespace ToggleNotifications
         //config
         public ConfigEntry<bool> tnConfig;
         protected bool defaultValue;
-        //public ConfigEntry<bool> SolarToggleConfig { get; private set; }
-        //public ConfigEntry<bool> PauseToggleConfig { get; private set; }
 
         //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
@@ -53,16 +50,13 @@ namespace ToggleNotifications
         {
             TNBaseSettings.Init(SettingsPath);
 
-           // SolarToggleConfig = Config.Bind("Notification Settings", "Solar Config", true, "Solar configuration value");
-           // PauseToggleConfig = Config.Bind("Notification Settings", "Pause Toggle State Config", true, "Game Pause Toggle State configuration value");
-
             base.OnInitialized();
             
             Instance = this;
             Logger = base.Logger;
             Logger.LogInfo("Loaded");
             MainUI = new ToggleNotificationsUI(this, isGUIVisible);
-            Debug.Log("MainUI instantiated");
+
             game = GameManager.Instance.Game;
 
             // Register Flight AppBar button
@@ -82,12 +76,6 @@ namespace ToggleNotifications
           defaultValue = tnConfig.Value;
            tnConfig.Value = true;
 
-          //  notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
-           // {
-           //     [NotificationType.GamePauseToggledMessage] = PauseToggleConfig.Value,
-            //    [NotificationType.PauseStateChangedMessageToggle] = PauseToggleConfig.Value,
-           //     [NotificationType.SolarPanelsIneffectiveMessage] = SolarToggleConfig.Value
-           // });
             AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
         }
 
@@ -107,9 +95,9 @@ namespace ToggleNotifications
             }
             if (isGUIVisible)
             {
-                if (this.MainUI == null)
+                if (MainUI == null)
                     return;
-                this.MainUI.Update();
+                MainUI.Update();
             }
         }
         internal void saverectpos()

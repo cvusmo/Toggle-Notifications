@@ -21,13 +21,20 @@ namespace ToggleNotifications
         internal bool GamePausedGUI { get; set; }
         internal static ToggleNotificationsUI Instance => ToggleNotificationsUI.instance;
 
-        internal ToggleNotificationsUI(ToggleNotificationsPlugin plugin, bool isGUIVisible)
+        internal ToggleNotificationsUI(ToggleNotificationsPlugin MainPlugin, bool isGUIVisible)
         {
-            instance = this;
-            mainPlugin = plugin;
-            tabs = new TabsUI();
-            tabs.Init();
-            mainPlugin.isGUIVisible = isGUIVisible;
+            if (MainPlugin != null)
+            {
+                instance = this;
+                mainPlugin = MainPlugin;
+                tabs = new TabsUI();
+                tabs.Init();
+                mainPlugin.isGUIVisible = isGUIVisible;
+            }
+            else
+            {
+                Debug.LogError("ToggleNotificationsPlugin instance is null. ToggleNotificationUI");
+            }
         }
 
         internal void Update()
@@ -166,8 +173,13 @@ namespace ToggleNotifications
 
         private MessageCenter messageCenter;
         private void Start()
-        {
+        {           
             messageCenter = FindObjectOfType<MessageCenter>();
+
+            if (messageCenter == null)
+            {
+                Debug.LogError("messageCenter is null");
+            }
         }
 
         //DismissAllNotificationsMessage
@@ -177,15 +189,31 @@ namespace ToggleNotifications
         private int selectedRadioButton4 = 1;
 
         private bool isGamePaused; // Initial toggle state
-
+        private bool isPauseVisible;
+        private bool isPausePublish;
         private void ButtonToggle1(int toggleValue)
         {
+            if (mainPlugin == null || mainPlugin.notificationToggle == null)
+            {
+                Debug.LogError("mainPlugin or mainPlugin.notificationToggle is null");
+                return;
+            }
+
+            if (messageCenter == null)
+            {
+                Debug.LogError("messageCenter is null");
+                return;
+            }
+
+
             selectedRadioButton1 = toggleValue;
 
             if (selectedRadioButton1 == 1)
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
                 AssistantToTheAssistantPatchManager.isGamePaused = true;
+                AssistantToTheAssistantPatchManager.isPauseVisible = true;
+                AssistantToTheAssistantPatchManager.isPausePublish = true;
                 GamePauseToggledMessage message = new GamePauseToggledMessage();
                 message.IsPaused = true;
 
@@ -196,11 +224,15 @@ namespace ToggleNotifications
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
                 AssistantToTheAssistantPatchManager.isGamePaused = false;
+                AssistantToTheAssistantPatchManager.isPauseVisible = false;
+                AssistantToTheAssistantPatchManager.isPausePublish = false;
                 GamePauseToggledMessage message = new GamePauseToggledMessage();
                 message.IsPaused = false;
 
                 messageCenter.Publish(message);
             }
+
+            
         }
 
         private void ButtonToggle2(int toggleValue)
@@ -285,7 +317,7 @@ namespace ToggleNotifications
 
             int buttonWidth = (int)(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
 
-            bool gamePauseToggle = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), isGamePaused, "Game Pause");
+            bool gamePauseToggle = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), isGamePaused, "Game Pause", selectedRadioButton2 == 1 ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError);
             TNBaseStyle.Toggle.normal.textColor = selectedRadioButton1 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
             TNBaseStyle.ToggleError.normal.textColor = selectedRadioButton1 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (gamePauseToggle != isGamePaused)
