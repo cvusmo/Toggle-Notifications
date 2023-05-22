@@ -20,44 +20,9 @@
     <RepositoryUrl>https://github.com/cvusmo/Toggle-Notifications</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="assets\images\BigButton_Active.png" />
-    <Content Include="assets\images\Capsule_x2v3_50.png" />
-    <Content Include="assets\images\Chapter_Off_Active.png" />
-    <Content Include="assets\images\Chapter_Off_Hover.png" />
-    <Content Include="assets\images\Chapter_Off_Normal.png" />
-    <Content Include="assets\images\Chapter_On_Active.png" />
-    <Content Include="assets\images\Chapter_On_Hover.png" />
-    <Content Include="assets\images\Chapter_On_Normal.png" />
-    <Content Include="assets\images\Cross.png" />
-    <Content Include="assets\images\gear.png" />
-    <Content Include="assets\images\icon.png" />
-    <Content Include="assets\images\line.png" />
-    <Content Include="assets\images\Moon_white_50.png" />
-    <Content Include="assets\images\Planet2_white_50.png" />
-    <Content Include="assets\images\progress_empty.png" />
-    <Content Include="assets\images\progress_full.png" />
-    <Content Include="assets\images\Satellite2_50.png" />
-    <Content Include="assets\images\Slider.png" />
-    <Content Include="assets\images\SliderNode.png" />
-    <Content Include="assets\images\Small_Button_active.png" />
-    <Content Include="assets\images\Small_Button_hover.png" />
-    <Content Include="assets\images\Station_50.png" />
-    <Content Include="assets\images\Tab_Active.png" />
-    <Content Include="assets\images\Tab_Hover.png" />
-    <Content Include="assets\images\Tab_Normal.png" />
-    <Content Include="assets\images\Tab_On_Active.png" />
-    <Content Include="assets\images\Tab_On_hover.png" />
-    <Content Include="assets\images\Tab_On_normal.png" />
-    <Content Include="assets\images\tn_big_icon.png" />
-    <Content Include="assets\images\tn_icon_100.png" />
-    <Content Include="assets\images\tn_icon_50.png" />
-    <Content Include="assets\images\Toggle_Off.png" />
-    <Content Include="assets\images\Toggle_On.png" />
-    <Content Include="assets\images\TRM_50_Ship2Celestial.png" />
-    <Content Include="assets\images\TRM_50_Ship2Ship.png" />
-    <Content Include="assets\images\VerticalScroll.png" />
-    <Content Include="assets\images\VerticalScroll_thumb.png" />
-    <Content Include="assets\images\window.png" />
+    <Compile Remove="assets\**" />
+    <EmbeddedResource Remove="assets\**" />
+    <None Remove="assets\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />

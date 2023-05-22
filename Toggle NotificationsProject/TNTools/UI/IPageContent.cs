@@ -1,5 +1,4 @@
-﻿using KSP.Messages;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {

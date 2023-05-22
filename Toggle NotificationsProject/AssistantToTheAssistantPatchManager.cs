@@ -2,8 +2,6 @@
 using HarmonyLib;
 using KSP.Game;
 using KSP.Messages;
-using KSP.Logging;
-using System.Collections.Generic;
 using System.Reflection.Emit;
 using ToggleNotifications.TNTools.UI;
 
@@ -12,7 +10,7 @@ namespace ToggleNotifications
     internal static class AssistantToTheAssistantPatchManager
     {
         internal static ManualLogSource Logger { get; set; }
-        internal static NotificationToggle NotificationToggle { get; set; } 
+        internal static NotificationToggle NotificationToggle { get; set; }
 
         //patch states
         internal static bool isGamePaused = true;

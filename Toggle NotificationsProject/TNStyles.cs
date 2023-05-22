@@ -49,7 +49,7 @@ namespace ToggleNotifications
             GUILayout.Label(value, valueStyle);
             GUILayout.Space(5f);
             GUILayout.EndHorizontal();
-            GUILayout.Space((float) TNStyles.SpacingAfterHeader);
+            GUILayout.Space((float)TNStyles.SpacingAfterHeader);
         }
     }
 }
