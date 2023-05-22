@@ -23,7 +23,7 @@ namespace ToggleNotifications.TNTools.UI
             windowFrame.y = 0.0f;
         }
 
-        public static void CheckMainWindowPos(ref Rect windowFrame)
+        public static void CheckMainWindowPos(ref Rect windowFrame, int windowWidth)
         {
             if (windowFrame == Rect.zero)
             {
@@ -34,9 +34,9 @@ namespace ToggleNotifications.TNTools.UI
                     x = 100;
                     y = 50;
                 }
-                windowFrame = new Rect((float)x, (float)y, 500f, 100f);
+                windowFrame = new Rect((float)x, (float)y, windowWidth, 100f);
             }
-            WindowTool.CheckWindowPos(ref windowFrame);
+            CheckWindowPos(ref windowFrame);
         }
     }
 }

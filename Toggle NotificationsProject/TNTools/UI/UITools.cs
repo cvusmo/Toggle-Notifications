@@ -84,59 +84,6 @@ namespace ToggleNotifications.TNTools.UI
         public static void Console(string txt) => GUILayout.Label(txt, TNBaseStyle.ConsoleText);
 
         public static void Mid(string txt) => GUILayout.Label(txt, TNBaseStyle.MidText);
-
-        public static int IntSlider(
-          string txt,
-          int value,
-          int min,
-          int max,
-          string postfix = "",
-          string tooltip = "")
-        {
-            GUILayout.Label(txt + string.Format(" : {0} ", (object)value) + postfix, TNBaseStyle.SliderText);
-            GUILayout.BeginHorizontal();
-            value = (int)GUILayout.HorizontalSlider((float)value, (float)min, (float)max, TNBaseStyle.SliderLine, TNBaseStyle.SliderNode);
-            if (value < min)
-                value = min;
-            if (value > max)
-                value = max;
-            if (!string.IsNullOrEmpty(tooltip))
-                UITools.ToolTipButton(tooltip);
-            GUILayout.EndHorizontal();
-            return value;
-        }
-
-        public static float HeadingSlider(string txt, float value, string tooltip = "")
-        {
-            string str = value.ToString("N" + 1.ToString());
-            GUILayout.Label(txt + " : " + str + " �", TNBaseStyle.SliderText);
-            GUILayout.BeginHorizontal();
-            value = GUILayout.HorizontalSlider(value, -180f, 180f, TNBaseStyle.SliderLine, TNBaseStyle.SliderNode);
-            int num1 = 45;
-            float num2 = 5f;
-            int num3 = Mathf.RoundToInt(value / (float)num1);
-            float num4 = (float)(num3 * num1);
-            if ((double)Mathf.Abs(num4 - value) < (double)num2)
-                value = num4;
-            GUILayout.Label(new string[10]
-            {
-        "S",
-        "SW",
-        "W",
-        "NW",
-        "N",
-        "NE",
-        "E",
-        "SE",
-        "S",
-        "??"
-            }[num3 + 4], GUILayout.Width(15f));
-            if (!string.IsNullOrEmpty(tooltip))
-                UITools.ToolTipButton(tooltip);
-            GUILayout.EndHorizontal();
-            return value;
-        }
-
         public static void Separator() => GUILayout.Box("", TNBaseStyle.Separator);
 
         public static void ProgressBar(double value, double min, double max) => UITools.ProgressBar((float)value, (float)min, (float)max);
@@ -148,32 +95,6 @@ namespace ToggleNotifications.TNTools.UI
             Rect lastRect = GUILayoutUtility.GetLastRect();
             lastRect.width = Mathf.Clamp(lastRect.width * num, 4f, 1E+07f);
             GUI.Box(lastRect, "", TNBaseStyle.ProgressBarFull);
-        }
-
-        public static float FloatSlider(float value, float min, float max, string tooltip = "")
-        {
-            GUILayout.BeginHorizontal();
-            value = GUILayout.HorizontalSlider(value, min, max, TNBaseStyle.SliderLine, TNBaseStyle.SliderNode);
-            if (!string.IsNullOrEmpty(tooltip))
-                UITools.ToolTipButton(tooltip);
-            GUILayout.EndHorizontal();
-            value = Mathf.Clamp(value, min, max);
-            return value;
-        }
-
-        public static float FloatSliderTxt(
-          string txt,
-          float value,
-          float min,
-          float max,
-          string postfix = "",
-          string tooltip = "",
-          int precision = 2)
-        {
-            string str = value.ToString("N" + precision.ToString());
-            GUILayout.Label(txt + " : " + str + " " + postfix, TNBaseStyle.SliderText);
-            value = UITools.FloatSlider(value, min, max, tooltip);
-            return value;
         }
 
         public static void Right_Left_Text(string right_txt, string left_txt)

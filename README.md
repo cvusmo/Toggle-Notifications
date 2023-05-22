@@ -1,4 +1,3 @@
-
 Thank you to LuxStice, ShadowDev, Munix, The Yeetster, and schlosrat for all the help getting this working correctly!
 
 Requirements SpaceWarp + BepInEx + KSP 2

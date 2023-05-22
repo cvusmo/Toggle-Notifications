@@ -1,185 +1,164 @@
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using DocumentFormat.OpenXml.Wordprocessing;
-using HarmonyLib;
 using KSP.Game;
-using KSP.Messages.PropertyWatchers;
+using KSP.Messages;
+using KSP.Sim.impl;
 using KSP.UI.Binding;
+using Microsoft.CodeAnalysis;
+using MoonSharp.VsCodeDebugger.SDK;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
-using SpaceWarp.API.UI;
 using SpaceWarp.API.UI.Appbar;
 using System.Reflection;
 using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
-
 namespace ToggleNotifications
 {
-
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
     public class ToggleNotificationsPlugin : BaseSpaceWarpPlugin
     {
-        // These are useful in case some other mod wants to add a dependency to this one
+        //modinfo
         public const string ModGuid = MyPluginInfo.PLUGIN_GUID;
         public const string ModName = MyPluginInfo.PLUGIN_NAME;
         public const string ModVer = MyPluginInfo.PLUGIN_VERSION;
 
-        private bool isWindowOpen;
-        private bool interfaceEnabled;
-        private bool isGUIVisible = true;
-        private bool toggleState;
-        private Rect windowRect = Rect.zero;
-        private int windowWidth = 250;
-        public ToggleNotificationsUI MainUI;
-        public ToggleNotificationsPlugin mainPlugin;
-        public GameInstance game;
-        private NotificationToggle notificationToggle;
-        private bool solarPanelsIneffectiveMessageToggle;
-        private bool gamePauseToggledMessageToggle;
-
-        //config
-        public ConfigEntry<bool> TNconfig;
-        protected bool defaultValue;
-        public static bool IsPatchingEnabled { get; set; }
-
+        //core
+        internal ToggleNotificationsUI MainUI;
+        internal NotificationToggle notificationToggle;
+        internal GameInstance game;
+        internal MessageCenter messageCenter;
+        internal VesselComponent _activeVessel;
+        public ConfigEntry<bool> tnConfig;
+        internal bool _interfaceEnabled;
+        internal bool _isGUIenabled = false;
+        internal Rect windowRect = Rect.zero;
+        internal int windowWidth = 250;
+        
+        //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
         private static string assemblyFolder;
         private static string settingsPath;
-        private static string AssemblyFolder => ToggleNotificationsPlugin.assemblyFolder ?? (ToggleNotificationsPlugin.assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-        private static string SettingsPath => ToggleNotificationsPlugin.settingsPath ?? (ToggleNotificationsPlugin.settingsPath = Path.Combine(ToggleNotificationsPlugin.AssemblyFolder, "settings.json"));
-        
-        public static ToggleNotificationsPlugin Instance { get; private set; }
-        public new static ManualLogSource Logger { get; set; }
+        private static string AssemblyFolder => assemblyFolder ?? (assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+        private static string SettingsPath => settingsPath ?? (settingsPath = Path.Combine(AssemblyFolder, "settings.json"));
+
+        internal static ToggleNotificationsPlugin Instance { get; private set; }
+        NotificationData data = new NotificationData();
+        internal new static ManualLogSource Logger { get; set; }
         public override void OnInitialized()
         {
+            TNBaseSettings.Init(SettingsPath);
+
             base.OnInitialized();
 
-            TNBaseSettings.Init(ToggleNotificationsPlugin.SettingsPath);
-
             Instance = this;
-            MainUI = new ToggleNotificationsUI(this);
-            ToggleNotificationsPlugin.Instance = this;
-            game = GameManager.Instance.Game;
-
             Logger = base.Logger;
             Logger.LogInfo("Loaded");
 
-            // Configuration settings
-            TNconfig = Config.Bind("Notification Settings", "Toggle Notifications", defaultValue, "Toggle Notifications is a mod that allows you to enable or disable notifications");
-            defaultValue = TNconfig.Value;
-            TNconfig.Value = true;
+            game = GameManager.Instance.Game;
+            messageCenter = game.Messages;
 
-            ToggleNotificationsPlugin.Logger.LogInfo($"Toggle Notifications: {TNconfig.Value}");
+            MainUI = new ToggleNotificationsUI(this, _isGUIenabled, messageCenter);
 
             // Register Flight AppBar button
             Appbar.RegisterAppButton(
                 "Toggle Notifications",
                 ToolbarFlightButtonID,
-                AssetManager.GetAsset<Texture2D>($"togglenotifications/images/icon.png"),
+                AssetManager.GetAsset<Texture2D>($"{this.SpaceWarpMetadata.ModID}/images/icon.png"),
                 isOpen =>
                 {
-                    isWindowOpen = isOpen;
-                    GameObject.Find(ToolbarFlightButtonID)?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(isOpen);
-                    Debug.Log($"Initial isWindowOpen value: {isWindowOpen}");
+                    ToggleButton(isOpen, isOpen);
+                    Debug.Log($"Initial _interfaceEnabled value: {_interfaceEnabled}");
+                    Debug.Log($"Initial _isGUIenabled value: {_isGUIenabled}");
                 }
             );
 
-            // Register all Harmony patches in the project
-            solarPanelsIneffectiveMessageToggle = true;
-            gamePauseToggledMessageToggle = true;
-
-            // Register all Harmony patches in the project
-            AssistantToTheAssistantPatchManager.ApplyPatches();
-
-            // Config buttons
-            defaultValue = TNconfig.Value;
-            if (defaultValue)
+            notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
             {
-                defaultValue = false;
-                Debug.Log("Configuration is true");
-            }
-            else
-            {
-                defaultValue = true;
-                Debug.Log("Configuration is false");
-            }
-        }
-        public void ToggleButton(bool toggle)
-        {
-            interfaceEnabled = toggle;
-            GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(this.interfaceEnabled);
-        }
-        public void Update()
-        {
-            if (UnityEngine.Input.GetKey(KeyCode.LeftControl) && UnityEngine.Input.GetKeyDown(KeyCode.P))
-            {
-                this.ToggleButton(!this.interfaceEnabled);
-                ToggleNotificationsPlugin.Logger.LogInfo((object)"Update: Toggle Notifications UI toggled with hotkey");
-            }
-            if (this.MainUI == null)
-                return;
+                { NotificationType.GamePauseToggledMessage, true },
+                { NotificationType.PauseStateChangedMessageToggle, true },
+                { NotificationType.SolarPanelsIneffectiveMessage, false },
+            });
 
-            this.MainUI.Update();
+            // configuration
+            tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", true, "Toggle Notifications is a mod that allows you to enable or disable notifications");
 
+            AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
         }
-        public NotificationToggle GetNotificationToggle()
+
+        internal void ToggleButton(bool toggle, bool isOpen)
         {
-            return notificationToggle;
+            _interfaceEnabled = isOpen;
+            _isGUIenabled = toggle;
+            GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(_isGUIenabled);
         }
-        public void CheckCurrentState()
+        internal void Update()
         {
-            bool solarPanelsIneffectiveMessageToggle = notificationToggle.GetNotificationState(NotificationToggle.NotificationType.SolarPanelsIneffectiveMessage);
-            bool gamePauseToggledMessageToggle = notificationToggle.GetNotificationState(NotificationToggle.NotificationType.GamePauseToggledMessage);
+            if (Input.GetKey(KeyCode.RightAlt) && Input.GetKeyDown(KeyCode.P))
+            {
+                this.ToggleButton(!this._interfaceEnabled, !this._isGUIenabled);
+                Logger.LogInfo("Update: Toggle Notifications UI toggled with hotkey");
+            }
+            if (_isGUIenabled)
+            {
+                if (MainUI == null)
+                    return;
+            }
         }
-        public void saverectpos()
+        internal void saverectpos()
         {
-            TNBaseSettings.WindowXPos = (int)this.windowRect.xMin;
-            TNBaseSettings.WindowYPos = (int)this.windowRect.yMin;
+            TNBaseSettings.WindowXPos = (int)windowRect.xMin;
+            TNBaseSettings.WindowYPos = (int)windowRect.yMin;
         }
         private void OnGUI()
         {
-            isGUIVisible = false;
-            var _gameState = Game?.GlobalGameState?.GetState();
-            if (_gameState == GameState.Map3DView) isGUIVisible = true;
-            if (_gameState == GameState.FlightView) isGUIVisible = true;
-            if (interfaceEnabled && isGUIVisible && MainUI.RefreshState)
+            _isGUIenabled = false;
+            GameState? state = BaseSpaceWarpPlugin.Game?.GlobalGameState?.GetState();
+            GameState? nullable = state;
+            GameState gameState1 = GameState.Map3DView;
+            if (nullable.GetValueOrDefault() == gameState1 & nullable.HasValue)
+                _isGUIenabled = true;
+            nullable = state;
+            GameState gameState2 = GameState.FlightView;
+            if (nullable.GetValueOrDefault() == gameState2 & nullable.HasValue)
+                _isGUIenabled = true;
+            //game.Messages = GameManager.Instance?.Game?.Messages?.Subscribe<DiscoverableMessage>(message =>
+
+            if (_isGUIenabled)
             {
                 TNStyles.Init();
-                WindowTool.CheckMainWindowPos(ref windowRect);
+                WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
                 GUI.skin = TNBaseStyle.Skin;
+                this._activeVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel();
+                if (!this._interfaceEnabled || !this._isGUIenabled || this._activeVessel == null)
+                    return;
 
-                windowRect = GUILayout.Window(
+                this.windowRect = GUILayout.Window(
                     GUIUtility.GetControlID(FocusType.Passive),
-                    windowRect,
-                    FillWindow,
+                    this.windowRect,
+                    MainUI.FillWindow,
                     "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
-                    GUILayout.Height(0),
-                    GUILayout.Width(windowWidth));
+                    GUILayout.Height(0.0f),
+                    GUILayout.Width((float)this.windowWidth),
+                    GUILayout.MinHeight(400) // Adjust the value to your desired height
+                );
+
                 saverectpos();
-                ToolTipsManager.DrawToolTips();
+                //tooltips
                 UIFields.CheckEditor();
             }
         }
-        public void FillWindow(int windowID)
+        internal void CloseWindow()
         {
-            ToggleButton(true);
-            TopButtons.Init(windowRect.width);
-            GUI.Label(new Rect(9f, 2f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
-            if (TopButtons.Button(TNBaseStyle.Cross))
-                CloseWindow();
-            //this.MainUI.OnGUI();
-            GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
-        }
-        public void CloseWindow()
-        {
-            ToggleButton(false);
-            interfaceEnabled = false;
-            UIFields.GameInputState = true;
+            GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(false);
+            _interfaceEnabled = false;
+            ToggleButton(false, false);
+            Rect closeButtonPosition = new Rect(windowRect.width - 30, 4f, 23f, 23f);
+            TopButtons.SetPosition(closeButtonPosition);
         }
     }
 }

@@ -1,18 +1,20 @@
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using KSP.Game;
+using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
-    public class UIFields
+    internal class UIFields
     {
-        public static Dictionary<string, string> TempDict = new Dictionary<string, string>();
-        public static List<string> InputFields = new List<string>();
+        internal static Dictionary<string, string> TempDict = new Dictionary<string, string>();
+        internal static List<string> InputFields = new List<string>();
         private static bool InputState = true;
-        public static ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("KTools.UIFields");
+        internal static ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("KTools.UIFields");
 
-        public static bool GameInputState
+        internal static bool GameInputState
         {
             get => UIFields.InputState;
             set
@@ -29,9 +31,9 @@ namespace ToggleNotifications.TNTools.UI
             }
         }
 
-        public static void CheckEditor() => UIFields.GameInputState = !UIFields.InputFields.Contains(GUI.GetNameOfFocusedControl());
+        internal static void CheckEditor() => UIFields.GameInputState = !UIFields.InputFields.Contains(GUI.GetNameOfFocusedControl());
 
-        public static double DoubleField(
+        internal static double DoubleField(
           string entryName,
           double value,
           GUIStyle thisStyle = null,
@@ -73,7 +75,7 @@ namespace ToggleNotifications.TNTools.UI
             return flag ? result1 : value;
         }
 
-        public static int IntField(
+        internal static int IntField(
           string entryName,
           string label,
           int value,

@@ -6,18 +6,18 @@ using UnityEngine;
 
 namespace ToggleNotifications.TNTools
 {
-    public class SettingsFile
+    internal class SettingsFile
     {
         protected string FilePath = "";
         Dictionary<string, string> Data = new();
 
-        public SettingsFile(string file_path)
+        internal SettingsFile(string file_path)
         {
             this.FilePath = file_path;
             Load();
         }
 
-        public ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("K2D2.SettingsFile");
+        internal ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("K2D2.SettingsFile");
 
         protected void Load()
         {
@@ -52,7 +52,7 @@ namespace ToggleNotifications.TNTools
             Thread.CurrentThread.CurrentCulture = _previousCulture;
         }
 
-        public string GetString(string name, string defaultValue)
+        internal string GetString(string name, string defaultValue)
         {
             if (Data.ContainsKey(name))
                 return Data[name];
@@ -60,7 +60,7 @@ namespace ToggleNotifications.TNTools
             return defaultValue;
         }
 
-        public void SetString(string name, string value)
+        internal void SetString(string name, string value)
         {
             if (Data.ContainsKey(name))
             {
@@ -76,7 +76,7 @@ namespace ToggleNotifications.TNTools
                 Save();
             }
         }
-        public bool GetBool(string name, bool defaultValue)
+        internal bool GetBool(string name, bool defaultValue)
         {
             if (Data.ContainsKey(name))
                 return Data[name] == "1";
@@ -85,12 +85,12 @@ namespace ToggleNotifications.TNTools
 
             return defaultValue;
         }
-        public void SetBool(string name, bool value)
+        internal void SetBool(string name, bool value)
         {
             string value_str = value ? "1" : "0";
             SetString(name, value_str);
         }
-        public int GetInt(string name, int defaultValue)
+        internal int GetInt(string name, int defaultValue)
         {
             if (Data.ContainsKey(name))
             {
@@ -104,12 +104,12 @@ namespace ToggleNotifications.TNTools
             SetInt(name, defaultValue);
             return defaultValue;
         }
-        public void SetInt(string name, int value)
+        internal void SetInt(string name, int value)
         {
             SetString(name, value.ToString());
         }
 
-        public TEnum GetEnum<TEnum>(string name, TEnum defaultValue) where TEnum : struct
+        internal TEnum GetEnum<TEnum>(string name, TEnum defaultValue) where TEnum : struct
         {
             if (Data.ContainsKey(name))
             {
@@ -123,12 +123,12 @@ namespace ToggleNotifications.TNTools
             return defaultValue;
         }
 
-        public void SetEnum<TEnum>(string name, TEnum value) where TEnum : struct
+        internal void SetEnum<TEnum>(string name, TEnum value) where TEnum : struct
         {
             SetString(name, value.ToString());
         }
 
-        public float GetFloat(string name, float defaultValue)
+        internal float GetFloat(string name, float defaultValue)
         {
             if (Data.ContainsKey(name))
             {
@@ -143,11 +143,11 @@ namespace ToggleNotifications.TNTools
             return defaultValue;
         }
 
-        public void SetFloat(string name, float value)
+        internal void SetFloat(string name, float value)
         {
             SetString(name, value.ToString());
         }
-        public double GetDouble(string name, double defaultValue)
+        internal double GetDouble(string name, double defaultValue)
         {
             if (Data.ContainsKey(name))
             {
@@ -161,12 +161,12 @@ namespace ToggleNotifications.TNTools
             SetDouble(name, defaultValue);
             return defaultValue;
         }
-        public void SetDouble(string name, double value)
+        internal void SetDouble(string name, double value)
         {
             SetString(name, value.ToString());
         }
 
-        public Vector3 GetVector3(string name, Vector3 defaultValue)
+        internal Vector3 GetVector3(string name, Vector3 defaultValue)
         {
             if (!Data.ContainsKey(name))
             {
@@ -198,12 +198,12 @@ namespace ToggleNotifications.TNTools
 
             return result;
         }
-        public void SetParamVector3(string name, Vector3 value)
+        internal void SetParamVector3(string name, Vector3 value)
         {
             string _text = value.x + ";" + value.y + ";" + value.z;
             SetString(name, _text);
         }
-        public Vector3 GetVector3d(string name, Vector3d defaultValue)
+        internal Vector3 GetVector3d(string name, Vector3d defaultValue)
         {
             if (!Data.ContainsKey(name))
             {
@@ -236,7 +236,7 @@ namespace ToggleNotifications.TNTools
             return result;
         }
 
-        public void SetParamVector3d(string name, Vector3d value)
+        internal void SetParamVector3d(string name, Vector3d value)
         {
             string _text = value.x + ";" + value.y + ";" + value.z;
             SetString(name, _text);
