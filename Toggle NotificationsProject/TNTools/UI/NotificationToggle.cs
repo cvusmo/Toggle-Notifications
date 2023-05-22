@@ -30,9 +30,20 @@ namespace ToggleNotifications.TNTools.UI
         internal void CheckCurrentState(NotificationType notificationType, bool flag)
         {
             notificationStates[notificationType] = flag;
+
             if (AssistantToTheAssistantPatchManager.NotificationToggle != null)
             {
                 AssistantToTheAssistantPatchManager.NotificationToggle.CheckCurrentState(notificationType, flag);
+            }
+
+            if (!flag)
+            {
+                // Perform additional logic to disable the notification type
+                // For example, you can remove it from the list of active notifications or handle any other necessary actions.
+                if (NotificationList.Contains(notificationType.ToString()))
+                {
+                    NotificationList.Remove(notificationType.ToString());
+                }
             }
         }
         internal bool ListGUI()

@@ -15,10 +15,9 @@ namespace ToggleNotifications
         internal static NotificationToggle NotificationToggle { get; set; } 
 
         //patch states
-        private static bool isPatchEnabled = true;
-        internal static bool isGamePaused = false;
+        internal static bool isGamePaused = true;
         internal static bool isPauseVisible = false;
-        internal static bool isPausePublish = false;
+        internal static bool isPausePublish = true;
         internal static bool isOnPaused = true;
 
         private static IEnumerable<CodeInstruction> TranspilerLogic(IEnumerable<CodeInstruction> instructions)
@@ -50,16 +49,27 @@ namespace ToggleNotifications
             return codes.AsEnumerable();
         }
 
+        [HarmonyPatch(typeof(NotificationEvents))]
         internal static class NotificationEventsPatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("GamePauseToggledMessage")]
             internal static bool Prefix(GamePauseToggledMessage __instance)
             {
-                __instance.IsPaused = isGamePaused && isPausePublish && isPausePublish && isOnPaused; // Update the IsPaused field with the game pause state and isPausePublish
-                return true; // Continue with the original method
+                if (!isPauseVisible)
+                {
+                    // Disable the notification from showing by returning false
+                    return false;
+                }
+                else
+                {
+                    // Update the IsPaused field with the game pause state and isPausePublish
+                    __instance.IsPaused = isGamePaused && isPausePublish && isOnPaused;
+                    return true; // Continue with the original method
+                }
             }
         }
+
         [HarmonyPatch(typeof(MessageCenter))]
         internal static class MessageCenterPublishPatch
         {
@@ -102,7 +112,6 @@ namespace ToggleNotifications
                 return codes.AsEnumerable();
             }
         }
-
         internal static class OnGamePauseToggledPatch
         {
             [HarmonyTranspiler]
@@ -110,7 +119,8 @@ namespace ToggleNotifications
             internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
                 var codes = new List<CodeInstruction>(instructions);
-                var originalMethod = AccessTools.Method(typeof(GamePauseToggledMessage), "get_IsPaused");
+
+                var originalMethod = AccessTools.PropertyGetter(typeof(GamePauseToggledMessage), "IsPaused");
 
                 for (int i = 0; i < codes.Count; i++)
                 {
@@ -132,9 +142,9 @@ namespace ToggleNotifications
             [HarmonyPatch(typeof(UIManager), "SetPauseVisible")]
             internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                var originalMethod = AccessTools.Method(typeof(PauseStateChangedMessage), "get_Paused");
-
                 var codes = new List<CodeInstruction>(instructions);
+
+                var originalMethod = AccessTools.PropertyGetter(typeof(PauseStateChangedMessage), "IsPaused");
 
                 for (int i = 0; i < codes.Count; i++)
                 {
@@ -146,7 +156,7 @@ namespace ToggleNotifications
                     }
                 }
 
-                Logger.LogInfo("Transpiler Loaded for SetPauseVisible");
+                AssistantToTheAssistantPatchManager.Logger.LogInfo("Transpiler Loaded for SetPauseVisible");
 
                 return codes.AsEnumerable();
             }
@@ -164,16 +174,10 @@ namespace ToggleNotifications
                 return TranspilerLogic(instructions);
             }
         }
-
-        ///internal static void SetPauseState(bool isPaused, bool isVisible, bool shouldPublish)
-       /// {
-           /// isGamePaused = isPaused;
-           /// isPauseVisible = isVisible;
-           /// isPausePublish = shouldPublish;
-       /// }
         internal static void ApplyPatches(NotificationToggle notificationToggle)
         {
             Harmony harmony = new Harmony("com.github.cvusmo.Toggle-Notifications");
+            Logger = BepInEx.Logging.Logger.CreateLogSource("AssistantToTheAssistantPatchManager");
             harmony.PatchAll(typeof(AssistantToTheAssistantPatchManager).Assembly);
         }
     }

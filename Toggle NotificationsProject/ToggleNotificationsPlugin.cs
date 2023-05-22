@@ -30,15 +30,15 @@ namespace ToggleNotifications
         //core
         internal ToggleNotificationsUI MainUI;
         internal NotificationToggle notificationToggle;
-        internal bool _interfaceEnabled;
-        internal bool _isGUIenabled = false;
-        internal VesselComponent _activeVessel;
-        internal Rect windowRect = Rect.zero;
-        internal int windowWidth = 250;
         internal GameInstance game;
         internal MessageCenter messageCenter;
+        internal VesselComponent _activeVessel;
         public ConfigEntry<bool> tnConfig;
-
+        internal bool _interfaceEnabled;
+        internal bool _isGUIenabled = false;
+        internal Rect windowRect = Rect.zero;
+        internal int windowWidth = 250;
+        
         //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
         private static string assemblyFolder;
@@ -62,7 +62,6 @@ namespace ToggleNotifications
             game = GameManager.Instance.Game;
             messageCenter = game.Messages;
 
-
             MainUI = new ToggleNotificationsUI(this, _isGUIenabled, messageCenter);
 
             // Register Flight AppBar button
@@ -73,7 +72,8 @@ namespace ToggleNotifications
                 isOpen =>
                 {
                     ToggleButton(isOpen, isOpen);
-                    Debug.Log($"Initial isWindowOpen value: {_interfaceEnabled}");
+                    Debug.Log($"Initial _interfaceEnabled value: {_interfaceEnabled}");
+                    Debug.Log($"Initial _isGUIenabled value: {_isGUIenabled}");
                 }
             );
 
@@ -88,10 +88,7 @@ namespace ToggleNotifications
             tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", true, "Toggle Notifications is a mod that allows you to enable or disable notifications");
 
             AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
-
-            ToggleNotificationsUI toggleNotificationsUI = new ToggleNotificationsUI(this, _isGUIenabled, messageCenter);
         }
-
 
         internal void ToggleButton(bool toggle, bool isOpen)
         {
@@ -129,7 +126,7 @@ namespace ToggleNotifications
             GameState gameState2 = GameState.FlightView;
             if (nullable.GetValueOrDefault() == gameState2 & nullable.HasValue)
                 _isGUIenabled = true;
-           //game.Messages = GameManager.Instance?.Game?.Messages?.Subscribe<DiscoverableMessage>(message =>
+            //game.Messages = GameManager.Instance?.Game?.Messages?.Subscribe<DiscoverableMessage>(message =>
 
             if (_isGUIenabled)
             {

@@ -1,4 +1,5 @@
 ﻿using KSP.Messages;
+using MoonSharp.Interpreter;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
@@ -9,6 +10,14 @@ namespace ToggleNotifications
         internal static ToggleNotificationsUI instance;
         internal static NotificationToggle toggleNotification;
         internal ToggleNotificationsPlugin mainPlugin;
+        private MessageCenter messageCenter;
+        private SubscriptionHandle gamePauseHandle;
+        //buttons
+        private int selectedButton1 = 1;
+        private int selectedButton2 = 1;
+        private int selectedButton3 = 1;
+        private int selectedButton4 = 1;
+        private bool isToggled;
         internal ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
             if (mainPlugin != null)
@@ -22,8 +31,6 @@ namespace ToggleNotifications
                 Debug.LogError("ToggleNotificationsPlugin instance is null. ToggleNotificationUI");
             }
         }
-
-        private MessageCenter messageCenter;
         private void Start()
         {
             messageCenter = FindObjectOfType<MessageCenter>();
@@ -33,15 +40,27 @@ namespace ToggleNotifications
                 Debug.LogError("messageCenter is null");
             }
         }
+        private void GamePauseToggledMessageCallback(MessageCenterMessage msg)
+        {
+            GamePauseToggledMessage pauseToggledMessage = msg as GamePauseToggledMessage;
+            if (pauseToggledMessage != null)
+            {
+                // Set isToggled based on ButtonToggle1 value
+                isToggled = (selectedButton1 == 0);
 
-        private int selectedButton1 = 1;
-        private int selectedButton2 = 1;
-        private int selectedButton3 = 1;
-        private int selectedButton4 = 1;
+                // Update the notification display based on the isToggled value
+                if (selectedButton1 == 1)
+                {
+                    mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
+                }
+                else if (selectedButton1 == 0)
+                {
+                    mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
+                }
+            }
+        }
 
-        private bool isToggled; 
-       
-        private void ButtonToggle1(int toggleValue)
+        private void ButtonToggle1(int toggleValue1)
         {
             if (mainPlugin == null || mainPlugin.notificationToggle == null)
             {
@@ -55,40 +74,74 @@ namespace ToggleNotifications
                 return;
             }
 
+            if (selectedButton1 == toggleValue1)
+            {
+                // The selected button value hasn't changed, so no further action is required
+                return;
+            }
 
-            selectedButton1 = toggleValue;
+            selectedButton1 = toggleValue1;
 
             if (selectedButton1 == 1)
+            {
+                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
+                AssistantToTheAssistantPatchManager.isGamePaused = false;
+                AssistantToTheAssistantPatchManager.isPauseVisible = false;
+                AssistantToTheAssistantPatchManager.isPausePublish = false;
+                AssistantToTheAssistantPatchManager.isOnPaused = false;
+
+                // Set isToggled to true
+                isToggled = true;
+
+                // Create and publish the GamePauseToggledMessage with IsPaused set to true
+                GamePauseToggledMessage message = new GamePauseToggledMessage();
+                message.IsPaused = true;
+                messageCenter.Publish<GamePauseToggledMessage>(message);
+
+                // Subscribe to the GamePauseToggledMessage and define the callback logic
+                gamePauseHandle = messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
+                //pauseStateChangedHandle = messageCenter.Subscribe<PauseStateChangedMessage>(PauseStateChangedMessageCallback);
+
+                Debug.Log($"Toggle 1 enabled");
+
+                Debug.Log($"Initial isToggled value: {isToggled}");
+                Debug.Log($"Initial isGamePaused value: {AssistantToTheAssistantPatchManager.isGamePaused}");
+                Debug.Log($"Initial isPauseVisible value: {AssistantToTheAssistantPatchManager.isPauseVisible}");
+                Debug.Log($"Initial isPausePublish value: {AssistantToTheAssistantPatchManager.isPausePublish}");
+                Debug.Log($"Initial isOnPaused value: {AssistantToTheAssistantPatchManager.isOnPaused}");
+            }
+            else if (selectedButton1 == 0)
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
                 AssistantToTheAssistantPatchManager.isGamePaused = true;
                 AssistantToTheAssistantPatchManager.isPauseVisible = true;
                 AssistantToTheAssistantPatchManager.isPausePublish = true;
                 AssistantToTheAssistantPatchManager.isOnPaused = true;
-                isToggled = true;
-                GamePauseToggledMessage message = new GamePauseToggledMessage();
-                message.IsPaused = true;
 
-                // Publish the message using the MessageCenter instance
-                messageCenter.Publish(message);
-            }
-            else if (selectedButton1 == 0)
-            {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
-                AssistantToTheAssistantPatchManager.isGamePaused = false;
-                AssistantToTheAssistantPatchManager.isPauseVisible = true;
-                AssistantToTheAssistantPatchManager.isPausePublish = false;
-                AssistantToTheAssistantPatchManager.isOnPaused = false;
-                GamePauseToggledMessage message = new GamePauseToggledMessage();
+                // Set isToggled to false
                 isToggled = false;
-                message.IsPaused = false;
 
-                messageCenter.Publish(message);
+                // Create and publish the GamePauseToggledMessage with IsPaused set to false
+                GamePauseToggledMessage message = new GamePauseToggledMessage();
+                message.IsPaused = false;
+                messageCenter.Publish<GamePauseToggledMessage>(message);
+
+                // Subscribe to the GamePauseToggledMessage and define the callback logic
+                gamePauseHandle = messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
+                //pauseStateChangedHandle = messageCenter.Subscribe<PauseStateChangedMessage>(PauseStateChangedMessageCallback);
+
+                Debug.Log($"Toggle 1 disabled");
+
+                Debug.Log($"Initial isToggled value: {isToggled}");
+                Debug.Log($"Initial isGamePaused value: {AssistantToTheAssistantPatchManager.isGamePaused}");
+                Debug.Log($"Initial isPauseVisible value: {AssistantToTheAssistantPatchManager.isPauseVisible}");
+                Debug.Log($"Initial isPausePublish value: {AssistantToTheAssistantPatchManager.isPausePublish}");
+                Debug.Log($"Initial isOnPaused value: {AssistantToTheAssistantPatchManager.isOnPaused}");
             }
         }
-        private void ButtonToggle2(int toggleValue)
+        private void ButtonToggle2(int toggleValue2)
         {
-            selectedButton2 = toggleValue;
+            selectedButton2 = toggleValue2;
 
             if (selectedButton2 == 1)
             {
@@ -100,9 +153,9 @@ namespace ToggleNotifications
             }
         }
 
-        private void ButtonToggle3(int toggleValue)
+        private void ButtonToggle3(int toggleValue3)
         {
-            selectedButton3 = toggleValue;
+            selectedButton3 = toggleValue3;
 
             if (selectedButton3 == 1)
             {
@@ -113,9 +166,9 @@ namespace ToggleNotifications
                 // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
             }
         }
-        private void ButtonToggle4(int toggleValue)
+        private void ButtonToggle4(int toggleValue4)
         {
-            selectedButton4 = toggleValue;
+            selectedButton4 = toggleValue4;
 
             if (selectedButton4 == 1)
             {
@@ -162,15 +215,20 @@ namespace ToggleNotifications
             // Group 2: Toggle Buttons
             GUILayout.BeginVertical(GUILayout.Height(60));
 
-            int buttonWidth = (int)(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
+            int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 6); // Subtract 3 on each side for padding
 
-            bool gamePauseToggle = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), isToggled, "Game Pause", selectedButton2 == 1 ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError);
-            TNBaseStyle.Toggle.normal.textColor = selectedButton1 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedButton1 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            Rect gamePauseToggleRect = new Rect(3, 56, buttonWidth, 20);
+
+            GUIStyle toggleStyle = isToggled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
+            Color textColor = isToggled ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+
+            bool gamePauseToggle = GUI.Toggle(gamePauseToggleRect, isToggled, "Game Pause", toggleStyle);
+            toggleStyle.normal.textColor = textColor;
+
             if (gamePauseToggle != isToggled)
             {
                 isToggled = gamePauseToggle;
-                ButtonToggle1(gamePauseToggle ? 1 : 0);
+                ButtonToggle1(isToggled ? 1 : 0);
             }
 
             bool radioButton2 = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), selectedButton2 == 1, "Solar Panel Ineffective", selectedButton2 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
