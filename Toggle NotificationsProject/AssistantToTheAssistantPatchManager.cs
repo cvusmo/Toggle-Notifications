@@ -1,4 +1,4 @@
-﻿using BepInEx.Logging;
+using BepInEx.Logging;
 using HarmonyLib;
 using KSP.Game;
 using KSP.Messages;
