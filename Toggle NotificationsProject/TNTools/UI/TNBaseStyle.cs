@@ -46,7 +46,7 @@ namespace ToggleNotifications.TNTools.UI
 
         internal static bool Init()
         {
-           return BuildStyles();
+            return BuildStyles();
         }
         internal static bool BuildStyles()
         {
