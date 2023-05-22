@@ -1,8 +1,5 @@
-﻿using KSP.Game;
+using KSP.Game;
 using KSP.Messages;
-using TNUtilities;
-using KSP.Sim;
-using KSP.Sim.impl;
 using SpaceWarp.API.Assets;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
@@ -48,7 +45,7 @@ namespace ToggleNotifications
         {
             TNStyles.DrawSectionHeader("Toggle Notifications");
             //Option.Instance.ToggleNotificationsGUI();
-           // MainUI.DrawToggleButton("Enable", NotificationType.GamePauseToggledMessage);
+            // MainUI.DrawToggleButton("Enable", NotificationType.GamePauseToggledMessage);
         }
     }
 }
