@@ -102,6 +102,11 @@ namespace ToggleNotifications
                 gamePauseHandle = messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
                 //pauseStateChangedHandle = messageCenter.Subscribe<PauseStateChangedMessage>(PauseStateChangedMessageCallback);
 
+                // Set the GUI style for TNBaseStyle.Toggle
+                TNBaseStyle.Toggle.normal.textColor = ColorTools.ParseColor("#C0C1E2");
+                TNBaseStyle.ToggleError.normal.textColor = ColorTools.ParseColor("#C0E2DC");
+
+
                 Debug.Log($"Toggle 1 enabled");
 
                 Debug.Log($"Initial isToggled value: {isToggled}");
@@ -129,6 +134,11 @@ namespace ToggleNotifications
                 // Subscribe to the GamePauseToggledMessage and define the callback logic
                 gamePauseHandle = messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
                 //pauseStateChangedHandle = messageCenter.Subscribe<PauseStateChangedMessage>(PauseStateChangedMessageCallback);
+
+                // Set the GUI style for TNBaseStyle.ToggleError
+                TNBaseStyle.Toggle.normal.textColor = ColorTools.ParseColor("#C0E2DC");
+                TNBaseStyle.ToggleError.normal.textColor = Color.red;
+
 
                 Debug.Log($"Toggle 1 disabled");
 
@@ -231,7 +241,7 @@ namespace ToggleNotifications
                 ButtonToggle1(isToggled ? 1 : 0);
             }
 
-            bool radioButton2 = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), selectedButton2 == 1, "Solar Panel Ineffective", selectedButton2 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            bool radioButton2 = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), selectedButton2 == 1, "Solar Panel Ineffective (soon.tm)", selectedButton2 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
             TNBaseStyle.Toggle.normal.textColor = selectedButton2 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
             TNBaseStyle.ToggleError.normal.textColor = selectedButton2 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton2)
