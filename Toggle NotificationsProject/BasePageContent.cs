@@ -14,7 +14,7 @@ namespace ToggleNotifications
         private bool uiVisible;
         private Rect windowRect = Rect.zero;
         private int windowWidth = 250;
-        internal bool isGUIVisible = false;
+        internal bool _isGUIenabled = false;
         internal BasePageContent()
         {
             this.MainUI = ToggleNotificationsUI.instance;
@@ -25,12 +25,12 @@ namespace ToggleNotifications
         public virtual string Name => throw new NotImplementedException();
         public virtual GUIContent Icon => throw new NotImplementedException();
         public bool IsRunning => false;
-        public bool UIVisible { get => this.isGUIVisible; set => this.isGUIVisible = value; }
-        public bool IsActive => mainPlugin.interfaceEnabled;
+        public bool UIVisible { get => this._isGUIenabled; set => this._isGUIenabled = value; }
+        public bool IsActive => mainPlugin._interfaceEnabled;
         public virtual void OnGUI()
         {
             Debug.Log("OnGUI BasePageContent called");
-            if (!mainPlugin.isGUIVisible)
+            if (!mainPlugin._isGUIenabled)
                 return;
 
             GameState? gameState = mainPlugin.game?.GlobalGameState?.GetState();

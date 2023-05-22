@@ -9,7 +9,7 @@ namespace ToggleNotifications
         internal static ToggleNotificationsUI instance;
         internal static NotificationToggle toggleNotification;
         internal ToggleNotificationsPlugin mainPlugin;
-        internal ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool isGUIVisible, MessageCenter messageCenter)
+        internal ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
             if (mainPlugin != null)
             {
@@ -39,9 +39,8 @@ namespace ToggleNotifications
         private int selectedButton3 = 1;
         private int selectedButton4 = 1;
 
-        private bool isGamePaused; // Initial toggle state
-        //private bool isPauseVisible;
-        //private bool isPausePublish;
+        private bool isToggled; 
+       
         private void ButtonToggle1(int toggleValue)
         {
             if (mainPlugin == null || mainPlugin.notificationToggle == null)
@@ -65,6 +64,8 @@ namespace ToggleNotifications
                 AssistantToTheAssistantPatchManager.isGamePaused = true;
                 AssistantToTheAssistantPatchManager.isPauseVisible = true;
                 AssistantToTheAssistantPatchManager.isPausePublish = true;
+                AssistantToTheAssistantPatchManager.isOnPaused = true;
+                isToggled = true;
                 GamePauseToggledMessage message = new GamePauseToggledMessage();
                 message.IsPaused = true;
 
@@ -75,15 +76,15 @@ namespace ToggleNotifications
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
                 AssistantToTheAssistantPatchManager.isGamePaused = false;
-                AssistantToTheAssistantPatchManager.isPauseVisible = false;
+                AssistantToTheAssistantPatchManager.isPauseVisible = true;
                 AssistantToTheAssistantPatchManager.isPausePublish = false;
+                AssistantToTheAssistantPatchManager.isOnPaused = false;
                 GamePauseToggledMessage message = new GamePauseToggledMessage();
+                isToggled = false;
                 message.IsPaused = false;
 
                 messageCenter.Publish(message);
             }
-
-
         }
         private void ButtonToggle2(int toggleValue)
         {
@@ -163,12 +164,12 @@ namespace ToggleNotifications
 
             int buttonWidth = (int)(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
 
-            bool gamePauseToggle = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), isGamePaused, "Game Pause", selectedButton2 == 1 ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError);
+            bool gamePauseToggle = GUI.Toggle(new Rect(3, 56, buttonWidth, 20), isToggled, "Game Pause", selectedButton2 == 1 ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError);
             TNBaseStyle.Toggle.normal.textColor = selectedButton1 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
             TNBaseStyle.ToggleError.normal.textColor = selectedButton1 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
-            if (gamePauseToggle != isGamePaused)
+            if (gamePauseToggle != isToggled)
             {
-                isGamePaused = gamePauseToggle;
+                isToggled = gamePauseToggle;
                 ButtonToggle1(gamePauseToggle ? 1 : 0);
             }
 

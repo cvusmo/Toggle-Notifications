@@ -19,6 +19,7 @@ namespace ToggleNotifications
         internal static bool isGamePaused = false;
         internal static bool isPauseVisible = false;
         internal static bool isPausePublish = false;
+        internal static bool isOnPaused = true;
 
         private static IEnumerable<CodeInstruction> TranspilerLogic(IEnumerable<CodeInstruction> instructions)
         {
@@ -55,7 +56,7 @@ namespace ToggleNotifications
             [HarmonyPatch("GamePauseToggledMessage")]
             internal static bool Prefix(GamePauseToggledMessage __instance)
             {
-                __instance.IsPaused = isGamePaused && isPausePublish && isPausePublish; // Update the IsPaused field with the game pause state and isPausePublish
+                __instance.IsPaused = isGamePaused && isPausePublish && isPausePublish && isOnPaused; // Update the IsPaused field with the game pause state and isPausePublish
                 return true; // Continue with the original method
             }
         }
@@ -97,6 +98,29 @@ namespace ToggleNotifications
                 // Insert a default return instruction in case the code flow reaches the end of the method
                 codes.Add(new CodeInstruction(OpCodes.Ldc_I4_0));
                 codes.Add(new CodeInstruction(OpCodes.Ret));
+
+                return codes.AsEnumerable();
+            }
+        }
+
+        internal static class OnGamePauseToggledPatch
+        {
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(NotificationUI), "OnGamePauseToggled")]
+            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = new List<CodeInstruction>(instructions);
+                var originalMethod = AccessTools.Method(typeof(GamePauseToggledMessage), "get_IsPaused");
+
+                for (int i = 0; i < codes.Count; i++)
+                {
+                    if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand == originalMethod)
+                    {
+                        codes[i] = new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(AssistantToTheAssistantPatchManager.isOnPaused)));
+                    }
+                }
+
+                AssistantToTheAssistantPatchManager.Logger.LogInfo("Transpiler Loaded for OnGamePauseToggled");
 
                 return codes.AsEnumerable();
             }
