@@ -1,4 +1,4 @@
-﻿using KSP.Game;
+using KSP.Game;
 using KSP.Sim.Maneuver;
 using System.Text.RegularExpressions;
 
