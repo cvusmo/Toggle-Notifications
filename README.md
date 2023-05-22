@@ -1,8 +1,14 @@
+<<<<<<< Updated upstream
 [Toggle Notifications v0.2.2
 "Toggle Notifications On or Off!" by cvusmo
 Thank you to LuxStice, ShadowDev, Munix, The Yeetster, and schlosrat for all the help
 
 Thank you to LuxStice, ShadowDev, Munix, The Yeetster, and schlosrat for all the help getting this working correctly!
+=======
+[Toggle Notifications v0.2.2
+"Toggle Notifications On or Off!" by cvusmo
+Thank you to LuxStice, ShadowDev, Munix, The Yeetster, and schlosrat for all the help
+>>>>>>> Stashed changes
 
                          [Requirements SpaceWarp + BepInEx + KSP 2]
 

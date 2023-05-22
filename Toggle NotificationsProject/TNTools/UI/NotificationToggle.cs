@@ -1,4 +1,4 @@
-//purpose of the NotificationToggle class is to control and display options for when a notification type should occur.
+// Purpose of the NotificationToggle class is to control and display options for when a notification type should occur.
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
@@ -6,21 +6,10 @@ namespace ToggleNotifications.TNTools.UI
     public class NotificationToggle
     {
         private readonly ToggleNotificationsPlugin mainPlugin;
-        public Dictionary<NotificationType, bool> notificationStates;
-        private ToggleNotificationsPlugin toggleNotificationsPlugin;
-        private Dictionary<NotificationToggle.NotificationType, bool> dictionary;
-
+        private Dictionary<NotificationType, bool> notificationStates;
         public long SentOn { get; internal set; }
-        public List<string> NotificationList { get; } = new List<string>();
-        public enum NotificationType
-        {
-            SolarPanelsIneffectiveMessage,
-            VesselThrottleLockedDueToTimewarpingMessage,
-            CannotPlaceManeuverNodeWhileOutOfFuelMessage,
-            GamePauseToggledMessage,
-            None
-        }
-        public NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
+        internal List<string> NotificationList { get; } = new List<string>();
+        internal NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
         {
             this.mainPlugin = mainPlugin;
             this.notificationStates = notificationStates;
@@ -34,18 +23,30 @@ namespace ToggleNotifications.TNTools.UI
                 }
             }
         }
-        public bool GetNotificationState(NotificationType notificationType)
+        internal bool GetNotificationState(NotificationType notificationType)
         {
             return notificationStates.TryGetValue(notificationType, out bool state) ? state : false;
         }
-
-        public void CheckCurrentState(NotificationType notificationType, bool flag)
+        internal void CheckCurrentState(NotificationType notificationType, bool flag)
         {
-            bool solarPanelsIneffectiveMessageToggle = GetNotificationState(NotificationType.SolarPanelsIneffectiveMessage);
-            bool gamePauseToggledMessageToggle = GetNotificationState(NotificationType.GamePauseToggledMessage);
-        }
+            notificationStates[notificationType] = flag;
 
-        public bool ListGUI()
+            if (AssistantToTheAssistantPatchManager.NotificationToggle != null)
+            {
+                AssistantToTheAssistantPatchManager.NotificationToggle.CheckCurrentState(notificationType, flag);
+            }
+
+            if (!flag)
+            {
+                // Perform additional logic to disable the notification type
+                // For example, you can remove it from the list of active notifications or handle any other necessary actions.
+                if (NotificationList.Contains(notificationType.ToString()))
+                {
+                    NotificationList.Remove(notificationType.ToString());
+                }
+            }
+        }
+        internal bool ListGUI()
         {
             GUI.enabled = true;
 
@@ -60,7 +61,6 @@ namespace ToggleNotifications.TNTools.UI
                     if (newToggleState != toggleState)
                     {
                         notificationStates[notificationType] = newToggleState;
-                        mainPlugin.CheckCurrentState(); // Update the current state in the plugin
                     }
                 }
             }

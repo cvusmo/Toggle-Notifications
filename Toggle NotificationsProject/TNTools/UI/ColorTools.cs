@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
-    public class ColorTools
+    internal class ColorTools
     {
-        public static void ToHSV(Color col, out float h, out float s, out float v)
+        internal static void ToHSV(Color col, out float h, out float s, out float v)
         {
             float r = col.r;
             float g = col.g;
@@ -30,7 +30,7 @@ namespace ToggleNotifications.TNTools.UI
             }
         }
 
-        public static Color FromHSV(float hue, float saturation, float value, float alpha)
+        internal static Color FromHSV(float hue, float saturation, float value, float alpha)
         {
             hue *= 360f;
             int num1 = (int)Mathf.Floor(hue / 60f) % 6;
@@ -56,7 +56,7 @@ namespace ToggleNotifications.TNTools.UI
             }
         }
 
-        public static Color ParseColor(string color)
+        internal static Color ParseColor(string color)
         {
             if (color == "")
                 return Color.white;
@@ -102,9 +102,9 @@ namespace ToggleNotifications.TNTools.UI
             }
         }
 
-        public static string FormatColorHtml(Color col) => string.Format("{0:X2}{1:X2}{2:X2}", (int)(col.r * (double)byte.MaxValue), (int)(col.g * (double)byte.MaxValue), (int)(col.b * (double)byte.MaxValue));
+        internal static string FormatColorHtml(Color col) => string.Format("{0:X2}{1:X2}{2:X2}", (int)(col.r * (double)byte.MaxValue), (int)(col.g * (double)byte.MaxValue), (int)(col.b * (double)byte.MaxValue));
 
-        public static Color[] GetRandomColorArray(int Nb, float saturation = 1f)
+        internal static Color[] GetRandomColorArray(int Nb, float saturation = 1f)
         {
             float num = 1f / Nb;
             Color[] randomColorArray = new Color[Nb];
@@ -117,7 +117,7 @@ namespace ToggleNotifications.TNTools.UI
             return randomColorArray;
         }
 
-        public static Color[] GetRainbowColorArray(int Nb)
+        internal static Color[] GetRainbowColorArray(int Nb)
         {
             float num = 1f / Nb;
             Color[] rainbowColorArray = new Color[Nb];
@@ -130,9 +130,9 @@ namespace ToggleNotifications.TNTools.UI
             return rainbowColorArray;
         }
 
-        public static Color RandomColor() => FromHSV(UnityEngine.Random.Range(0.0f, 1f), 1f, 1f, 1f);
+        internal static Color RandomColor() => FromHSV(UnityEngine.Random.Range(0.0f, 1f), 1f, 1f, 1f);
 
-        public static Color ChangeColorHSV(Color source, float deltaH, float deltaS, float deltaV)
+        internal static Color ChangeColorHSV(Color source, float deltaH, float deltaS, float deltaV)
         {
             float h;
             float s;
