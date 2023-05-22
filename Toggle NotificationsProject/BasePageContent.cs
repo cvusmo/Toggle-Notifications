@@ -1,5 +1,9 @@
 ﻿using KSP.Game;
 using KSP.Messages;
+using TNUtilities;
+using KSP.Sim;
+using KSP.Sim.impl;
+using SpaceWarp.API.Assets;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
@@ -29,27 +33,25 @@ namespace ToggleNotifications
         public bool IsActive => mainPlugin._interfaceEnabled;
         public virtual void OnGUI()
         {
-            Debug.Log("OnGUI BasePageContent called");
-            if (!mainPlugin._isGUIenabled)
-                return;
-
-            GameState? gameState = mainPlugin.game?.GlobalGameState?.GetState();
-
-            if (gameState == GameState.FlightView || gameState == GameState.Map3DView || gameState == GameState.Launchpad)
-            {
-                TNBaseStyle.Init();
-                TNStyles.Init();
-
-                Texture2D imageTexture = AssetsLoader.LoadIcon("window");
-                WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
-                windowRect = GUILayout.Window(
-                    GUIUtility.GetControlID(FocusType.Passive),
-                    windowRect,
-                    MainUI.FillWindow,
-                    "<color=#696DFF>TOGGLE NOTIFICATIONS</color>"
-                );
-                mainPlugin.saverectpos();
-            }
+            return null;
+        }
+        public virtual void OnGUI()
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class ToggleNotificationsPage : BasePageContent
+    {
+        public override string Name => "Toggle Notifications";
+        readonly Texture2D tabIcon = AssetManager.GetAsset<Texture2D>($"{ToggleNotificationsPlugin.Instance.SpaceWarpMetadata.ModID}/images/tn_icon_50.png");
+        public override GUIContent Icon => new(tabIcon, "Toggle Notifications");
+        public override bool IsActive => true;
+        //public int PageIndex { get; set; }
+        public override void OnGUI()
+        {
+            TNStyles.DrawSectionHeader("Toggle Notifications");
+            //Option.Instance.ToggleNotificationsGUI();
+           // MainUI.DrawToggleButton("Enable", NotificationType.GamePauseToggledMessage);
         }
     }
 }
