@@ -5,8 +5,6 @@ using KSP.Game;
 using KSP.Messages;
 using KSP.Sim.impl;
 using KSP.UI.Binding;
-using Microsoft.CodeAnalysis;
-using MoonSharp.VsCodeDebugger.SDK;
 using SpaceWarp;
 using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
@@ -38,7 +36,7 @@ namespace ToggleNotifications
         internal bool _isGUIenabled = false;
         internal Rect windowRect = Rect.zero;
         internal int windowWidth = 250;
-        
+
         //appbar
         private const string ToolbarFlightButtonID = "BTN-ToggleNotificationsFlight";
         private static string assemblyFolder;
