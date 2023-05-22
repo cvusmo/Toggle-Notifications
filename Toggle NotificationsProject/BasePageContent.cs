@@ -1,9 +1,4 @@
-﻿using KSP.Game;
-using KSP.Messages;
-using TNUtilities;
-using KSP.Sim;
-using KSP.Sim.impl;
-using SpaceWarp.API.Assets;
+﻿using SpaceWarp.API.Assets;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
@@ -33,10 +28,6 @@ namespace ToggleNotifications
         public bool IsActive => mainPlugin._interfaceEnabled;
         public virtual void OnGUI()
         {
-            return null;
-        }
-        public virtual void OnGUI()
-        {
             throw new NotImplementedException();
         }
     }
@@ -45,13 +36,13 @@ namespace ToggleNotifications
         public override string Name => "Toggle Notifications";
         readonly Texture2D tabIcon = AssetManager.GetAsset<Texture2D>($"{ToggleNotificationsPlugin.Instance.SpaceWarpMetadata.ModID}/images/tn_icon_50.png");
         public override GUIContent Icon => new(tabIcon, "Toggle Notifications");
-        public override bool IsActive => true;
+        public bool IsActive => true;
         //public int PageIndex { get; set; }
         public override void OnGUI()
         {
             TNStyles.DrawSectionHeader("Toggle Notifications");
             //Option.Instance.ToggleNotificationsGUI();
-           // MainUI.DrawToggleButton("Enable", NotificationType.GamePauseToggledMessage);
+            // MainUI.DrawToggleButton("Enable", NotificationType.GamePauseToggledMessage);
         }
     }
 }
