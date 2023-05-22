@@ -2,33 +2,58 @@
 
 namespace ToggleNotifications
 {
-    internal class TNSettings
+    public class TNSettings
     {
         private static ConfigFile s_config_file;
-        internal static void Init(string configurationpath)
+        public static void Init(string configurationpath)
         {
             s_config_file = new ConfigFile(configurationpath, true);
         }
 
-        internal static T GetValue<T>(string key, T defaultValue)
+        public static T GetValue<T>(string key, T defaultValue)
         {
             return s_config_file.Bind("", key, defaultValue).Value;
         }
 
-        internal static void SetValue<T>(string key, T value)
+        public static void SetValue<T>(string key, T value)
         {
             s_config_file.Bind("", key, value).Value = value;
             s_config_file.Save();
         }
-
-        internal static bool GetNotificationState(NotificationType notificationType)
+        public static bool SolarPanelsIneffectiveMessage
         {
-            return GetValue(notificationType.ToString(), true);
+            get => GetValue(nameof(SolarPanelsIneffectiveMessage), true);
+            set { SetValue(nameof(SolarPanelsIneffectiveMessage), value); }
         }
 
-        internal static void SetNotificationState(NotificationType notificationType, bool value)
+        public static bool SolarPanelsIneffectiveTimeToWaitTill
         {
-            SetValue(notificationType.ToString(), value);
+            get => GetValue(nameof(SolarPanelsIneffectiveTimeToWaitTill), true);
+            set { SetValue(nameof(SolarPanelsIneffectiveTimeToWaitTill), value); }
+        }
+
+        public static bool VesselLeftCommunicationRangeMessage
+        {
+            get => GetValue(nameof(VesselLeftCommunicationRangeMessage), true);
+            set { SetValue(nameof(VesselLeftCommunicationRangeMessage), value); }
+        }
+
+        public static bool VesselThrottleLockedDueToTimewarpingMessage
+        {
+            get => GetValue(nameof(VesselThrottleLockedDueToTimewarpingMessage), true);
+            set { SetValue(nameof(VesselThrottleLockedDueToTimewarpingMessage), value); }
+        }
+
+        public static bool CannotPlaceManeuverNodeWhileOutOfFuelMessage
+        {
+            get => GetValue(nameof(CannotPlaceManeuverNodeWhileOutOfFuelMessage), true);
+            set { SetValue(nameof(CannotPlaceManeuverNodeWhileOutOfFuelMessage), value); }
+        }
+
+        public static bool GamePauseToggledMessage
+        {
+            get => GetValue(nameof(GamePauseToggledMessage), true);
+            set { SetValue(nameof(GamePauseToggledMessage), value); }
         }
     }
 }
