@@ -1,4 +1,4 @@
-﻿using KSP.Messages;
+using KSP.Messages;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 

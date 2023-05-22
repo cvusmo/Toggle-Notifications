@@ -1,4 +1,4 @@
-﻿namespace ToggleNotifications.TNTools
+namespace ToggleNotifications.TNTools
 {
     internal class TNBaseSettings
     {
