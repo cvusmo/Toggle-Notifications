@@ -21,8 +21,11 @@ namespace ToggleNotifications
         internal int selectedButton3 = 1;
         internal int selectedButton4 = 1;
 
+        //toggles
         internal bool isToggled;
         internal bool isToggled2;
+        internal bool isToggled3;
+        internal bool isToggled4;
         internal ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
             if (mainPlugin != null)
