@@ -30,11 +30,6 @@ namespace ToggleNotifications.TNTools.UI
         {
             notificationStates[notificationType] = flag;
 
-            if (AssistantToTheAssistantPatchManager.NotificationToggle != null)
-            {
-                AssistantToTheAssistantPatchManager.NotificationToggle.CheckCurrentState(notificationType, flag);
-            }
-
             if (!flag)
             {
                 if (NotificationList.Contains(notificationType.ToString()))

@@ -78,7 +78,6 @@ namespace ToggleNotifications
             notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
             {
                 { NotificationType.GamePauseToggledMessage, true },
-                { NotificationType.PauseStateChangedMessageToggle, true },
                 { NotificationType.SolarPanelsIneffectiveMessage, false },
             });
 

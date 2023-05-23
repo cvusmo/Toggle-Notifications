@@ -31,9 +31,7 @@ namespace ToggleNotifications
                 {
                     mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
                     AssistantToTheAssistantPatchManager.isGamePaused = false;
-                    AssistantToTheAssistantPatchManager.isPauseVisible = false;
-                    AssistantToTheAssistantPatchManager.isPausePublish = false;
-                    AssistantToTheAssistantPatchManager.isOnPaused = false;
+                    
 
                     pauseToggled = true;
 
@@ -45,9 +43,7 @@ namespace ToggleNotifications
                 {
                     mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
                     AssistantToTheAssistantPatchManager.isGamePaused = true;
-                    AssistantToTheAssistantPatchManager.isPauseVisible = true;
-                    AssistantToTheAssistantPatchManager.isPausePublish = true;
-                    AssistantToTheAssistantPatchManager.isOnPaused = true;
+                    
 
                     pauseToggled = false;
 
@@ -95,31 +91,21 @@ namespace ToggleNotifications
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
                 AssistantToTheAssistantPatchManager.isGamePaused = false;
-                AssistantToTheAssistantPatchManager.isPauseVisible = false;
-                AssistantToTheAssistantPatchManager.isPausePublish = false;
-                AssistantToTheAssistantPatchManager.isOnPaused = false;
 
                 Debug.Log($"Toggle 1 disabled");
                 Debug.Log($"Initial isToggled value: {toggleValue}");
                 Debug.Log($"Initial isGamePaused value: {AssistantToTheAssistantPatchManager.isGamePaused}");
-                Debug.Log($"Initial isPauseVisible value: {AssistantToTheAssistantPatchManager.isPauseVisible}");
-                Debug.Log($"Initial isPausePublish value: {AssistantToTheAssistantPatchManager.isPausePublish}");
-                Debug.Log($"Initial isOnPaused value: {AssistantToTheAssistantPatchManager.isOnPaused}");
             }
             else if (toggleValue == 0)
             {
                 mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
                 AssistantToTheAssistantPatchManager.isGamePaused = true;
-                AssistantToTheAssistantPatchManager.isPauseVisible = true;
-                AssistantToTheAssistantPatchManager.isPausePublish = true;
-                AssistantToTheAssistantPatchManager.isOnPaused = true;
+                
 
                 Debug.Log($"Toggle 1 enabled");
                 Debug.Log($"Initial isToggled value: {toggleValue}");
                 Debug.Log($"Initial isGamePaused value: {AssistantToTheAssistantPatchManager.isGamePaused}");
-                Debug.Log($"Initial isPauseVisible value: {AssistantToTheAssistantPatchManager.isPauseVisible}");
-                Debug.Log($"Initial isPausePublish value: {AssistantToTheAssistantPatchManager.isPausePublish}");
-                Debug.Log($"Initial isOnPaused value: {AssistantToTheAssistantPatchManager.isOnPaused}");
+
             }
         }
     }

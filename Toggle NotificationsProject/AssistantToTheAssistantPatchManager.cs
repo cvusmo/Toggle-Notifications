@@ -14,10 +14,6 @@ namespace ToggleNotifications
 
         //patch states
         internal static bool isGamePaused = true;
-        internal static bool isPauseVisible = false;
-        internal static bool isPausePublish = true;
-        internal static bool isOnPaused = true;
-
         internal static bool isSolarPanelsEnabled = true;
 
         private static IEnumerable<CodeInstruction> TranspilerLogic(IEnumerable<CodeInstruction> instructions)
@@ -38,126 +34,26 @@ namespace ToggleNotifications
                 }
             }
 
-            // Add the isPauseVisible check here
-            codes.Insert(0, new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(isPauseVisible))));
-            codes.Insert(1, new CodeInstruction(OpCodes.Brfalse_S, codes[codes.Count - 1].labels[0]));
-
-            // Add the isPausePublish check here
-            codes.Insert(0, new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(isPausePublish))));
-            codes.Insert(1, new CodeInstruction(OpCodes.Brfalse_S, codes[codes.Count - 1].labels[0]));
-
             return codes.AsEnumerable();
         }
 
         [HarmonyPatch(typeof(NotificationEvents))]
-        internal static class NotificationEventsPatch
+        internal static class GamePausePatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("GamePauseToggledMessage")]
             internal static bool Prefix(GamePauseToggledMessage __instance)
             {
-                if (!isPauseVisible)
+                if (!isGamePaused)
                 {
-                    // Disable the notification from showing by returning false
+
                     return false;
                 }
                 else
                 {
-                    // Update the IsPaused field with the game pause state and isPausePublish
-                    __instance.IsPaused = isGamePaused && isPausePublish && isOnPaused;
-                    return true; // Continue with the original method
+                    __instance.IsPaused = isGamePaused;
+                    return true; 
                 }
-            }
-        }
-
-        [HarmonyPatch(typeof(MessageCenter))]
-        internal static class MessageCenterPublishPatch
-        {
-            [HarmonyTranspiler]
-            [HarmonyPatch(nameof(MessageCenter.Publish), typeof(System.Type), typeof(MessageCenterMessage))]
-            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
-            {
-                var originalMethod = AccessTools.Method(typeof(PauseStateChangedMessage), "get_Paused");
-
-                var codes = new List<CodeInstruction>(instructions);
-
-                for (int i = 0; i < codes.Count; i++)
-                {
-                    if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand == originalMethod)
-                    {
-                        codes[i] = new CodeInstruction(OpCodes.Nop);
-                        codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldc_I4_1));
-                        codes.Insert(i + 2, new CodeInstruction(OpCodes.Ret));
-                    }
-                }
-
-                // Find the return instruction
-                var returnIndex = codes.FindLastIndex(code => code.opcode == OpCodes.Ret);
-                if (returnIndex >= 0)
-                {
-                    // Insert the isPausePublish check before the return instruction
-                    var label = generator.DefineLabel();
-                    codes.Insert(returnIndex, new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(isPausePublish))));
-                    codes.Insert(returnIndex + 1, new CodeInstruction(OpCodes.Brfalse_S, label));
-                    codes.Insert(returnIndex + 2, new CodeInstruction(OpCodes.Ret));
-                    codes[returnIndex + 3].labels.Add(label);
-                }
-
-                Logger.LogInfo("Transpiler Loaded for MessageCenter.Publish");
-
-                // Insert a default return instruction in case the code flow reaches the end of the method
-                codes.Add(new CodeInstruction(OpCodes.Ldc_I4_0));
-                codes.Add(new CodeInstruction(OpCodes.Ret));
-
-                return codes.AsEnumerable();
-            }
-        }
-        internal static class OnGamePauseToggledPatch
-        {
-            [HarmonyTranspiler]
-            [HarmonyPatch(typeof(NotificationUI), "OnGamePauseToggled")]
-            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-            {
-                var codes = new List<CodeInstruction>(instructions);
-
-                var originalMethod = AccessTools.PropertyGetter(typeof(GamePauseToggledMessage), "IsPaused");
-
-                for (int i = 0; i < codes.Count; i++)
-                {
-                    if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand == originalMethod)
-                    {
-                        codes[i] = new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(AssistantToTheAssistantPatchManager.isOnPaused)));
-                    }
-                }
-
-                AssistantToTheAssistantPatchManager.Logger.LogInfo("Transpiler Loaded for OnGamePauseToggled");
-
-                return codes.AsEnumerable();
-            }
-        }
-
-        internal static class SetPauseVisiblePatch
-        {
-            [HarmonyTranspiler]
-            [HarmonyPatch(typeof(UIManager), "SetPauseVisible")]
-            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-            {
-                var originalMethod = AccessTools.Method(typeof(PauseStateChangedMessage), "get_IsPaused");
-
-                var codes = new List<CodeInstruction>(instructions);
-
-                for (int i = 0; i < codes.Count; i++)
-                {
-                    if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand == originalMethod)
-                    {
-                        codes[i] = new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(isPauseVisible)));
-                        codes.Insert(i + 1, new CodeInstruction(OpCodes.Brfalse_S, codes[codes.Count - 1].labels[0]));
-                    }
-                }
-
-                AssistantToTheAssistantPatchManager.Logger.LogInfo("Transpiler Loaded for SetPauseVisible");
-
-                return codes.AsEnumerable();
             }
         }
 
