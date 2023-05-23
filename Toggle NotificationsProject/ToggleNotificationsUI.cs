@@ -1,5 +1,6 @@
 using KSP.Messages;
 using KSP.Sim.Definitions;
+using ToggleNotifications.Controller;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
@@ -7,38 +8,54 @@ namespace ToggleNotifications
 {
     internal class ToggleNotificationsUI : MonoBehaviour
     {
-        internal static ToggleNotificationsUI instance;
-        internal static NotificationToggle toggleNotification;
         internal ToggleNotificationsPlugin mainPlugin;
+        internal static ToggleNotificationsUI instance;
         private MessageCenter messageCenter;
-        private SubscriptionHandle gamePauseHandle;
         private PartBehaviourModule partBehaviourModule;
         private SubscriptionHandle _onActionActivateMessageHandle;
+        private Dictionary<NotificationType, bool> notificationStates = new Dictionary<NotificationType, bool>();
+        private NotificationToggle notificationToggle;
+
+        //controllers
+        private ButtonController buttonController;
+        private BaseController baseController;
+
+        //pages
+        private GamePauseButton gamePauseButton;
+        private GearPage gearPage;
 
         //buttons
-        internal int selectedGamePause = 1;
         internal int selectedSolarIneffective = 1;
         internal int selectedButton3 = 1;
         internal int selectedButton4 = 1;
+        internal int selectedButton5 = 1;
+        internal int selectedButton6 = 1;
 
         //toggles
-        internal bool isToggled;
-        internal bool isToggled2;
+        internal bool pauseToggled;
+        internal bool toggledSolar;
         internal bool isToggled3;
         internal bool isToggled4;
+        internal bool isToggled5;
+        internal bool isToggled6;
         internal ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
-            if (mainPlugin != null)
-            {
-                instance = this;
-                this.mainPlugin = mainPlugin;
-                this.messageCenter = messageCenter;
-            }
-            else
-            {
-                Debug.LogError("ToggleNotificationsPlugin instance is null. ToggleNotificationUI");
-            }
+            instance = this;
+            this.mainPlugin = mainPlugin;
+            this.messageCenter = messageCenter;
+            gearPage = new GearPage();
+
+            // Initialize variables
+            partBehaviourModule = FindObjectOfType<PartBehaviourModule>();
+
+            // Initialize NotificationToggle
+            notificationToggle = new NotificationToggle(mainPlugin, notificationStates);
+            gamePauseButton = new GamePauseButton(mainPlugin, messageCenter);
+
+            bool toggledSolar = selectedSolarIneffective == 0;
+            notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, toggledSolar);
         }
+
         private void Start()
         {
             messageCenter = FindObjectOfType<MessageCenter>();
@@ -46,101 +63,10 @@ namespace ToggleNotifications
             if (messageCenter == null)
             {
                 Debug.LogError("messageCenter is null");
+                return;
             }
-        }
 
-        //Pause Game Notification
-        private void GamePauseToggledMessageCallback(MessageCenterMessage msg)
-        {
-            GamePauseToggledMessage pauseToggledMessage = msg as GamePauseToggledMessage;
-            if (pauseToggledMessage != null)
-            {
-                // Update the notification display based on the selectedGamePause value
-                if (selectedGamePause == 1)
-                {
-                    mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
-                }
-                else if (selectedGamePause == 0)
-                {
-                    mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
-                }
-            }
-        }
-        private void ButtonToggle1(int toggleValue1)
-        {
-            if (mainPlugin == null || mainPlugin.notificationToggle == null) { Debug.LogError("mainPlugin or mainPlugin.notificationToggle is null ButtonToggle1"); return; }
-
-            if (messageCenter == null) { Debug.LogError("messageCenter is null. buttonToggle1."); return; }
-
-            if (selectedGamePause == toggleValue1) { return; }
-
-            selectedGamePause = toggleValue1;
-
-            if (selectedGamePause == 1)
-            {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
-                AssistantToTheAssistantPatchManager.isGamePaused = false;
-                AssistantToTheAssistantPatchManager.isPauseVisible = false;
-                AssistantToTheAssistantPatchManager.isPausePublish = false;
-                AssistantToTheAssistantPatchManager.isOnPaused = false;
-
-                // Set isToggled to true
-                isToggled = true;
-
-                // Create and publish the GamePauseToggledMessage with IsPaused set to true
-                GamePauseToggledMessage message = new GamePauseToggledMessage();
-                message.IsPaused = true;
-                messageCenter.Publish<GamePauseToggledMessage>(message);
-
-                // Subscribe to the GamePauseToggledMessage and define the callback logic
-                gamePauseHandle = messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
-                //pauseStateChangedHandle = messageCenter.Subscribe<PauseStateChangedMessage>(PauseStateChangedMessageCallback);
-
-                // Set the GUI style for TNBaseStyle.Toggle
-                TNBaseStyle.Toggle.normal.textColor = ColorTools.ParseColor("#C0C1E2");
-                TNBaseStyle.ToggleError.normal.textColor = ColorTools.ParseColor("#C0E2DC");
-
-
-                Debug.Log($"Toggle 1 enabled");
-
-                Debug.Log($"Initial isToggled value: {isToggled}");
-                Debug.Log($"Initial isGamePaused value: {AssistantToTheAssistantPatchManager.isGamePaused}");
-                Debug.Log($"Initial isPauseVisible value: {AssistantToTheAssistantPatchManager.isPauseVisible}");
-                Debug.Log($"Initial isPausePublish value: {AssistantToTheAssistantPatchManager.isPausePublish}");
-                Debug.Log($"Initial isOnPaused value: {AssistantToTheAssistantPatchManager.isOnPaused}");
-            }
-            else if (selectedGamePause == 0)
-            {
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
-                AssistantToTheAssistantPatchManager.isGamePaused = true;
-                AssistantToTheAssistantPatchManager.isPauseVisible = true;
-                AssistantToTheAssistantPatchManager.isPausePublish = true;
-                AssistantToTheAssistantPatchManager.isOnPaused = true;
-
-                isToggled = false;
-
-                // Create and publish the GamePauseToggledMessage with IsPaused set to false
-                GamePauseToggledMessage message = new GamePauseToggledMessage();
-                message.IsPaused = false;
-                messageCenter.Publish<GamePauseToggledMessage>(message);
-
-                // Subscribe to the GamePauseToggledMessage and define the callback logic
-                gamePauseHandle = messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
-                //pauseStateChangedHandle = messageCenter.Subscribe<PauseStateChangedMessage>(PauseStateChangedMessageCallback);
-
-                // Set the GUI style for TNBaseStyle.ToggleError
-                TNBaseStyle.Toggle.normal.textColor = ColorTools.ParseColor("#C0E2DC");
-                TNBaseStyle.ToggleError.normal.textColor = Color.red;
-
-
-                Debug.Log($"Toggle 1 disabled");
-
-                Debug.Log($"Initial isToggled value: {isToggled}");
-                Debug.Log($"Initial isGamePaused value: {AssistantToTheAssistantPatchManager.isGamePaused}");
-                Debug.Log($"Initial isPauseVisible value: {AssistantToTheAssistantPatchManager.isPauseVisible}");
-                Debug.Log($"Initial isPausePublish value: {AssistantToTheAssistantPatchManager.isPausePublish}");
-                Debug.Log($"Initial isOnPaused value: {AssistantToTheAssistantPatchManager.isOnPaused}");
-            }
+            messageCenter.PersistentSubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
         }
 
         //Solar Panel Notification
@@ -149,18 +75,20 @@ namespace ToggleNotifications
             SolarPanelsIneffectiveMessage solarToggle = msg as SolarPanelsIneffectiveMessage;
             if (solarToggle != null)
             {
-                // Update the notification display based on the selectedGamePause value
                 if (selectedSolarIneffective == 1)
                 {
                     mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
+                    AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = false;
                 }
                 else if (selectedSolarIneffective == 0)
                 {
                     mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
+                    AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = true;
                 }
             }
         }
-        private void ButtonToggle2(int toggleValue2)
+
+        private void ButtonToggle2(int toggledSolar)
         {
             if (mainPlugin == null || mainPlugin.notificationToggle == null)
             {
@@ -174,9 +102,9 @@ namespace ToggleNotifications
                 return;
             }
 
-            if (selectedSolarIneffective == toggleValue2) { return; }
+            if (selectedSolarIneffective == toggledSolar) { return; }
 
-            selectedSolarIneffective = toggleValue2;
+            selectedSolarIneffective = toggledSolar;
 
             if (selectedSolarIneffective == 1)
             {
@@ -185,7 +113,7 @@ namespace ToggleNotifications
                 messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
 
                 Debug.Log($"Toggle 2 disabled");
-                Debug.Log($"Initial isToggled2 value: {isToggled2}");
+                Debug.Log($"Initial isToggled2 value: {toggledSolar}");
                 Debug.Log($"Initial isSolarPanelsEnabled value: {AssistantToTheAssistantPatchManager.isSolarPanelsEnabled}");
             }
             else if (selectedSolarIneffective == 0)
@@ -208,36 +136,10 @@ namespace ToggleNotifications
                 TNBaseStyle.ToggleError.normal.textColor = ColorTools.ParseColor("#C0E2DC");
 
                 Debug.Log($"Toggle 2 enabled");
-                Debug.Log($"Initial isToggled2 value: {isToggled2}");
+                Debug.Log($"Initial isToggled2 value: {toggledSolar}");
                 Debug.Log($"Initial isSolarPanelsEnabled value: {AssistantToTheAssistantPatchManager.isSolarPanelsEnabled}");
             }
-        }
-        private void ButtonToggle3(int toggleValue3)
-        {
-            selectedButton3 = toggleValue3;
-
-            if (selectedButton3 == 1)
-            {
-                // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
-            }
-            else if (selectedButton3 == 0)
-            {
-                // mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
-            }
-        }
-        private void ButtonToggle4(int toggleValue4)
-        {
-            selectedButton4 = toggleValue4;
-
-            if (selectedButton4 == 1)
-            {
-                //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, true);
-            }
-            else if (selectedButton4 == 0)
-            {
-                //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, false);
-            }
-        }
+        } 
         internal void FillWindow(int windowID)
         {
             // Initialize the position of the buttons
@@ -259,7 +161,8 @@ namespace ToggleNotifications
 
             if (TopButtons.Button(TNBaseStyle.Gear))
             {
-                // Handle the gear button action here if needed
+                gearPage.UIVisible = !gearPage.UIVisible;
+                Debug.Log("Gear Button Status: " + gearPage.UIVisible);
             }
 
             GUILayout.EndHorizontal();
@@ -274,21 +177,9 @@ namespace ToggleNotifications
             // Group 2: Toggle Buttons
             GUILayout.BeginVertical(GUILayout.Height(60));
 
+            gamePauseButton.RenderToggle();
+
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
-
-            Rect gamePauseToggleRect = new Rect(3, 56, buttonWidth, 20);
-
-            GUIStyle toggleStyle = isToggled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
-            Color textColor = isToggled ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-
-            bool gamePauseToggle = GUI.Toggle(gamePauseToggleRect, isToggled, "Game Pause", toggleStyle);
-            toggleStyle.normal.textColor = textColor;
-
-            if (gamePauseToggle != isToggled)
-            {
-                isToggled = gamePauseToggle;
-                ButtonToggle1(isToggled ? 1 : 0);
-            }
 
             bool solarToggle = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), AssistantToTheAssistantPatchManager.isSolarPanelsEnabled, "Solar Panel Ineffective",
                 AssistantToTheAssistantPatchManager.isSolarPanelsEnabled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError);
@@ -325,9 +216,31 @@ namespace ToggleNotifications
                 selectedButton4 = 0;
             }
 
-            GUILayout.EndVertical();
+            bool radioButton5 = GUI.Toggle(new Rect(3, 213, buttonWidth, 20), selectedButton5 == 1, "Out of Comms Range (soon.tm)", selectedButton5 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.normal.textColor = selectedButton5 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedButton5 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            if (radioButton5)
+            {
+                selectedButton5 = 1;
+            }
+            else
+            {
+                selectedButton5 = 0;
+            }
 
-            GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
+            bool radioButton6 = GUI.Toggle(new Rect(3, 253, buttonWidth, 20), selectedButton6 == 1, "Dating Sim (soon.tm)", selectedButton6 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            TNBaseStyle.Toggle.normal.textColor = selectedButton6 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = selectedButton6 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
+            if (radioButton6)
+            {
+                selectedButton6 = 1;
+            }
+            else
+            {
+                selectedButton6 = 0;
+            }
+
+            GUILayout.EndVertical();
 
             // Group 3: Version Number
             GUIStyle nameLabelStyle = new GUIStyle()
@@ -341,7 +254,7 @@ namespace ToggleNotifications
 
             GUILayout.FlexibleSpace();
 
-            GUILayout.Label("v0.2.2", nameLabelStyle);
+            GUILayout.Label("v0.2.3", nameLabelStyle);
 
             GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
 

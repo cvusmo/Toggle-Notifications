@@ -1,12 +1,11 @@
-// Purpose of the NotificationToggle class is to control and display options for when a notification type should occur.
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
     public class NotificationToggle
     {
-        private readonly ToggleNotificationsPlugin mainPlugin;
-        private Dictionary<NotificationType, bool> notificationStates;
+        internal readonly ToggleNotificationsPlugin mainPlugin;
+        internal Dictionary<NotificationType, bool> notificationStates;
         public long SentOn { get; internal set; }
         internal List<string> NotificationList { get; } = new List<string>();
         internal NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
@@ -38,8 +37,6 @@ namespace ToggleNotifications.TNTools.UI
 
             if (!flag)
             {
-                // Perform additional logic to disable the notification type
-                // For example, you can remove it from the list of active notifications or handle any other necessary actions.
                 if (NotificationList.Contains(notificationType.ToString()))
                 {
                     NotificationList.Remove(notificationType.ToString());
