@@ -18,6 +18,8 @@ namespace ToggleNotifications
         internal static bool isPausePublish = true;
         internal static bool isOnPaused = true;
 
+        internal static bool isSolarPanelsEnabled = true;
+
         private static IEnumerable<CodeInstruction> TranspilerLogic(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
@@ -140,17 +142,16 @@ namespace ToggleNotifications
             [HarmonyPatch(typeof(UIManager), "SetPauseVisible")]
             internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                var codes = new List<CodeInstruction>(instructions);
+                var originalMethod = AccessTools.Method(typeof(PauseStateChangedMessage), "get_IsPaused");
 
-                var originalMethod = AccessTools.PropertyGetter(typeof(PauseStateChangedMessage), "IsPaused");
+                var codes = new List<CodeInstruction>(instructions);
 
                 for (int i = 0; i < codes.Count; i++)
                 {
                     if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand == originalMethod)
                     {
-                        codes[i] = new CodeInstruction(OpCodes.Nop);
-                        codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldc_I4_1));
-                        codes.Insert(i + 2, new CodeInstruction(OpCodes.Ret));
+                        codes[i] = new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(isPauseVisible)));
+                        codes.Insert(i + 1, new CodeInstruction(OpCodes.Brfalse_S, codes[codes.Count - 1].labels[0]));
                     }
                 }
 
@@ -168,8 +169,21 @@ namespace ToggleNotifications
             [HarmonyPatch("SolarPanelsIneffectiveMessage")]
             internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
+                var codes = new List<CodeInstruction>(instructions);
+
+                for (int i = 0; i < codes.Count; i++)
+                {
+                    if (codes[i].opcode == OpCodes.Ldc_I4_1)
+                    {
+                        codes[i].opcode = OpCodes.Ldsfld;
+                        codes[i].operand = AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(AssistantToTheAssistantPatchManager.isSolarPanelsEnabled));
+                        codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldc_I4_0));
+                        codes.Insert(i + 2, new CodeInstruction(OpCodes.Ceq));
+                    }
+                }
+
                 Logger.LogInfo("Transpiler Loaded for SolarPanelsIneffectiveMessage in NotificationEvents");
-                return TranspilerLogic(instructions);
+                return TranspilerLogic(codes.AsEnumerable());
             }
         }
         internal static void ApplyPatches(NotificationToggle notificationToggle)

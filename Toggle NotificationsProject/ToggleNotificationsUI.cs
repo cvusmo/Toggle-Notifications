@@ -1,4 +1,5 @@
 using KSP.Messages;
+using KSP.Sim.Definitions;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
@@ -11,12 +12,17 @@ namespace ToggleNotifications
         internal ToggleNotificationsPlugin mainPlugin;
         private MessageCenter messageCenter;
         private SubscriptionHandle gamePauseHandle;
+        private PartBehaviourModule partBehaviourModule;
+        private SubscriptionHandle _onActionActivateMessageHandle;
+
         //buttons
-        private int selectedButton1 = 1;
-        private int selectedButton2 = 1;
-        private int selectedButton3 = 1;
-        private int selectedButton4 = 1;
-        private bool isToggled;
+        internal int selectedButton1 = 1;
+        internal int selectedButton2 = 1;
+        internal int selectedButton3 = 1;
+        internal int selectedButton4 = 1;
+
+        internal bool isToggled;
+        internal bool isToggled2;
         internal ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
             if (mainPlugin != null)
@@ -39,15 +45,14 @@ namespace ToggleNotifications
                 Debug.LogError("messageCenter is null");
             }
         }
+
+        //Pause Game Notification
         private void GamePauseToggledMessageCallback(MessageCenterMessage msg)
         {
             GamePauseToggledMessage pauseToggledMessage = msg as GamePauseToggledMessage;
             if (pauseToggledMessage != null)
             {
-                // Set isToggled based on ButtonToggle1 value
-                isToggled = (selectedButton1 == 0);
-
-                // Update the notification display based on the isToggled value
+                // Update the notification display based on the selectedButton1 value
                 if (selectedButton1 == 1)
                 {
                     mainPlugin.notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
@@ -58,26 +63,13 @@ namespace ToggleNotifications
                 }
             }
         }
-
         private void ButtonToggle1(int toggleValue1)
         {
-            if (mainPlugin == null || mainPlugin.notificationToggle == null)
-            {
-                Debug.LogError("mainPlugin or mainPlugin.notificationToggle is null");
-                return;
-            }
+            if (mainPlugin == null || mainPlugin.notificationToggle == null) { Debug.LogError("mainPlugin or mainPlugin.notificationToggle is null ButtonToggle1"); return; }
 
-            if (messageCenter == null)
-            {
-                Debug.LogError("messageCenter is null");
-                return;
-            }
+            if (messageCenter == null) { Debug.LogError("messageCenter is null. buttonToggle1."); return; }
 
-            if (selectedButton1 == toggleValue1)
-            {
-                // The selected button value hasn't changed, so no further action is required
-                return;
-            }
+            if (selectedButton1 == toggleValue1) { return; }
 
             selectedButton1 = toggleValue1;
 
@@ -122,7 +114,6 @@ namespace ToggleNotifications
                 AssistantToTheAssistantPatchManager.isPausePublish = true;
                 AssistantToTheAssistantPatchManager.isOnPaused = true;
 
-                // Set isToggled to false
                 isToggled = false;
 
                 // Create and publish the GamePauseToggledMessage with IsPaused set to false
@@ -148,20 +139,76 @@ namespace ToggleNotifications
                 Debug.Log($"Initial isOnPaused value: {AssistantToTheAssistantPatchManager.isOnPaused}");
             }
         }
+
+        //Solar Panel Notification
+        private void SolarPanelsIneffectiveMessageCallback(MessageCenterMessage msg)
+        {
+            SolarPanelsIneffectiveMessage solarToggle = msg as SolarPanelsIneffectiveMessage;
+            if (solarToggle != null)
+            {
+                // Update the notification display based on the selectedButton1 value
+                if (selectedButton2 == 1)
+                {
+                    mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
+                }
+                else if (selectedButton2 == 0)
+                {
+                    mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
+                }
+            }
+        }
         private void ButtonToggle2(int toggleValue2)
         {
+            if (mainPlugin == null || mainPlugin.notificationToggle == null)
+            {
+                Debug.LogError("mainPlugin or mainPlugin.notificationToggle is null ButtonToggle2");
+                return;
+            }
+
+            if (messageCenter == null)
+            {
+                Debug.LogError("messageCenter is null. ButtonToggle2.");
+                return;
+            }
+
+            if (selectedButton2 == toggleValue2) { return; }
+
             selectedButton2 = toggleValue2;
 
             if (selectedButton2 == 1)
             {
-                //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, true);
+                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
+                AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = false;
+                messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
+
+                Debug.Log($"Toggle 2 disabled");
+                Debug.Log($"Initial isToggled2 value: {isToggled2}");
+                Debug.Log($"Initial isSolarPanelsEnabled value: {AssistantToTheAssistantPatchManager.isSolarPanelsEnabled}");
             }
             else if (selectedButton2 == 0)
             {
-                //mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
+                AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = true;
+
+                // Unsubscribe from the SolarPanelsIneffectiveMessage
+                messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
+
+                // Create and publish the SolarPanelsIneffectiveMessage
+                SolarPanelsIneffectiveMessage message = new SolarPanelsIneffectiveMessage();
+                messageCenter.Publish<SolarPanelsIneffectiveMessage>(message);
+
+                // Subscribe to the SolarPanelsIneffectiveMessage
+                messageCenter.PersistentSubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
+                _onActionActivateMessageHandle = messageCenter.Subscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
+
+                // Set the GUI style for TNBaseStyle.Toggle
+                TNBaseStyle.Toggle.normal.textColor = ColorTools.ParseColor("#C0C1E2");
+                TNBaseStyle.ToggleError.normal.textColor = ColorTools.ParseColor("#C0E2DC");
+
+                Debug.Log($"Toggle 2 enabled");
+                Debug.Log($"Initial isToggled2 value: {isToggled2}");
+                Debug.Log($"Initial isSolarPanelsEnabled value: {AssistantToTheAssistantPatchManager.isSolarPanelsEnabled}");
             }
         }
-
         private void ButtonToggle3(int toggleValue3)
         {
             selectedButton3 = toggleValue3;
@@ -224,7 +271,7 @@ namespace ToggleNotifications
             // Group 2: Toggle Buttons
             GUILayout.BeginVertical(GUILayout.Height(60));
 
-            int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 6); // Subtract 3 on each side for padding
+            int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
 
             Rect gamePauseToggleRect = new Rect(3, 56, buttonWidth, 20);
 
@@ -240,16 +287,15 @@ namespace ToggleNotifications
                 ButtonToggle1(isToggled ? 1 : 0);
             }
 
-            bool radioButton2 = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), selectedButton2 == 1, "Solar Panel Ineffective (soon.tm)", selectedButton2 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedButton2 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedButton2 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
-            if (radioButton2)
+            bool solarToggle = GUI.Toggle(new Rect(3, 96, buttonWidth, 20), AssistantToTheAssistantPatchManager.isSolarPanelsEnabled, "Solar Panel Ineffective (soon.tm)",
+                AssistantToTheAssistantPatchManager.isSolarPanelsEnabled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError);
+            TNBaseStyle.Toggle.normal.textColor = AssistantToTheAssistantPatchManager.isSolarPanelsEnabled ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            TNBaseStyle.ToggleError.normal.textColor = !AssistantToTheAssistantPatchManager.isSolarPanelsEnabled ? Color.red : ColorTools.ParseColor("#C0E2DC");
+
+            if (solarToggle != AssistantToTheAssistantPatchManager.isSolarPanelsEnabled)
             {
-                selectedButton2 = 1;
-            }
-            else
-            {
-                selectedButton2 = 0;
+                AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = solarToggle;
+                ButtonToggle2(AssistantToTheAssistantPatchManager.isSolarPanelsEnabled ? 1 : 0);
             }
 
             bool radioButton3 = GUI.Toggle(new Rect(3, 133, buttonWidth, 20), selectedButton3 == 1, "Out of Fuel (soon.tm)", selectedButton3 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
