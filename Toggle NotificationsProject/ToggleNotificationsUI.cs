@@ -38,7 +38,7 @@ namespace ToggleNotifications
         internal bool isToggled4;
         internal bool isToggled5;
         internal bool isToggled6;
-        internal ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
+        public ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
             instance = this;
             this.mainPlugin = mainPlugin;
@@ -50,10 +50,12 @@ namespace ToggleNotifications
 
             // Initialize NotificationToggle
             notificationToggle = new NotificationToggle(mainPlugin, notificationStates);
-            gamePauseButton = new GamePauseButton(mainPlugin, messageCenter);
 
             bool toggledSolar = selectedSolarIneffective == 0;
             notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, toggledSolar);
+
+            // Create the GamePauseButton with the notificationToggle instance
+            gamePauseButton = new GamePauseButton(mainPlugin, messageCenter, notificationToggle);
         }
 
         private void Start()

@@ -2,6 +2,7 @@
 using HarmonyLib;
 using KSP.Game;
 using KSP.Messages;
+using System.Reflection;
 using System.Reflection.Emit;
 using ToggleNotifications.TNTools.UI;
 
@@ -12,9 +13,11 @@ namespace ToggleNotifications
         internal static ManualLogSource Logger { get; set; }
         internal static NotificationToggle NotificationToggle { get; set; }
 
-        //patch states
+        // Patch states
         internal static bool isGamePaused = true;
         internal static bool isSolarPanelsEnabled = true;
+
+        internal static NotificationToggle ToggleInstance { get; private set; }
 
         private static IEnumerable<CodeInstruction> TranspilerLogic(IEnumerable<CodeInstruction> instructions)
         {
@@ -22,38 +25,29 @@ namespace ToggleNotifications
 
             for (int i = 0; i < codes.Count; i++)
             {
-                // Existing code...
-
-                if (codes[i].opcode == OpCodes.Ldc_I4_1)
+                if (codes[i].opcode == OpCodes.Brfalse_S && codes[i + 1].opcode == OpCodes.Ldarg_0 && codes[i + 2].opcode == OpCodes.Ldfld && codes[i + 2].operand is FieldInfo field && field.Name == "_isGamePaused")
                 {
-                    // Replace the true value with the inverted local variable
-                    codes[i].opcode = OpCodes.Ldsfld;
-                    codes[i].operand = AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(isGamePaused));
-                    codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldc_I4_0));
-                    codes.Insert(i + 2, new CodeInstruction(OpCodes.Ceq));
+                    codes[i] = new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AssistantToTheAssistantPatchManager), nameof(isGamePaused)));
+                    codes[i + 1] = new CodeInstruction(OpCodes.Brtrue_S, codes[i + 1].operand);
                 }
             }
 
-            return codes.AsEnumerable();
+            return codes;
         }
 
         [HarmonyPatch(typeof(NotificationEvents))]
         internal static class GamePausePatch
         {
-            [HarmonyPrefix]
+            [HarmonyTranspiler]
             [HarmonyPatch("GamePauseToggledMessage")]
-            internal static bool Prefix(GamePauseToggledMessage __instance)
+            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                if (!isGamePaused)
+                if (AssistantToTheAssistantPatchManager.isGamePaused)
                 {
+                    return TranspilerLogic(instructions);
+                }
 
-                    return false;
-                }
-                else
-                {
-                    __instance.IsPaused = isGamePaused;
-                    return true; 
-                }
+                return instructions;
             }
         }
 
@@ -84,6 +78,7 @@ namespace ToggleNotifications
         }
         internal static void ApplyPatches(NotificationToggle notificationToggle)
         {
+            ToggleInstance = notificationToggle;
             Harmony harmony = new Harmony("com.github.cvusmo.Toggle-Notifications");
             Logger = BepInEx.Logging.Logger.CreateLogSource("AssistantToTheAssistantPatchManager");
             harmony.PatchAll(typeof(AssistantToTheAssistantPatchManager).Assembly);

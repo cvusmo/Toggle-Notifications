@@ -8,6 +8,7 @@ namespace ToggleNotifications.TNTools.UI
         internal Dictionary<NotificationType, bool> notificationStates;
         public long SentOn { get; internal set; }
         internal List<string> NotificationList { get; } = new List<string>();
+
         internal NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
         {
             this.mainPlugin = mainPlugin;
@@ -16,22 +17,24 @@ namespace ToggleNotifications.TNTools.UI
 
             foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
             {
-                if (notificationType != NotificationType.None)
-                {
-                    NotificationList.Add(notificationType.ToString());
-                }
+                NotificationList.Add(notificationType.ToString());
             }
         }
+
         internal bool GetNotificationState(NotificationType notificationType)
         {
             return notificationStates.TryGetValue(notificationType, out bool state) ? state : false;
         }
+
         internal void CheckCurrentState(NotificationType notificationType, bool flag)
         {
-            notificationStates[notificationType] = flag;
+            bool currentFlag = GetNotificationState(notificationType);
 
-            if (!flag)
+            // Only update the state if the button is currently enabled and the user toggles it to disabled
+            if (currentFlag && !flag)
             {
+                notificationStates[notificationType] = false;
+
                 if (NotificationList.Contains(notificationType.ToString()))
                 {
                     NotificationList.Remove(notificationType.ToString());
@@ -46,17 +49,21 @@ namespace ToggleNotifications.TNTools.UI
 
             foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
             {
-                if (notificationType != NotificationType.None)
+                if (notificationType == NotificationType.None)
                 {
-                    bool toggleState = GetNotificationState(notificationType);
-                    bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString());
-                    if (newToggleState != toggleState)
-                    {
-                        notificationStates[notificationType] = newToggleState;
-                    }
+                    continue;
+                }
+
+                bool toggleState = GetNotificationState(notificationType);
+                bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString());
+                if (newToggleState != toggleState)
+                {
+                    notificationStates[notificationType] = newToggleState;
                 }
             }
+
             return true; // Indicate that a change has occurred
         }
+
     }
 }
