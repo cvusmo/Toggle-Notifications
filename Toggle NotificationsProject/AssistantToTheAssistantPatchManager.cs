@@ -76,6 +76,18 @@ namespace ToggleNotifications
                 return TranspilerLogic(codes.AsEnumerable());
             }
         }
+
+        [HarmonyPatch(typeof(GamePauseToggledMessage))]
+        internal static class GamePauseToggledMessagePatch
+        {
+            [HarmonyPostfix]
+            [HarmonyPatch("IsPaused")]
+            internal static void Postfix(ref bool __result)
+            {
+                __result = isGamePaused;
+            }
+        }
+
         internal static void ApplyPatches(NotificationToggle notificationToggle)
         {
             ToggleInstance = notificationToggle;

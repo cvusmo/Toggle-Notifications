@@ -4,14 +4,12 @@ using UnityEngine;
 
 namespace ToggleNotifications
 {
-    internal class GamePauseButton
+    internal class GamePauseButton : MonoBehaviour
     {
         private ToggleNotificationsPlugin mainPlugin;
         private NotificationToggle notificationToggle;
         private MessageCenter messageCenter;
-        private SubscriptionHandle gamePauseHandle;
         private bool pauseToggled;
-        private bool gamePauseNotificationEnabled;
 
         public GamePauseButton(ToggleNotificationsPlugin mainPlugin, MessageCenter messageCenter, NotificationToggle notificationToggle)
         {
@@ -20,23 +18,23 @@ namespace ToggleNotifications
             this.notificationToggle = notificationToggle;
 
             pauseToggled = true;
-            gamePauseNotificationEnabled = true;
 
-            // Subscribe to the GamePauseToggledMessage and define the callback logic
-            gamePauseHandle = messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
+            messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
         }
 
-        public void GamePauseToggledMessageCallback(MessageCenterMessage msg)
+        private void GamePauseToggledMessageCallback(MessageCenterMessage msg)
         {
             GamePauseToggledMessage pauseToggledMessage = msg as GamePauseToggledMessage;
             if (pauseToggledMessage != null)
             {
-                gamePauseNotificationEnabled = pauseToggledMessage.IsPaused;
-                RenderToggle();
+                OnGui();
+
+                // Update the pauseToggled value based on external changes
+                pauseToggled = !pauseToggledMessage.IsPaused;
             }
         }
 
-        public void RenderToggle()
+        public void OnGui()
         {
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
             Rect gamePauseToggleRect = new Rect(3, 56, buttonWidth, 20);
@@ -52,8 +50,28 @@ namespace ToggleNotifications
             {
                 pauseToggled = gamePauseToggle;
 
-                // Update the notification state
-                notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, pauseToggled);
+                if (pauseToggled)
+                {
+                    // Disable the game pause notifications
+                    messageCenter.Unsubscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
+                    notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
+                }
+                else
+                {
+                    // Enable the game pause notifications
+                    messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
+                    notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
+                }
+            }
+            else if (!pauseToggled)
+            {
+                // Apply the ToggleError style if the button is still disabled
+                toggleStyle = TNBaseStyle.ToggleError;
+                toggleStyle.normal.textColor = Color.red;
+
+                // Unsubscribe from the game pause notifications
+                messageCenter.Unsubscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
+                notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
             }
         }
     }

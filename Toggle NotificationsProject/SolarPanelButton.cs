@@ -4,65 +4,63 @@ using UnityEngine;
 
 namespace ToggleNotifications
 {
-    internal class SolarPanelButton
+    internal class SolarPanelButton : MonoBehaviour
     {
         private ToggleNotificationsPlugin mainPlugin;
+        private NotificationToggle notificationToggle;
         private MessageCenter messageCenter;
-        private SubscriptionHandle onActionActivateMessageHandle;
-        private bool isSolarPanelEnabled;
+        private bool solarPanelNotificationEnabled;
+        private int selectedSolarIneffective;
 
-        public SolarPanelButton(ToggleNotificationsPlugin mainPlugin, MessageCenter messageCenter)
+        public SolarPanelButton(ToggleNotificationsPlugin mainPlugin, MessageCenter messageCenter, NotificationToggle notificationToggle)
         {
             this.mainPlugin = mainPlugin;
             this.messageCenter = messageCenter;
-            isSolarPanelEnabled = false;
+            this.notificationToggle = notificationToggle;
 
-            // Subscribe to the SolarPanelsIneffectiveMessage and define the callback logic
-            onActionActivateMessageHandle = messageCenter.Subscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
+            solarPanelNotificationEnabled = true;
+
+            messageCenter.Subscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
         }
 
         private void SolarPanelsIneffectiveMessageCallback(MessageCenterMessage msg)
         {
-           //tbd
+            SolarPanelsIneffectiveMessage solarPanelsIneffective = msg as SolarPanelsIneffectiveMessage;
+            if (solarPanelsIneffective != null)
+            {
+                solarPanelNotificationEnabled = true; // Solar panels have become ineffective.
+                OnGui();
+            }
         }
-
-        public void RenderToggleSolar()
+        public void OnGui()
         {
-            int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
+            int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
             Rect solarPanelToggleRect = new Rect(3, 96, buttonWidth, 20);
 
-            GUIStyle toggleStyle = isSolarPanelEnabled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
-            Color textColor = isSolarPanelEnabled ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
+            GUIStyle toggleStyle = solarPanelNotificationEnabled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
+            Color textColor = solarPanelNotificationEnabled ? ColorTools.ParseColor("#C0C1E2") : Color.red;
 
-            isSolarPanelEnabled = GUI.Toggle(solarPanelToggleRect, isSolarPanelEnabled, "Solar Panel Ineffective", toggleStyle);
             toggleStyle.normal.textColor = textColor;
 
-            if (isSolarPanelEnabled)
+            bool solarPanelToggle = GUI.Toggle(solarPanelToggleRect, solarPanelNotificationEnabled, "Solar Panel Ineffective", toggleStyle);
+
+            if (solarPanelToggle != solarPanelNotificationEnabled)
             {
-                // Solar panels are ineffective
-                mainPlugin.notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, false);
-                AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = false;
-                messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
-            }
-            else
-            {
-                // Solar panels are effective
-                AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = true;
+                if (solarPanelToggle)
+                {
+                    // Enable the solar panel notifications
+                    messageCenter.Subscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
+                }
+                else
+                {
+                    // Disable the solar panel notifications
+                    messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
+                }
 
-                // Unsubscribe from the SolarPanelsIneffectiveMessage
-                messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
-
-                // Create and publish the SolarPanelsIneffectiveMessage
-                SolarPanelsIneffectiveMessage message = new SolarPanelsIneffectiveMessage();
-                messageCenter.Publish<SolarPanelsIneffectiveMessage>(message);
-
-                // Subscribe to the SolarPanelsIneffectiveMessage
-                onActionActivateMessageHandle = messageCenter.Subscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
-
-                // Set the GUI style for TNBaseStyle.Toggle
-                TNBaseStyle.Toggle.normal.textColor = ColorTools.ParseColor("#C0C1E2");
-                TNBaseStyle.ToggleError.normal.textColor = ColorTools.ParseColor("#C0E2DC");
+                solarPanelNotificationEnabled = solarPanelToggle;
+                notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, solarPanelNotificationEnabled);
             }
         }
+
     }
 }
