@@ -123,7 +123,6 @@ namespace ToggleNotifications
             GameState gameState2 = GameState.FlightView;
             if (nullable.GetValueOrDefault() == gameState2 & nullable.HasValue)
                 _isGUIenabled = true;
-            //game.Messages = GameManager.Instance?.Game?.Messages?.Subscribe<DiscoverableMessage>(message =>
 
             if (_isGUIenabled)
             {
@@ -145,7 +144,6 @@ namespace ToggleNotifications
                 );
 
                 saverectpos();
-                //tooltips
                 UIFields.CheckEditor();
             }
         }
