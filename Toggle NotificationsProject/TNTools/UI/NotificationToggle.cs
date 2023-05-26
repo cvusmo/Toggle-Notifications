@@ -43,22 +43,33 @@ namespace ToggleNotifications.TNTools.UI
         }
         internal bool ListGUI()
         {
-            GUI.enabled = true;
-
             GUILayout.Label("Notification Options:");
 
             foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
             {
-                if (notificationType == NotificationType.None)
+                if (!notificationStates.ContainsKey(notificationType))
                 {
                     continue;
                 }
 
                 bool toggleState = GetNotificationState(notificationType);
-                bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString());
+                bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString(), GUILayout.ExpandWidth(false));
+
                 if (newToggleState != toggleState)
                 {
                     notificationStates[notificationType] = newToggleState;
+
+                    // Update the notification state in AssistantToTheAssistantPatchManager
+                    if (notificationType == NotificationType.GamePauseToggledMessage)
+                    {
+                        // Call the method to enable or disable the GamePauseToggledMessage notification
+                        mainPlugin.EnableGamePauseNotification(newToggleState);
+                    }
+                    else if (notificationType == NotificationType.SolarPanelsIneffectiveMessage)
+                    {
+                        // Call the method to enable or disable the SolarPanelsIneffectiveMessage notification
+                        mainPlugin.EnableSolarPanelsNotification(newToggleState);
+                    }
                 }
             }
 

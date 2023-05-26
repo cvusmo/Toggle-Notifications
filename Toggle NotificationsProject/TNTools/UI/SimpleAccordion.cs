@@ -7,7 +7,7 @@ namespace ToggleNotifications.TNTools.UI
         public List<Chapter> Chapters = new List<Chapter>();
         public bool SingleChapter;
 
-        public void OnGui()
+        public void OnGUI()
         {
             GUILayout.BeginVertical();
             for (int index1 = 0; index1 < Chapters.Count; ++index1)

@@ -10,7 +10,6 @@ namespace ToggleNotifications
         private NotificationToggle notificationToggle;
         private MessageCenter messageCenter;
         private bool solarPanelNotificationEnabled;
-        private int selectedSolarIneffective;
 
         public SolarPanelButton(ToggleNotificationsPlugin mainPlugin, MessageCenter messageCenter, NotificationToggle notificationToggle)
         {
@@ -29,10 +28,11 @@ namespace ToggleNotifications
             if (solarPanelsIneffective != null)
             {
                 solarPanelNotificationEnabled = true; // Solar panels have become ineffective.
-                OnGui();
+                //OnGUI(); // Remove this line
             }
         }
-        public void OnGui()
+
+        public void OnGUI()
         {
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
             Rect solarPanelToggleRect = new Rect(3, 96, buttonWidth, 20);
@@ -62,5 +62,9 @@ namespace ToggleNotifications
             }
         }
 
+        private void Update()
+        {
+            OnGUI();
+        }
     }
 }

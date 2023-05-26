@@ -38,6 +38,12 @@ namespace ToggleNotifications
         internal bool isToggled4;
         internal bool isToggled5;
         internal bool isToggled6;
+
+        //options
+        public void SetShowOptions(bool show)
+        {
+            GearPage.showOptions = show;
+        }
         public ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
             instance = this;
@@ -92,9 +98,9 @@ namespace ToggleNotifications
             // Group 2: Toggle Buttons
             GUILayout.BeginVertical(GUILayout.Height(60));
 
-            gamePauseButton.OnGui();
+            gamePauseButton.OnGUI();
 
-            solarPanelButton.OnGui();
+            solarPanelButton.OnGUI();
 
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
 
@@ -164,11 +170,18 @@ namespace ToggleNotifications
 
             GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
 
+            // Check if the gear page is visible and render the notification options
+            if (gearPage.UIVisible)
+            {
+                notificationToggle.ListGUI();
+            }
+
             GUILayout.EndVertical();
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
 
             mainPlugin.saverectpos();
         }
+
     }
 }

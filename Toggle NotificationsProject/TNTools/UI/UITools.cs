@@ -108,5 +108,10 @@ namespace ToggleNotifications.TNTools.UI
         }
 
         public static Vector2 BeginScrollView(Vector2 scrollPos, int height) => GUILayout.BeginScrollView(scrollPos, false, true, GUILayout.MinWidth(250f), GUILayout.Height((float)height));
+
+        internal static object miniToggle(object notificationType, string v1, string v2)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

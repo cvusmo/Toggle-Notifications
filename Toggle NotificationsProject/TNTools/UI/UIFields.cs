@@ -10,7 +10,7 @@ namespace ToggleNotifications.TNTools.UI
         internal static Dictionary<string, string> TempDict = new Dictionary<string, string>();
         internal static List<string> InputFields = new List<string>();
         private static bool InputState = true;
-        internal static ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("KTools.UIFields");
+        internal static ManualLogSource Logger = BepInEx.Logging.Logger.CreateLogSource("TNTools.UIFields");
 
         internal static bool GameInputState
         {
@@ -28,7 +28,6 @@ namespace ToggleNotifications.TNTools.UI
                 UIFields.InputState = value;
             }
         }
-
         internal static void CheckEditor() => UIFields.GameInputState = !UIFields.InputFields.Contains(GUI.GetNameOfFocusedControl());
 
         internal static double DoubleField(
