@@ -39,28 +39,24 @@ namespace ToggleNotifications
                 if (pauseToggled)
                 {
                     // Disable the game pause notifications
+                    AssistantToTheAssistantPatchManager.isPauseVisible = true;
+                    AssistantToTheAssistantPatchManager.isGamePaused = true;
 
                     notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
                 }
                 else
                 {
                     // Enable the game pause notifications
+                    AssistantToTheAssistantPatchManager.isPauseVisible = false;
+                    AssistantToTheAssistantPatchManager.isGamePaused = false;
 
+                    toggleStyle = TNBaseStyle.ToggleError;
+                    toggleStyle.normal.textColor = Color.red;
                     notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
                 }
             }
-            else if (!pauseToggled)
-            {
-                // Apply the ToggleError style if the button is still disabled
-                toggleStyle = TNBaseStyle.ToggleError;
-                toggleStyle.normal.textColor = Color.red;
-
-                // Unsubscribe from the game pause notifications
-
-                notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
-            }
+            notificationToggle.ListGUI();
         }
-
         internal void Update()
         {
             OnGUI();

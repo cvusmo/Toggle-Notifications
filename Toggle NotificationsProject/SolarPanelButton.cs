@@ -49,17 +49,20 @@ namespace ToggleNotifications
                 if (solarPanelToggle)
                 {
                     // Enable the solar panel notifications
+                    AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = true;
                     messageCenter.Subscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
                 }
                 else
                 {
                     // Disable the solar panel notifications
+                    AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = false;
                     messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
                 }
 
                 solarPanelNotificationEnabled = solarPanelToggle;
                 notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, solarPanelNotificationEnabled);
             }
+            notificationToggle.ListGUI();
         }
 
         private void Update()

@@ -59,22 +59,27 @@ namespace ToggleNotifications.TNTools.UI
                 {
                     notificationStates[notificationType] = newToggleState;
 
-                    // Update the notification state in AssistantToTheAssistantPatchManager
                     if (notificationType == NotificationType.GamePauseToggledMessage)
                     {
-                        // Call the method to enable or disable the GamePauseToggledMessage notification
-                        mainPlugin.EnableGamePauseNotification(newToggleState);
+                        AssistantToTheAssistantPatchManager.isPauseVisible = true;
+                    }
+                    else if (notificationType == NotificationType.GamePauseToggledMessage)
+                    {
+                        AssistantToTheAssistantPatchManager.isPauseVisible = false;
+                    }
+                }
+                    else if (notificationType == NotificationType.SolarPanelsIneffectiveMessage)
+                    {
+                        AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = true;
                     }
                     else if (notificationType == NotificationType.SolarPanelsIneffectiveMessage)
                     {
-                        // Call the method to enable or disable the SolarPanelsIneffectiveMessage notification
-                        mainPlugin.EnableSolarPanelsNotification(newToggleState);
+                        AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = false;
                     }
                 }
-            }
-
             return true; // Indicate that a change has occurred
         }
+
 
     }
 }

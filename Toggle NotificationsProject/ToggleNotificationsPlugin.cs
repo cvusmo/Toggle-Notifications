@@ -97,16 +97,6 @@ namespace ToggleNotifications
             _isGUIenabled = toggle;
             GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(_isGUIenabled);
         }
-
-        internal void EnableGamePauseNotification(bool enable)
-        {
-            AssistantToTheAssistantPatchManager.isGamePaused = enable;
-        }
-
-        internal void EnableSolarPanelsNotification(bool enable)
-        {
-            AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = enable;
-        }
         internal void Update()
         {
             if (Input.GetKey(KeyCode.RightAlt) && Input.GetKeyDown(KeyCode.P))
