@@ -29,6 +29,7 @@ namespace ToggleNotifications
             {
                 // Update the pauseToggled value based on external changes
                 pauseToggled = !pauseToggledMessage.IsPaused;
+                AssistantToTheAssistantPatchManager.isGamePaused = !pauseToggledMessage.IsPaused; // Update the isGamePaused variable
             }
         }
 
