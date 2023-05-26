@@ -31,6 +31,7 @@ namespace ToggleNotifications
         internal GameInstance game;
         internal MessageCenter messageCenter;
         internal VesselComponent _activeVessel;
+        internal GearPage gearPage;
         public ConfigEntry<bool> tnConfig;
         internal bool _interfaceEnabled;
         internal bool _isGUIenabled = false;
@@ -47,6 +48,10 @@ namespace ToggleNotifications
         internal static ToggleNotificationsPlugin Instance { get; private set; }
         NotificationData data = new NotificationData();
         internal new static ManualLogSource Logger { get; set; }
+        private void Awake()
+        {
+            AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
+        }
         public override void OnInitialized()
         {
             TNBaseSettings.Init(SettingsPath);
@@ -78,14 +83,12 @@ namespace ToggleNotifications
             notificationToggle = new NotificationToggle(this, new Dictionary<NotificationType, bool>()
             {
                 { NotificationType.GamePauseToggledMessage, true },
-                { NotificationType.PauseStateChangedMessageToggle, true },
-                { NotificationType.SolarPanelsIneffectiveMessage, false },
+                { NotificationType.SolarPanelsIneffectiveMessage, true },
             });
 
             // configuration
             tnConfig = Config.Bind("Notification Settings", "Toggle Notifications", true, "Toggle Notifications is a mod that allows you to enable or disable notifications");
 
-            AssistantToTheAssistantPatchManager.ApplyPatches(notificationToggle);
         }
 
         internal void ToggleButton(bool toggle, bool isOpen)
@@ -93,6 +96,16 @@ namespace ToggleNotifications
             _interfaceEnabled = isOpen;
             _isGUIenabled = toggle;
             GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(_isGUIenabled);
+        }
+
+        internal void EnableGamePauseNotification(bool enable)
+        {
+            AssistantToTheAssistantPatchManager.isGamePaused = enable;
+        }
+
+        internal void EnableSolarPanelsNotification(bool enable)
+        {
+            AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = enable;
         }
         internal void Update()
         {
@@ -148,6 +161,10 @@ namespace ToggleNotifications
                 saverectpos();
                 //tooltips
                 UIFields.CheckEditor();
+            }
+            else if (gearPage.UIVisible)
+            {
+                GearPage.OnGUI(notificationToggle);
             }
         }
         internal void CloseWindow()

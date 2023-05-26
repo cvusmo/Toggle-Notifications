@@ -1,14 +1,13 @@
 ﻿using UnityEngine;
 
-namespace ToggleNotifications.TNTools.UI
+namespace ToggleNotifications.UI
 {
-    public interface IPageContent
+    internal interface IPageContent
     {
-        string Name { get; }
-        GUIContent Icon { get; }
-        bool IsRunning { get; }
-        bool IsActive { get; }
-        bool UIVisible { get; set; }
-        void OnGUI();
+        internal string Name { get; }
+        internal bool IsRunning { get; }
+        internal bool IsActive { get; }
+        internal bool UIVisible { get; set; }
+        internal void OnGUI();
     }
 }

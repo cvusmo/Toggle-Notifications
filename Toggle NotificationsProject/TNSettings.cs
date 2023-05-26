@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using ToggleNotifications.TNTools;
 
 namespace ToggleNotifications
 {

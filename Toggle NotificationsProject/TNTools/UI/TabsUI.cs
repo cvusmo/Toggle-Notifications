@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using ToggleNotifications.UI;
 
 namespace ToggleNotifications.TNTools.UI
 {
@@ -9,10 +10,10 @@ namespace ToggleNotifications.TNTools.UI
         private IPageContent CurrentPage;
         private List<float> TabsWidth = new List<float>();
 
-        private bool tabButton(bool isCurrent, bool isActive, string txt, GUIContent icon)
+        private bool tabButton(bool isCurrent, bool isActive, string txt)
         {
             GUIStyle style = isActive ? TNBaseStyle.TabActive : TNBaseStyle.TabNormal;
-            return icon == null ? GUILayout.Toggle((isCurrent ? 1 : 0) != 0, txt, style, GUILayout.ExpandWidth(true)) : GUILayout.Toggle((isCurrent ? 1 : 0) != 0, icon, style, GUILayout.ExpandWidth(true));
+            return GUILayout.Toggle((isCurrent ? 1 : 0) != 0, txt, style, GUILayout.ExpandWidth(true));
         }
 
         internal int DrawTabs(int current, float maxWidth = 300f)
@@ -44,7 +45,7 @@ namespace ToggleNotifications.TNTools.UI
                 }
                 num2 += num3;
                 bool isCurrent = current == index;
-                if (this.tabButton(isCurrent, filteredPage.IsRunning, filteredPage.Name, filteredPage.Icon) && !isCurrent)
+                if (this.tabButton(isCurrent, filteredPage.IsRunning, filteredPage.Name) && !isCurrent)
                     num1 = index;
             }
             GUILayout.EndHorizontal();

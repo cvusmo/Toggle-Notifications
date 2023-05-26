@@ -1,14 +1,14 @@
-// Purpose of the NotificationToggle class is to control and display options for when a notification type should occur.
 using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
     public class NotificationToggle
     {
-        private readonly ToggleNotificationsPlugin mainPlugin;
-        private Dictionary<NotificationType, bool> notificationStates;
+        internal readonly ToggleNotificationsPlugin mainPlugin;
+        internal Dictionary<NotificationType, bool> notificationStates;
         public long SentOn { get; internal set; }
         internal List<string> NotificationList { get; } = new List<string>();
+
         internal NotificationToggle(ToggleNotificationsPlugin mainPlugin, Dictionary<NotificationType, bool> notificationStates)
         {
             this.mainPlugin = mainPlugin;
@@ -17,29 +17,24 @@ namespace ToggleNotifications.TNTools.UI
 
             foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
             {
-                if (notificationType != NotificationType.None)
-                {
-                    NotificationList.Add(notificationType.ToString());
-                }
+                NotificationList.Add(notificationType.ToString());
             }
         }
+
         internal bool GetNotificationState(NotificationType notificationType)
         {
             return notificationStates.TryGetValue(notificationType, out bool state) ? state : false;
         }
+
         internal void CheckCurrentState(NotificationType notificationType, bool flag)
         {
-            notificationStates[notificationType] = flag;
+            bool currentFlag = GetNotificationState(notificationType);
 
-            if (AssistantToTheAssistantPatchManager.NotificationToggle != null)
+            // Only update the state if the button is currently enabled and the user toggles it to disabled
+            if (currentFlag && !flag)
             {
-                AssistantToTheAssistantPatchManager.NotificationToggle.CheckCurrentState(notificationType, flag);
-            }
+                notificationStates[notificationType] = false;
 
-            if (!flag)
-            {
-                // Perform additional logic to disable the notification type
-                // For example, you can remove it from the list of active notifications or handle any other necessary actions.
                 if (NotificationList.Contains(notificationType.ToString()))
                 {
                     NotificationList.Remove(notificationType.ToString());
@@ -48,23 +43,38 @@ namespace ToggleNotifications.TNTools.UI
         }
         internal bool ListGUI()
         {
-            GUI.enabled = true;
-
             GUILayout.Label("Notification Options:");
 
             foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
             {
-                if (notificationType != NotificationType.None)
+                if (!notificationStates.ContainsKey(notificationType))
                 {
-                    bool toggleState = GetNotificationState(notificationType);
-                    bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString());
-                    if (newToggleState != toggleState)
+                    continue;
+                }
+
+                bool toggleState = GetNotificationState(notificationType);
+                bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString(), GUILayout.ExpandWidth(false));
+
+                if (newToggleState != toggleState)
+                {
+                    notificationStates[notificationType] = newToggleState;
+
+                    // Update the notification state in AssistantToTheAssistantPatchManager
+                    if (notificationType == NotificationType.GamePauseToggledMessage)
                     {
-                        notificationStates[notificationType] = newToggleState;
+                        // Call the method to enable or disable the GamePauseToggledMessage notification
+                        mainPlugin.EnableGamePauseNotification(newToggleState);
+                    }
+                    else if (notificationType == NotificationType.SolarPanelsIneffectiveMessage)
+                    {
+                        // Call the method to enable or disable the SolarPanelsIneffectiveMessage notification
+                        mainPlugin.EnableSolarPanelsNotification(newToggleState);
                     }
                 }
             }
+
             return true; // Indicate that a change has occurred
         }
+
     }
 }
