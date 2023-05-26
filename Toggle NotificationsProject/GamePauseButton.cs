@@ -18,22 +18,9 @@ namespace ToggleNotifications
             this.notificationToggle = notificationToggle;
 
             pauseToggled = true;
-
-            messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
         }
 
-        private void GamePauseToggledMessageCallback(MessageCenterMessage msg)
-        {
-            GamePauseToggledMessage pauseToggledMessage = msg as GamePauseToggledMessage;
-            if (pauseToggledMessage != null)
-            {
-                // Update the pauseToggled value based on external changes
-                pauseToggled = !pauseToggledMessage.IsPaused;
-                AssistantToTheAssistantPatchManager.isGamePaused = !pauseToggledMessage.IsPaused; // Update the isGamePaused variable
-            }
-        }
-
-        public void OnGUI()
+        internal void OnGUI()
         {
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
             Rect gamePauseToggleRect = new Rect(3, 56, buttonWidth, 20);
@@ -49,8 +36,18 @@ namespace ToggleNotifications
             {
                 pauseToggled = gamePauseToggle;
 
-                mainPlugin.EnableGamePauseNotification(!gamePauseToggle);
-                notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, !gamePauseToggle);
+                if (pauseToggled)
+                {
+                    // Disable the game pause notifications
+
+                    notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
+                }
+                else
+                {
+                    // Enable the game pause notifications
+
+                    notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
+                }
             }
             else if (!pauseToggled)
             {
@@ -58,10 +55,17 @@ namespace ToggleNotifications
                 toggleStyle = TNBaseStyle.ToggleError;
                 toggleStyle.normal.textColor = Color.red;
 
-                // Disable the game pause notifications
-                mainPlugin.EnableGamePauseNotification(true);
+                // Unsubscribe from the game pause notifications
+
                 notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
             }
         }
+
+        internal void Update()
+        {
+            OnGUI();
+        }
     }
+
 }
+
