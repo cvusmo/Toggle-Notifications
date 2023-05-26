@@ -28,7 +28,6 @@ namespace ToggleNotifications
             if (solarPanelsIneffective != null)
             {
                 solarPanelNotificationEnabled = true; // Solar panels have become ineffective.
-                //OnGUI(); // Remove this line
             }
         }
 
@@ -62,7 +61,6 @@ namespace ToggleNotifications
                 solarPanelNotificationEnabled = solarPanelToggle;
                 notificationToggle.CheckCurrentState(NotificationType.SolarPanelsIneffectiveMessage, solarPanelNotificationEnabled);
             }
-            notificationToggle.ListGUI();
         }
 
         private void Update()

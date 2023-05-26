@@ -41,27 +41,27 @@ namespace ToggleNotifications
             instance.uiVisible = false;
         }
 
-        internal static void OnGUI(NotificationToggle notificationToggle)
+        internal void OnGUI(int windowID)
         {
             GUILayout.BeginVertical(GUILayout.Height(pageHeight));
-            if (UITools.miniButton("Close Settings"))
+
+            if (GUILayout.Button("Close Settings"))
             {
-                CloseSettings();
+                uiVisible = false;
             }
 
             GUILayout.FlexibleSpace();
-            UITools.Console("v0.9.0");
-            GUILayout.FlexibleSpace();
-            settings_mode = UITools.miniToggle(settings_mode, "Notification", "Open Notification States.");
-
-            GUILayout.EndVertical();
-            UITools.Separator();
+            settings_mode = GUILayout.Toggle(settings_mode, "Notification", GUILayout.ExpandWidth(false));
 
             if (settings_mode)
             {
                 notificationToggle.ListGUI();
             }
-        }
 
+            GUILayout.EndVertical();
+            GUILayout.Space(5);
+
+            GUI.DragWindow();
+        }
     }
 }

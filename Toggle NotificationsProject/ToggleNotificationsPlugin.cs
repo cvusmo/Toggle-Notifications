@@ -149,12 +149,8 @@ namespace ToggleNotifications
                 );
 
                 saverectpos();
-                //tooltips
+
                 UIFields.CheckEditor();
-            }
-            else if (gearPage.UIVisible)
-            {
-                GearPage.OnGUI(notificationToggle);
             }
         }
         internal void CloseWindow()

@@ -18,6 +18,17 @@ namespace ToggleNotifications
             this.notificationToggle = notificationToggle;
 
             pauseToggled = true;
+
+            messageCenter.Subscribe<GamePauseToggledMessage>(GamePauseToggledMessageCallback);
+        }
+
+        private void GamePauseToggledMessageCallback(MessageCenterMessage msg)
+        {
+            GamePauseToggledMessage gamePauseToggledMessage = msg as GamePauseToggledMessage;
+            if (gamePauseToggledMessage != null)
+            {
+                pauseToggled = gamePauseToggledMessage.IsPaused;
+            }
         }
 
         internal void OnGUI()
@@ -36,32 +47,30 @@ namespace ToggleNotifications
             {
                 pauseToggled = gamePauseToggle;
 
-                if (pauseToggled)
-                {
-                    // Disable the game pause notifications
-                    AssistantToTheAssistantPatchManager.isPauseVisible = true;
-                    AssistantToTheAssistantPatchManager.isGamePaused = true;
+                GamePauseToggledMessage gamePauseMessage = new GamePauseToggledMessage();
+                gamePauseMessage.IsPaused = pauseToggled;
+                messageCenter.Publish(gamePauseMessage);
 
-                    notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, false);
-                }
-                else
+                if (pauseToggled)
                 {
                     // Enable the game pause notifications
                     AssistantToTheAssistantPatchManager.isPauseVisible = false;
-                    AssistantToTheAssistantPatchManager.isGamePaused = false;
-
-                    toggleStyle = TNBaseStyle.ToggleError;
-                    toggleStyle.normal.textColor = Color.red;
-                    notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, true);
+                    Debug.Log("Game Pause Notifications Enabled: " + AssistantToTheAssistantPatchManager.isPauseVisible);
                 }
+                else
+                {
+                    // Disable the game pause notifications
+                    AssistantToTheAssistantPatchManager.isPauseVisible = true;
+                    Debug.Log("Game Pause Notifications Disabled: " + AssistantToTheAssistantPatchManager.isPauseVisible);
+                }
+
+                notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, AssistantToTheAssistantPatchManager.isPauseVisible);
             }
-            notificationToggle.ListGUI();
         }
+
         internal void Update()
         {
             OnGUI();
         }
     }
-
 }
-
