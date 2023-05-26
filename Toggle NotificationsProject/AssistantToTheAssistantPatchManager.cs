@@ -51,7 +51,6 @@ namespace ToggleNotifications
             }
         }
 
-        //Solar Panel Patches
         [HarmonyPatch(typeof(NotificationEvents))]
         internal static class SolarPanelsIneffectiveMessagePatch
         {
