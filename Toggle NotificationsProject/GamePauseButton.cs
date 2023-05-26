@@ -27,7 +27,6 @@ namespace ToggleNotifications
             GamePauseToggledMessage pauseToggledMessage = msg as GamePauseToggledMessage;
             if (pauseToggledMessage != null)
             {
-
                 // Update the pauseToggled value based on external changes
                 pauseToggled = !pauseToggledMessage.IsPaused;
             }
@@ -38,21 +37,21 @@ namespace ToggleNotifications
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
             Rect gamePauseToggleRect = new Rect(3, 56, buttonWidth, 20);
 
-            GUIStyle toggleStyle = AssistantToTheAssistantPatchManager.isGamePaused ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
-            Color textColor = AssistantToTheAssistantPatchManager.isGamePaused ? ColorTools.ParseColor("#C0C1E2") : Color.red;
+            GUIStyle toggleStyle = pauseToggled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
+            Color textColor = pauseToggled ? ColorTools.ParseColor("#C0C1E2") : Color.red;
 
             toggleStyle.normal.textColor = textColor;
 
-            bool gamePauseToggle = GUI.Toggle(gamePauseToggleRect, AssistantToTheAssistantPatchManager.isGamePaused, "Game Pause", toggleStyle);
+            bool gamePauseToggle = GUI.Toggle(gamePauseToggleRect, pauseToggled, "Game Pause", toggleStyle);
 
-            if (gamePauseToggle != AssistantToTheAssistantPatchManager.isGamePaused)
+            if (gamePauseToggle != pauseToggled)
             {
-                mainPlugin.EnableGamePauseNotification(!gamePauseToggle);
-                AssistantToTheAssistantPatchManager.isGamePaused = gamePauseToggle;
+                pauseToggled = gamePauseToggle;
 
+                mainPlugin.EnableGamePauseNotification(!gamePauseToggle);
                 notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, !gamePauseToggle);
             }
-            else if (!AssistantToTheAssistantPatchManager.isGamePaused)
+            else if (!pauseToggled)
             {
                 // Apply the ToggleError style if the button is still disabled
                 toggleStyle = TNBaseStyle.ToggleError;
