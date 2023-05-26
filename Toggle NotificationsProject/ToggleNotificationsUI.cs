@@ -11,10 +11,8 @@ namespace ToggleNotifications
         internal ToggleNotificationsPlugin mainPlugin;
         internal static ToggleNotificationsUI instance;
         private MessageCenter messageCenter;
-        private PartBehaviourModule partBehaviourModule;
-        private SubscriptionHandle _onActionActivateMessageHandle;
-        private Dictionary<NotificationType, bool> notificationStates = new Dictionary<NotificationType, bool>();
         private NotificationToggle notificationToggle;
+        private Dictionary<NotificationType, bool> notificationStates = new Dictionary<NotificationType, bool>();
 
         //controllers
         private ButtonController buttonController;
@@ -32,26 +30,17 @@ namespace ToggleNotifications
         internal int selectedButton6 = 1;
 
         //toggles
-        internal bool pauseToggled;
-        internal bool toggledSolar;
         internal bool isToggled3;
         internal bool isToggled4;
         internal bool isToggled5;
         internal bool isToggled6;
-        public ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
+        public ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter, NotificationToggle notificationToggle)
         {
             instance = this;
             this.mainPlugin = mainPlugin;
             this.messageCenter = messageCenter;
             gearPage = new GearPage();
 
-            // Initialize variables
-            partBehaviourModule = FindObjectOfType<PartBehaviourModule>();
-
-            // Initialize NotificationToggle
-            notificationToggle = new NotificationToggle(mainPlugin, notificationStates);
-
-            // Create the GamePauseButton with the notificationToggle instance
             gamePauseButton = new GamePauseButton(mainPlugin, messageCenter, notificationToggle);
             solarPanelButton = new SolarPanelButton(mainPlugin, messageCenter, notificationToggle);
         }
