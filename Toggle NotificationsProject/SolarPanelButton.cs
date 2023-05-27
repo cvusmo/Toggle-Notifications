@@ -27,7 +27,7 @@ namespace ToggleNotifications
             SolarPanelsIneffectiveMessage solarPanelsIneffective = msg as SolarPanelsIneffectiveMessage;
             if (solarPanelsIneffective != null)
             {
-                solarPanelNotificationEnabled = true; // Solar panels have become ineffective.
+                solarPanelNotificationEnabled = true;
             }
         }
 
@@ -47,13 +47,11 @@ namespace ToggleNotifications
             {
                 if (solarPanelToggle)
                 {
-                    // Enable the solar panel notifications
                     AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = true;
                     messageCenter.Subscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
                 }
                 else
                 {
-                    // Disable the solar panel notifications
                     AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = false;
                     messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
                 }

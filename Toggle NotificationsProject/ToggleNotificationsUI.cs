@@ -57,13 +57,13 @@ namespace ToggleNotifications
             // Initialize NotificationToggle
             notificationToggle = new NotificationToggle(mainPlugin, notificationStates);
 
-            // Create the GamePauseButton with the notificationToggle instance
-            gamePauseButton = new GamePauseButton(mainPlugin, messageCenter, notificationToggle);
+            // Create the GamePauseButton
+            gamePauseButton = new GamePauseButton(mainPlugin, notificationToggle);
             solarPanelButton = new SolarPanelButton(mainPlugin, messageCenter, notificationToggle);
         }
         internal void FillWindow(int windowID)
         {
-            // Initialize the position of the buttons
+            // Initialize position of buttons
             TopButtons.Init(mainPlugin.windowRect.width);
 
             GUILayout.BeginHorizontal();
@@ -170,7 +170,6 @@ namespace ToggleNotifications
 
             GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
 
-            // Check if the gear page is visible and render the notification options
             if (gearPage.UIVisible)
             {
                 notificationToggle.ListGUI();

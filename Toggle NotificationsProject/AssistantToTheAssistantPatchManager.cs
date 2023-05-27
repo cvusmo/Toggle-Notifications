@@ -16,8 +16,12 @@ namespace ToggleNotifications
         // Patch states
         internal static bool isGamePaused = true;
         internal static bool isSolarPanelsEnabled = true;
-        internal static bool isPauseVisible = false;
-
+        internal static bool isPauseVisible;
+        internal static bool IsPauseVisible
+        {
+            get { return isPauseVisible; }
+            set { isPauseVisible = value; }
+        }
         internal static NotificationToggle ToggleInstance { get; private set; }
 
         private static IEnumerable<CodeInstruction> TranspilerLogic(IEnumerable<CodeInstruction> instructions)
@@ -37,22 +41,22 @@ namespace ToggleNotifications
         }
 
         [HarmonyPatch(typeof(NotificationEvents))]
-        internal static class NotificationEventsPatch
+        internal static class GamePauseToggledMessagePatch
         {
             [HarmonyPrefix]
             [HarmonyPatch("GamePauseToggledMessage")]
             internal static bool Prefix(GamePauseToggledMessage __instance)
             {
-                if (!isPauseVisible)
-                {
-                    // Disable the notification from showing by returning false
-                    return false;
-                }
-                else
+                if (isPauseVisible)
                 {
                     // Update the IsPaused field with the game pause state and isPausePublish
                     __instance.IsPaused = isGamePaused;
                     return true; // Continue with the original method
+                }
+                else
+                {
+                    // Disable the notification from showing by returning false
+                    return __instance.IsPaused;
                 }
             }
         }
@@ -80,33 +84,7 @@ namespace ToggleNotifications
                 Logger.LogInfo("Transpiler Loaded for SolarPanelsIneffectiveMessage in NotificationEvents");
                 return TranspilerLogic(codes.AsEnumerable());
             }
-        }
-
-        internal static class SetPauseVisiblePatch
-        {
-            [HarmonyTranspiler]
-            [HarmonyPatch(typeof(UIManager), "SetPauseVisible")]
-            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-            {
-                var codes = new List<CodeInstruction>(instructions);
-
-                var originalMethod = AccessTools.PropertyGetter(typeof(PauseStateChangedMessage), "IsPaused");
-
-                for (int i = 0; i < codes.Count; i++)
-                {
-                    if (codes[i].opcode == OpCodes.Callvirt && codes[i].operand == originalMethod)
-                    {
-                        codes[i] = new CodeInstruction(OpCodes.Nop);
-                        codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldc_I4_1));
-                        codes.Insert(i + 2, new CodeInstruction(OpCodes.Ret));
-                    }
-                }
-
-                AssistantToTheAssistantPatchManager.Logger.LogInfo("Transpiler Loaded for SetPauseVisible");
-
-                return codes.AsEnumerable();
-            }
-        }
+        }     
         internal static void ApplyPatches(NotificationToggle notificationToggle)
         {
             ToggleInstance = notificationToggle;
