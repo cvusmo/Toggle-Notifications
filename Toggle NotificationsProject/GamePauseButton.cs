@@ -30,7 +30,7 @@ namespace ToggleNotifications
 
             if (gamePauseToggle != pauseToggled)
             {
-                if (pauseToggled)
+                if (gamePauseToggle)
                 {
                     AssistantToTheAssistantPatchManager.IsPauseVisible = true;
                     Debug.Log("Game Pause Notifications Enabled: " + AssistantToTheAssistantPatchManager.IsPauseVisible);

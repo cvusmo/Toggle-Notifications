@@ -6,6 +6,8 @@
         VesselThrottleLockedDueToTimewarpingMessage,
         CannotPlaceManeuverNodeWhileOutOfFuelMessage,
         GamePauseToggledMessage,
+        VesselOutOfElectricity,
+        VesselLostControlMessage,
         None,
     }
 }

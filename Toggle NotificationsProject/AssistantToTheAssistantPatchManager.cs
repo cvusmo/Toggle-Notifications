@@ -17,6 +17,8 @@ namespace ToggleNotifications
         internal static bool isGamePaused = true;
         internal static bool isSolarPanelsEnabled = true;
         internal static bool isPauseVisible;
+        internal static bool isElectricalEnabled = true;
+        internal static bool isLostControlEnabled = true;
         internal static bool IsPauseVisible
         {
             get { return isPauseVisible; }
@@ -84,7 +86,45 @@ namespace ToggleNotifications
                 Logger.LogInfo("Transpiler Loaded for SolarPanelsIneffectiveMessage in NotificationEvents");
                 return TranspilerLogic(codes.AsEnumerable());
             }
-        }     
+        }
+
+        [HarmonyPatch(typeof(NotificationEvents))]
+        internal static class VesselLostControlMessagePatch
+        {
+            [HarmonyTranspiler]
+            [HarmonyPatch("VesselLostControl")]
+            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = new List<CodeInstruction>(instructions);
+
+                int descriptionTermIndex = codes.FindIndex(code => code.opcode == OpCodes.Ldloc_2 || (code.opcode == OpCodes.Ldloc_S && code.operand.ToString() == "2"));
+
+                if (!AssistantToTheAssistantPatchManager.isLostControlEnabled)
+                {
+                    codes[descriptionTermIndex] = new CodeInstruction(OpCodes.Ldstr, "");
+                }
+                return codes;
+            }
+        }
+
+        [HarmonyPatch(typeof(NotificationEvents))]
+        internal static class VesselOutOfElectricityMessagePatch
+        {
+            [HarmonyTranspiler]
+            [HarmonyPatch("VesselOutOfElectricity")]
+            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = new List<CodeInstruction>(instructions);
+
+                if (!AssistantToTheAssistantPatchManager.isElectricalEnabled)
+                {
+                    codes.Clear();
+                }
+
+                return codes;
+            }
+        }
+
         internal static void ApplyPatches(NotificationToggle notificationToggle)
         {
             ToggleInstance = notificationToggle;

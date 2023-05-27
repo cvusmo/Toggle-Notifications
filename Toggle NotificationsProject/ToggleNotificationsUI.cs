@@ -26,7 +26,8 @@ namespace ToggleNotifications
         //buttons
         private GamePauseButton gamePauseButton;
         private SolarPanelButton solarPanelButton;
-        internal int selectedButton3 = 1;
+        private ElectricityButton outOfElectricityButton;
+        private VesselLostControlButton vesselLostControlButton;
         internal int selectedButton4 = 1;
         internal int selectedButton5 = 1;
         internal int selectedButton6 = 1;
@@ -60,6 +61,8 @@ namespace ToggleNotifications
             // Create the GamePauseButton
             gamePauseButton = new GamePauseButton(mainPlugin, notificationToggle);
             solarPanelButton = new SolarPanelButton(mainPlugin, messageCenter, notificationToggle);
+            outOfElectricityButton = new ElectricityButton(mainPlugin, messageCenter, notificationToggle);
+            vesselLostControlButton = new VesselLostControlButton(mainPlugin, messageCenter, notificationToggle);
         }
         internal void FillWindow(int windowID)
         {
@@ -102,21 +105,14 @@ namespace ToggleNotifications
 
             solarPanelButton.OnGUI();
 
+            outOfElectricityButton.OnGUI();
+       
+            vesselLostControlButton.OnGUI();
+            
+
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
 
-            bool radioButton3 = GUI.Toggle(new Rect(3, 133, buttonWidth, 20), selectedButton3 == 1, "Out of Fuel (soon.tm)", selectedButton3 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedButton3 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedButton3 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
-            if (radioButton3)
-            {
-                selectedButton3 = 1;
-            }
-            else
-            {
-                selectedButton3 = 0;
-            }
-
-            bool radioButton4 = GUI.Toggle(new Rect(3, 173, buttonWidth, 20), selectedButton4 == 1, "No Electricity (soon.tm)", selectedButton4 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            bool radioButton4 = GUI.Toggle(new Rect(3, 213, buttonWidth, 20), selectedButton4 == 1, "Out of Fuel (soon.tm)", selectedButton4 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
             TNBaseStyle.Toggle.normal.textColor = selectedButton4 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
             TNBaseStyle.ToggleError.normal.textColor = selectedButton4 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton4)
@@ -128,7 +124,7 @@ namespace ToggleNotifications
                 selectedButton4 = 0;
             }
 
-            bool radioButton5 = GUI.Toggle(new Rect(3, 213, buttonWidth, 20), selectedButton5 == 1, "Out of Comms Range (soon.tm)", selectedButton5 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            bool radioButton5 = GUI.Toggle(new Rect(3, 253, buttonWidth, 20), selectedButton5 == 1, "Out of Comms Range (soon.tm)", selectedButton5 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
             TNBaseStyle.Toggle.normal.textColor = selectedButton5 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
             TNBaseStyle.ToggleError.normal.textColor = selectedButton5 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton5)
@@ -140,7 +136,7 @@ namespace ToggleNotifications
                 selectedButton5 = 0;
             }
 
-            bool radioButton6 = GUI.Toggle(new Rect(3, 253, buttonWidth, 20), selectedButton6 == 1, "Dating Sim (soon.tm)", selectedButton6 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
+            bool radioButton6 = GUI.Toggle(new Rect(3, 293, buttonWidth, 20), selectedButton6 == 1, "Dating Sim (soon.tm)", selectedButton6 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
             TNBaseStyle.Toggle.normal.textColor = selectedButton6 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
             TNBaseStyle.ToggleError.normal.textColor = selectedButton6 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
             if (radioButton6)
