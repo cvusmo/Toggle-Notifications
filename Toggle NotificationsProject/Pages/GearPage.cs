@@ -33,12 +33,16 @@ namespace ToggleNotifications.Pages
         {
             this.mainPlugin = mainPlugin;
             this.notificationToggle = notificationToggle;
-            uiVisible = true;
         }
+
         internal void CloseSettings()
         {
-            GearPage instance = new GearPage(mainPlugin, notificationToggle);
-            instance.uiVisible = false;
+            uiVisible = false;
+        }
+
+        internal void ToggleVisibility()
+        {
+            uiVisible = !uiVisible;
         }
         internal static float GetContentHeight(NotificationToggle notificationToggle)
         {
@@ -56,33 +60,31 @@ namespace ToggleNotifications.Pages
 
             return contentHeight;
         }
+
         internal void OnGUI()
         {
-            GUILayout.BeginVertical(GUILayout.Height(pageHeight));
-
-            if (GUILayout.Button("Close Settings"))
+            if (uiVisible)
             {
-                GUILayout.Label("Closed");
+                GUILayout.BeginVertical(GUILayout.Height(pageHeight));
+
+                if (GUILayout.Button("Close Settings"))
+                {
+                    CloseSettings();
+                }
+
+                GUILayout.FlexibleSpace();
+
+                GUILayout.Label("Settings:");
+                settings_mode = GUILayout.Toggle(settings_mode, "Notification", GUILayout.ExpandWidth(false));
+
+                if (settings_mode)
+                {
+                    notificationToggle.ListGUI();
+                }
+
+                GUILayout.EndVertical();
+                GUILayout.Space(5);
             }
-
-            GUILayout.FlexibleSpace();
-
-            GUILayout.Label("Settings:");
-            settings_mode = GUILayout.Toggle(settings_mode, "Notification", GUILayout.ExpandWidth(false));
-
-            if (settings_mode)
-            {
-                notificationToggle.ListGUI();
-            }
-
-            GUILayout.EndVertical();
-            GUILayout.Space(5);
-
-            // Adjust the height of the main window
-            float contentHeight = GetContentHeight(notificationToggle);
-            mainPlugin.windowRect.height = contentHeight;
-
-            GUI.DragWindow();
         }
 
     }

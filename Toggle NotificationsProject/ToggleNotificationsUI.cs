@@ -65,7 +65,7 @@ namespace ToggleNotifications
 
             if (TopButtons.Button(TNBaseStyle.Gear))
             {
-                gearPage.UIVisible = !gearPage.UIVisible;
+                gearPage.ToggleVisibility();
                 Debug.Log("Gear Button Status: " + gearPage.UIVisible);
             }
 
@@ -81,7 +81,6 @@ namespace ToggleNotifications
 
                 GUILayout.BeginVertical(GUILayout.Height(60));
 
-                //mainPage.OnGUI();
                 gamePauseButton.OnGUI();
                 solarPanelButton.OnGUI();
                 outOfElectricityButton.OnGUI();
@@ -118,9 +117,6 @@ namespace ToggleNotifications
                 gearPage.OnGUI();
 
                 GUILayout.EndVertical();
-
-                float contentHeight = GearPage.GetContentHeight(notificationToggle);
-                mainPlugin.windowRect.height = contentHeight;
             }
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
