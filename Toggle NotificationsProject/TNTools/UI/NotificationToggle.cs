@@ -26,61 +26,61 @@ namespace ToggleNotifications.TNTools.UI
         {
             return notificationStates.TryGetValue(notificationType, out bool state) ? state : false;
         }
-
         internal void CheckCurrentState(NotificationType notificationType, bool flag)
         {
             bool currentFlag = GetNotificationState(notificationType);
 
-            // Only update the state if the button is currently enabled and the user toggles it to disabled
-            if (currentFlag && !flag)
+            if (currentFlag != flag)
             {
-                notificationStates[notificationType] = false;
+                notificationStates[notificationType] = flag;
 
-                if (NotificationList.Contains(notificationType.ToString()))
+                if (flag && !NotificationList.Contains(notificationType.ToString()))
+                {
+                    NotificationList.Add(notificationType.ToString());
+                }
+                else if (!flag && NotificationList.Contains(notificationType.ToString()))
                 {
                     NotificationList.Remove(notificationType.ToString());
                 }
             }
         }
+        public int GetNotificationCount()
+        {
+            return notificationStates.Count(kv => kv.Value);
+        }
         internal bool ListGUI()
         {
             GUILayout.Label("Notification Options:");
 
-            foreach (NotificationType notificationType in System.Enum.GetValues(typeof(NotificationType)))
+            Dictionary<NotificationType, Action<bool>> propertyMap = new Dictionary<NotificationType, Action<bool>>()
             {
-                if (!notificationStates.ContainsKey(notificationType))
-                {
-                    continue;
-                }
+                { NotificationType.SolarPanelsIneffectiveMessage, newToggleState => AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = newToggleState },
+                { NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, newToggleState => AssistantToTheAssistantPatchManager.isOutOfFuelEnabled = newToggleState },
+                { NotificationType.GamePauseToggledMessage, newToggleState => AssistantToTheAssistantPatchManager.isPauseVisible = newToggleState },
+                { NotificationType.VesselOutOfElectricity, newToggleState => AssistantToTheAssistantPatchManager.isElectricalEnabled = newToggleState },
+                { NotificationType.VesselLostControlMessage, newToggleState => AssistantToTheAssistantPatchManager.isLostControlEnabled = newToggleState },
+                { NotificationType.VesselLeftCommunicationRangeMessage, newToggleState => AssistantToTheAssistantPatchManager.isCommRangeEnabled = newToggleState },
+                { NotificationType.CannotChangeNodeWhileOutOfFuelMessage, newToggleState => AssistantToTheAssistantPatchManager.isOutOfFuelEnabled = newToggleState }
+            };
 
-                bool toggleState = GetNotificationState(notificationType);
+            foreach (KeyValuePair<NotificationType, bool> kvp in notificationStates)
+            {
+                NotificationType notificationType = kvp.Key;
+                bool toggleState = kvp.Value;
+
                 bool newToggleState = GUILayout.Toggle(toggleState, notificationType.ToString(), GUILayout.ExpandWidth(false));
 
                 if (newToggleState != toggleState)
                 {
                     notificationStates[notificationType] = newToggleState;
 
-                    if (notificationType == NotificationType.GamePauseToggledMessage)
+                    if (propertyMap.ContainsKey(notificationType))
                     {
-                        AssistantToTheAssistantPatchManager.isPauseVisible = true;
-                    }
-                    else if (notificationType == NotificationType.GamePauseToggledMessage)
-                    {
-                        AssistantToTheAssistantPatchManager.isPauseVisible = false;
+                        propertyMap[notificationType].Invoke(newToggleState);
                     }
                 }
-                    else if (notificationType == NotificationType.SolarPanelsIneffectiveMessage)
-                    {
-                        AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = true;
-                    }
-                    else if (notificationType == NotificationType.SolarPanelsIneffectiveMessage)
-                    {
-                        AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = false;
-                    }
-                }
-            return true; // Indicate that a change has occurred
+            }
+            return true;
         }
-
-
     }
 }

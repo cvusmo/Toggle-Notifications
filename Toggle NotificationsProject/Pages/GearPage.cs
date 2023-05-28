@@ -1,8 +1,4 @@
-﻿using KSP;
-using KSP.Messages;
-using KSP.Messages.PropertyWatchers;
-using SpaceWarp.API.Assets;
-using ToggleNotifications.Controller;
+﻿using ToggleNotifications.Controller;
 using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
@@ -13,9 +9,8 @@ namespace ToggleNotifications.Pages
     {
         internal ToggleNotificationsPlugin mainPlugin;
         internal NotificationToggle notificationToggle;
-        private static float pageHeight = 200f;
-
-
+        private static float pageHeight = 100f;
+        private static float buttonHeight = 20f;
         private bool uiVisible = false;
         private bool isActive = false;
         internal static bool showOptions = false;
@@ -35,10 +30,26 @@ namespace ToggleNotifications.Pages
             get => TNBaseSettings.SFile.GetBool(nameof(settings_mode), false);
             set => TNBaseSettings.SFile.SetBool(name: nameof(settings_mode), value);
         }
-        internal static void CloseSettings()
+        public GearPage(ToggleNotificationsPlugin mainPlugin, NotificationToggle notificationToggle)
         {
-            GearPage instance = new GearPage();
+            this.mainPlugin = mainPlugin;
+            this.notificationToggle = notificationToggle;
+        }
+        internal void CloseSettings()
+        {
+            GearPage instance = new GearPage(mainPlugin, notificationToggle);
             instance.uiVisible = false;
+        }
+        internal static float GetContentHeight(NotificationToggle notificationToggle)
+        {
+            float contentHeight = pageHeight;
+
+            if (settings_mode)
+            {
+                contentHeight += buttonHeight * notificationToggle.GetNotificationCount();
+            }
+
+            return contentHeight;
         }
 
         internal void OnGUI(int windowID)

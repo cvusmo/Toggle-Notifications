@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using ToggleNotifications.TNTools.UI;
+﻿using ToggleNotifications.TNTools.UI;
 using ToggleNotifications.UI;
 using UnityEngine;
 
@@ -7,9 +6,21 @@ namespace ToggleNotifications.Controller
 {
     public class BaseController : IPageContent
     {
+        protected ToggleNotificationsPlugin mainPlugin;
+        protected NotificationToggle notificationToggle;
+        protected WindowTool windowTool;
+
+
         public bool uiVisible = false;
         private bool isActive = false;
         private bool isRunning = false;
+
+        internal BaseController()
+        {
+            this.mainPlugin = ToggleNotificationsPlugin.Instance;
+            this.windowTool = new WindowTool();
+        }
+
 
         public string name = "No Name";
         public string Name => this.name;
@@ -17,7 +28,7 @@ namespace ToggleNotifications.Controller
 
         public virtual bool IsRunning => isRunning;
 
-        public bool IsActive => isActive;
+        public bool IsActive => isActive; //mainPlugin._interfaceEnabled;
 
         public bool UIVisible
         {

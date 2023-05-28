@@ -86,6 +86,11 @@ namespace ToggleNotifications
             {
                 { NotificationType.GamePauseToggledMessage, true },
                 { NotificationType.SolarPanelsIneffectiveMessage, true },
+                { NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, true },
+                { NotificationType.VesselOutOfElectricity, true },
+                { NotificationType.VesselLostControlMessage, true },
+                { NotificationType.VesselLeftCommunicationRangeMessage, true },
+                { NotificationType.CannotChangeNodeWhileOutOfFuelMessage, true },
             });
 
             // configuration

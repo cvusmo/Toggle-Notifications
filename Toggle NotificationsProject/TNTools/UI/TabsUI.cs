@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using ToggleNotifications.UI;
+using ToggleNotifications.Controller;
 
 namespace ToggleNotifications.TNTools.UI
 {
@@ -55,7 +56,7 @@ namespace ToggleNotifications.TNTools.UI
 
         internal void Init()
         {
-            Pages.Add(new BasePageContent());
+            Pages.Add(new BaseController());
         }
 
         internal void Update()
