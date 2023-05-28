@@ -1,6 +1,8 @@
 using KSP.Messages;
 using KSP.Sim.Definitions;
+using ToggleNotifications.Buttons;
 using ToggleNotifications.Controller;
+using ToggleNotifications.Pages;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
@@ -28,16 +30,12 @@ namespace ToggleNotifications
         private SolarPanelButton solarPanelButton;
         private ElectricityButton outOfElectricityButton;
         private VesselLostControlButton vesselLostControlButton;
-        internal int selectedButton4 = 1;
-        internal int selectedButton5 = 1;
+        private CommunicationRangeButton communicationRangeButton;
+        private OutOfFuelButton outOfFuelButton;
+
+
         internal int selectedButton6 = 1;
 
-        //toggles
-        internal bool pauseToggled;
-        internal bool toggledSolar;
-        internal bool isToggled3;
-        internal bool isToggled4;
-        internal bool isToggled5;
         internal bool isToggled6;
 
         //options
@@ -52,21 +50,19 @@ namespace ToggleNotifications
             this.messageCenter = messageCenter;
             gearPage = new GearPage();
 
-            // Initialize variables
             partBehaviourModule = FindObjectOfType<PartBehaviourModule>();
 
-            // Initialize NotificationToggle
             notificationToggle = new NotificationToggle(mainPlugin, notificationStates);
 
-            // Create the GamePauseButton
             gamePauseButton = new GamePauseButton(mainPlugin, notificationToggle);
             solarPanelButton = new SolarPanelButton(mainPlugin, messageCenter, notificationToggle);
             outOfElectricityButton = new ElectricityButton(mainPlugin, messageCenter, notificationToggle);
             vesselLostControlButton = new VesselLostControlButton(mainPlugin, messageCenter, notificationToggle);
+            communicationRangeButton = new CommunicationRangeButton(mainPlugin, messageCenter, notificationToggle);
+            outOfFuelButton = new OutOfFuelButton(mainPlugin, messageCenter, notificationToggle);
         }
         internal void FillWindow(int windowID)
         {
-            // Initialize position of buttons
             TopButtons.Init(mainPlugin.windowRect.width);
 
             GUILayout.BeginHorizontal();
@@ -93,60 +89,36 @@ namespace ToggleNotifications
 
             GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
 
-            // Notification Toggle Buttons
+            // Group 2: Toggle Buttons
             GUILayout.BeginVertical();
 
             GUILayout.FlexibleSpace();
-
-            // Group 2: Toggle Buttons
+            
             GUILayout.BeginVertical(GUILayout.Height(60));
 
+            int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
+            //int buttonHeight = 20;
+            //int buttonSpacing = 10;
+            //int currentY = 56; 
+
             gamePauseButton.OnGUI();
+            //currentY += buttonHeight + buttonSpacing;
 
             solarPanelButton.OnGUI();
+            //currentY += buttonHeight + buttonSpacing;
 
             outOfElectricityButton.OnGUI();
-       
+            //currentY += buttonHeight + buttonSpacing;
+
             vesselLostControlButton.OnGUI();
-            
+            //currentY += buttonHeight + buttonSpacing;
 
-            int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12); // Subtract 3 on each side for padding
+            communicationRangeButton.OnGUI();
+            //currentY += buttonHeight + buttonSpacing;
 
-            bool radioButton4 = GUI.Toggle(new Rect(3, 213, buttonWidth, 20), selectedButton4 == 1, "Out of Fuel (soon.tm)", selectedButton4 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedButton4 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedButton4 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
-            if (radioButton4)
-            {
-                selectedButton4 = 1;
-            }
-            else
-            {
-                selectedButton4 = 0;
-            }
+            outOfFuelButton.OnGUI();
+            //currentY += buttonHeight + buttonSpacing;
 
-            bool radioButton5 = GUI.Toggle(new Rect(3, 253, buttonWidth, 20), selectedButton5 == 1, "Out of Comms Range (soon.tm)", selectedButton5 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedButton5 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedButton5 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
-            if (radioButton5)
-            {
-                selectedButton5 = 1;
-            }
-            else
-            {
-                selectedButton5 = 0;
-            }
-
-            bool radioButton6 = GUI.Toggle(new Rect(3, 293, buttonWidth, 20), selectedButton6 == 1, "Dating Sim (soon.tm)", selectedButton6 == 0 ? TNBaseStyle.ToggleError : TNBaseStyle.Toggle);
-            TNBaseStyle.Toggle.normal.textColor = selectedButton6 == 1 ? ColorTools.ParseColor("#C0C1E2") : ColorTools.ParseColor("#C0E2DC");
-            TNBaseStyle.ToggleError.normal.textColor = selectedButton6 == 0 ? Color.red : ColorTools.ParseColor("#C0E2DC");
-            if (radioButton6)
-            {
-                selectedButton6 = 1;
-            }
-            else
-            {
-                selectedButton6 = 0;
-            }
 
             GUILayout.EndVertical();
 
@@ -162,19 +134,17 @@ namespace ToggleNotifications
 
             GUILayout.FlexibleSpace();
 
-            GUILayout.Label("v0.2.3", nameLabelStyle);
+            GUILayout.Label("v0.2.4", nameLabelStyle);
 
             GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
 
-            if (gearPage.UIVisible)
-            {
-                notificationToggle.ListGUI();
-            }
+            
 
             GUILayout.EndVertical();
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
 
+            //mainPlugin.windowRect.height = currentY + buttonHeight + buttonSpacing;
             mainPlugin.saverectpos();
         }
 

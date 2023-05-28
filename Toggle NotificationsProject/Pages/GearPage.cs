@@ -7,7 +7,7 @@ using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
-namespace ToggleNotifications
+namespace ToggleNotifications.Pages
 {
     internal class GearPage : BaseController
     {

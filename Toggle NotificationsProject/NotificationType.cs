@@ -8,6 +8,8 @@
         GamePauseToggledMessage,
         VesselOutOfElectricity,
         VesselLostControlMessage,
+        VesselLeftCommunicationRangeMessage,
+        CannotChangeNodeWhileOutOfFuelMessage,
         None,
     }
 }

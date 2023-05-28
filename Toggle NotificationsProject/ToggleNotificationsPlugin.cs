@@ -10,6 +10,8 @@ using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI.Appbar;
 using System.Reflection;
+using ToggleNotifications.Pages;
+using ToggleNotifications.PatchManager;
 using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
@@ -127,7 +129,6 @@ namespace ToggleNotifications
             GameState gameState2 = GameState.FlightView;
             if (nullable.GetValueOrDefault() == gameState2 & nullable.HasValue)
                 _isGUIenabled = true;
-            //game.Messages = GameManager.Instance?.Game?.Messages?.Subscribe<DiscoverableMessage>(message =>
 
             if (_isGUIenabled)
             {

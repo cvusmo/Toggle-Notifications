@@ -2,8 +2,9 @@
 using KSP.Game;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
+using ToggleNotifications.PatchManager;
 
-namespace ToggleNotifications
+namespace ToggleNotifications.Buttons
 {
     internal class VesselLostControlButton : MonoBehaviour
     {
@@ -36,7 +37,7 @@ namespace ToggleNotifications
         {
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
 
-            Rect lostControlToggleRect = new Rect(3, 173, buttonWidth, 20);
+            Rect lostControlToggleRect = new Rect(3, 180, buttonWidth, 20);
 
             GUIStyle toggleStyle = vesselLostControlToggle ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
             Color textColor = vesselLostControlToggle ? ColorTools.ParseColor("#C0C1E2") : Color.red;

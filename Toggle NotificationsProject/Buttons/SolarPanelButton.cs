@@ -1,8 +1,9 @@
 ﻿using KSP.Messages;
+using ToggleNotifications.PatchManager;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
-namespace ToggleNotifications
+namespace ToggleNotifications.Buttons
 {
     internal class SolarPanelButton : MonoBehaviour
     {
@@ -34,7 +35,7 @@ namespace ToggleNotifications
         public void OnGUI()
         {
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
-            Rect solarPanelToggleRect = new Rect(3, 96, buttonWidth, 20);
+            Rect solarPanelToggleRect = new Rect(3, 100, buttonWidth, 20);
 
             GUIStyle toggleStyle = solarPanelNotificationEnabled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
             Color textColor = solarPanelNotificationEnabled ? ColorTools.ParseColor("#C0C1E2") : Color.red;

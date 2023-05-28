@@ -1,7 +1,8 @@
-﻿using ToggleNotifications.TNTools.UI;
+﻿using ToggleNotifications.PatchManager;
+using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
-namespace ToggleNotifications
+namespace ToggleNotifications.Buttons
 {
     internal class GamePauseButton : MonoBehaviour
     {
@@ -19,7 +20,7 @@ namespace ToggleNotifications
         internal void OnGUI()
         {
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
-            Rect gamePauseToggleRect = new Rect(3, 56, buttonWidth, 20);
+            Rect gamePauseToggleRect = new Rect(3, 60, buttonWidth, 20);
 
             GUIStyle toggleStyle = pauseToggled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
             Color textColor = pauseToggled ? ColorTools.ParseColor("#C0C1E2") : Color.red;

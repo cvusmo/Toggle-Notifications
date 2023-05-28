@@ -2,8 +2,9 @@
 using KSP.Game;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
+using ToggleNotifications.PatchManager;
 
-namespace ToggleNotifications
+namespace ToggleNotifications.Buttons
 {
     internal class ElectricityButton : MonoBehaviour
     {
@@ -36,7 +37,7 @@ namespace ToggleNotifications
         {
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
 
-            Rect electricityToggleRect = new Rect(3, 133, buttonWidth, 20);
+            Rect electricityToggleRect = new Rect(3, 140, buttonWidth, 20);
 
             GUIStyle toggleStyle = vesselOutOfElectricityToggle ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
             Color textColor = vesselOutOfElectricityToggle ? ColorTools.ParseColor("#C0C1E2") : Color.red;
