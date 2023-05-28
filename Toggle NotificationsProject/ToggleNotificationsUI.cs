@@ -15,10 +15,6 @@ namespace ToggleNotifications
         private Dictionary<NotificationType, bool> notificationStates = new Dictionary<NotificationType, bool>();
         private NotificationToggle notificationToggle;
 
-        //controllers
-        private ButtonController buttonController;
-        private BaseController baseController;
-
         //pages
         private MainPage mainPage;
         private GearPage gearPage;
@@ -30,17 +26,18 @@ namespace ToggleNotifications
         private VesselLostControlButton vesselLostControlButton;
         private CommunicationRangeButton communicationRangeButton;
         private OutOfFuelButton outOfFuelButton;
-        public void SetShowOptions(bool show) => GearPage.showOptions = show;
 
         public ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
             instance = this;
             this.mainPlugin = mainPlugin;
             this.messageCenter = messageCenter;
-            this.gearPage = new GearPage(mainPlugin, notificationToggle);
-            this.mainPage = new MainPage();
+
 
             notificationToggle = new NotificationToggle(mainPlugin, notificationStates);
+
+            this.gearPage = new GearPage(mainPlugin, notificationToggle);
+            this.mainPage = new MainPage();
 
             gamePauseButton = new GamePauseButton(mainPlugin, notificationToggle);
             solarPanelButton = new SolarPanelButton(mainPlugin, messageCenter, notificationToggle);
@@ -79,14 +76,13 @@ namespace ToggleNotifications
 
             // Group 2: Toggle Buttons
             GUILayout.BeginVertical();
-
-            GUILayout.FlexibleSpace();
-
             if (!gearPage.UIVisible)
             {
+                GUILayout.FlexibleSpace();
+
                 GUILayout.BeginVertical(GUILayout.Height(60));
 
-                mainPage.OnGUI();
+                //mainPage.OnGUI();
                 gamePauseButton.OnGUI();
                 solarPanelButton.OnGUI();
                 outOfElectricityButton.OnGUI();
@@ -116,18 +112,16 @@ namespace ToggleNotifications
                 GUILayout.EndVertical();
 
             }
-
-            if (gearPage.UIVisible)
+            else if (gearPage.UIVisible)
             {
                 GUILayout.BeginVertical(GUILayout.Height(GearPage.GetContentHeight(notificationToggle)));
 
-                SetShowOptions(gearPage.UIVisible);
-                gearPage.OnGUI(windowID);
+                gearPage.OnGUI();
 
                 GUILayout.EndVertical();
 
                 float contentHeight = GearPage.GetContentHeight(notificationToggle);
-                mainPlugin.windowRect.height = contentHeight; // Update the window height
+                mainPlugin.windowRect.height = contentHeight; 
             }
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));

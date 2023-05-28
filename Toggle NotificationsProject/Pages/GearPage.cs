@@ -13,7 +13,6 @@ namespace ToggleNotifications.Pages
         private static float buttonHeight = 20f;
         private bool uiVisible = false;
         private bool isActive = false;
-        internal static bool showOptions = false;
         internal string Name => "Gear Page";
         internal GUIContent Icon => new GUIContent();
         internal bool IsRunning => false;
@@ -34,6 +33,7 @@ namespace ToggleNotifications.Pages
         {
             this.mainPlugin = mainPlugin;
             this.notificationToggle = notificationToggle;
+            this.uiVisible = true;
         }
         internal void CloseSettings()
         {
@@ -49,19 +49,25 @@ namespace ToggleNotifications.Pages
                 contentHeight += buttonHeight * notificationToggle.GetNotificationCount();
             }
 
+            float minHeight = 50; 
+            float maxHeight = 200; 
+
+            contentHeight = Mathf.Clamp(contentHeight, minHeight, maxHeight);
+
             return contentHeight;
         }
-
-        internal void OnGUI(int windowID)
+        internal void OnGUI()
         {
             GUILayout.BeginVertical(GUILayout.Height(pageHeight));
 
             if (GUILayout.Button("Close Settings"))
             {
-                uiVisible = false;
+                GUILayout.Label("Closed");
             }
 
             GUILayout.FlexibleSpace();
+
+            GUILayout.Label("Settings:");
             settings_mode = GUILayout.Toggle(settings_mode, "Notification", GUILayout.ExpandWidth(false));
 
             if (settings_mode)
@@ -72,7 +78,12 @@ namespace ToggleNotifications.Pages
             GUILayout.EndVertical();
             GUILayout.Space(5);
 
+            // Adjust the height of the main window
+            float contentHeight = GetContentHeight(notificationToggle);
+            mainPlugin.windowRect.height = contentHeight;
+
             GUI.DragWindow();
         }
+
     }
 }

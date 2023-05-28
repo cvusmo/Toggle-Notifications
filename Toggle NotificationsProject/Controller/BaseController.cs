@@ -10,7 +10,6 @@ namespace ToggleNotifications.Controller
         protected NotificationToggle notificationToggle;
         protected WindowTool windowTool;
 
-
         public bool uiVisible = false;
         private bool isActive = false;
         private bool isRunning = false;
@@ -21,14 +20,13 @@ namespace ToggleNotifications.Controller
             this.windowTool = new WindowTool();
         }
 
-
         public string name = "No Name";
         public string Name => this.name;
         public bool need_update => this.uiVisible || this.isRunning;
 
         public virtual bool IsRunning => isRunning;
 
-        public bool IsActive => isActive; //mainPlugin._interfaceEnabled;
+        public bool IsActive => isActive; 
 
         public bool UIVisible
         {
