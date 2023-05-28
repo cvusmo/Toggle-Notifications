@@ -1,8 +1,7 @@
 ﻿using KSP.Messages;
-using KSP.Game;
+using ToggleNotifications.PatchManager;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
-using ToggleNotifications.PatchManager;
 
 namespace ToggleNotifications.Buttons
 {

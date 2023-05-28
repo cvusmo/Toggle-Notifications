@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using ToggleNotifications.Controller;
 using ToggleNotifications.UI;
-using ToggleNotifications.Controller;
+using UnityEngine;
 
 namespace ToggleNotifications.TNTools.UI
 {
@@ -19,25 +19,25 @@ namespace ToggleNotifications.TNTools.UI
 
         internal int DrawTabs(int current, float maxWidth = 300f)
         {
-            current = GeneralTools.ClampInt(current, 0, this._filteredPages.Count - 1);
+            current = GeneralTools.ClampInt(current, 0, _filteredPages.Count - 1);
             GUILayout.BeginHorizontal();
             int num1 = current;
-            if (this.TabsWidth.Count != this._filteredPages.Count)
+            if (TabsWidth.Count != _filteredPages.Count)
             {
-                this.TabsWidth.Clear();
-                for (int index = 0; index < this._filteredPages.Count; ++index)
+                TabsWidth.Clear();
+                for (int index = 0; index < _filteredPages.Count; ++index)
                 {
-                    IPageContent filteredPage = this._filteredPages[index];
+                    IPageContent filteredPage = _filteredPages[index];
                     float minWidth;
                     TNBaseStyle.TabNormal.CalcMinMaxWidth(new GUIContent(filteredPage.Name, ""), out minWidth, out float _);
-                    this.TabsWidth.Add(minWidth);
+                    TabsWidth.Add(minWidth);
                 }
             }
             float num2 = 0.0f;
-            for (int index = 0; index < this._filteredPages.Count; ++index)
+            for (int index = 0; index < _filteredPages.Count; ++index)
             {
-                IPageContent filteredPage = this._filteredPages[index];
-                float num3 = this.TabsWidth[index];
+                IPageContent filteredPage = _filteredPages[index];
+                float num3 = TabsWidth[index];
                 if ((double)num2 > (double)maxWidth)
                 {
                     GUILayout.EndHorizontal();
@@ -46,7 +46,7 @@ namespace ToggleNotifications.TNTools.UI
                 }
                 num2 += num3;
                 bool isCurrent = current == index;
-                if (this.tabButton(isCurrent, filteredPage.IsRunning, filteredPage.Name) && !isCurrent)
+                if (tabButton(isCurrent, filteredPage.IsRunning, filteredPage.Name) && !isCurrent)
                     num1 = index;
             }
             GUILayout.EndHorizontal();
@@ -61,33 +61,33 @@ namespace ToggleNotifications.TNTools.UI
 
         internal void Update()
         {
-            this._filteredPages = new List<IPageContent>();
-            for (int index = 0; index < this.Pages.Count; ++index)
+            _filteredPages = new List<IPageContent>();
+            for (int index = 0; index < Pages.Count; ++index)
             {
-                if (this.Pages[index].IsActive)
-                    this._filteredPages.Add(this.Pages[index]);
+                if (Pages[index].IsActive)
+                    _filteredPages.Add(Pages[index]);
             }
         }
 
         internal void OnGUI()
         {
             int mainTabIndex = TNBaseSettings.MainTabIndex;
-            if (this._filteredPages.Count == 0)
+            if (_filteredPages.Count == 0)
             {
                 UITools.Error("NO active Tab tage !!!");
             }
             else
             {
-                int index = GeneralTools.ClampInt(this._filteredPages.Count != 1 ? this.DrawTabs(mainTabIndex) : 0, 0, this._filteredPages.Count - 1);
-                IPageContent filteredPage = this._filteredPages[index];
-                if (filteredPage != this.CurrentPage)
+                int index = GeneralTools.ClampInt(_filteredPages.Count != 1 ? DrawTabs(mainTabIndex) : 0, 0, _filteredPages.Count - 1);
+                IPageContent filteredPage = _filteredPages[index];
+                if (filteredPage != CurrentPage)
                 {
-                    this.CurrentPage.UIVisible = false;
-                    this.CurrentPage = filteredPage;
-                    this.CurrentPage.UIVisible = true;
+                    CurrentPage.UIVisible = false;
+                    CurrentPage = filteredPage;
+                    CurrentPage.UIVisible = true;
                 }
                 TNBaseSettings.MainTabIndex = index;
-                this.CurrentPage.OnGUI();
+                CurrentPage.OnGUI();
             }
         }
     }

@@ -16,24 +16,24 @@ namespace ToggleNotifications.Controller
 
         internal BaseController()
         {
-            this.mainPlugin = ToggleNotificationsPlugin.Instance;
-            this.windowTool = new WindowTool();
+            mainPlugin = ToggleNotificationsPlugin.Instance;
+            windowTool = new WindowTool();
         }
 
         public string name = "No Name";
-        public string Name => this.name;
-        public bool need_update => this.uiVisible || this.isRunning;
+        public string Name => name;
+        public bool need_update => uiVisible || isRunning;
 
         public virtual bool IsRunning => isRunning;
 
-        public bool IsActive => isActive; 
+        public bool IsActive => isActive;
 
         public bool UIVisible
         {
-            get => this.uiVisible;
-            set => this.uiVisible = value;
+            get => uiVisible;
+            set => uiVisible = value;
         }
-        public virtual GUIContent Icon => this.Icon;
+        public virtual GUIContent Icon => Icon;
         public virtual void onReset()
         {
         }

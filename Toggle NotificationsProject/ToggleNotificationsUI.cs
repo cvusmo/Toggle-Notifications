@@ -1,6 +1,5 @@
 using KSP.Messages;
 using ToggleNotifications.Buttons;
-using ToggleNotifications.Controller;
 using ToggleNotifications.Pages;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
@@ -36,8 +35,8 @@ namespace ToggleNotifications
 
             notificationToggle = new NotificationToggle(mainPlugin, notificationStates);
 
-            this.gearPage = new GearPage(mainPlugin, notificationToggle);
-            this.mainPage = new MainPage();
+            gearPage = new GearPage(mainPlugin, notificationToggle);
+            mainPage = new MainPage();
 
             gamePauseButton = new GamePauseButton(mainPlugin, notificationToggle);
             solarPanelButton = new SolarPanelButton(mainPlugin, messageCenter, notificationToggle);
@@ -121,7 +120,7 @@ namespace ToggleNotifications
                 GUILayout.EndVertical();
 
                 float contentHeight = GearPage.GetContentHeight(notificationToggle);
-                mainPlugin.windowRect.height = contentHeight; 
+                mainPlugin.windowRect.height = contentHeight;
             }
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));

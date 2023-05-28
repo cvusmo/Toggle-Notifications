@@ -1,6 +1,4 @@
-﻿using SpaceWarp.API.Assets;
-using ToggleNotifications.Controller;
-using UnityEngine;
+﻿using ToggleNotifications.Controller;
 
 namespace ToggleNotifications.Pages
 {

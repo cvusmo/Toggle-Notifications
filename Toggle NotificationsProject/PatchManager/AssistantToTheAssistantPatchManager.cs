@@ -146,7 +146,7 @@ namespace ToggleNotifications.PatchManager
 
                     if (index != -1)
                     {
-                        codes.RemoveRange(index - 2, 5); 
+                        codes.RemoveRange(index - 2, 5);
                     }
                 }
 

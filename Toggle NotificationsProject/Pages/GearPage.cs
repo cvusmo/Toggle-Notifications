@@ -33,7 +33,7 @@ namespace ToggleNotifications.Pages
         {
             this.mainPlugin = mainPlugin;
             this.notificationToggle = notificationToggle;
-            this.uiVisible = true;
+            uiVisible = true;
         }
         internal void CloseSettings()
         {
@@ -49,8 +49,8 @@ namespace ToggleNotifications.Pages
                 contentHeight += buttonHeight * notificationToggle.GetNotificationCount();
             }
 
-            float minHeight = 50; 
-            float maxHeight = 200; 
+            float minHeight = 50;
+            float maxHeight = 200;
 
             contentHeight = Mathf.Clamp(contentHeight, minHeight, maxHeight);
 

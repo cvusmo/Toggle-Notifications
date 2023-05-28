@@ -73,7 +73,7 @@ namespace ToggleNotifications
             Appbar.RegisterAppButton(
                 "Toggle Notifications",
                 ToolbarFlightButtonID,
-                AssetManager.GetAsset<Texture2D>($"{this.SpaceWarpMetadata.ModID}/images/icon.png"),
+                AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
                 isOpen =>
                 {
                     ToggleButton(isOpen, isOpen);
@@ -108,7 +108,7 @@ namespace ToggleNotifications
         {
             if (Input.GetKey(KeyCode.RightAlt) && Input.GetKeyDown(KeyCode.P))
             {
-                this.ToggleButton(!this._interfaceEnabled, !this._isGUIenabled);
+                ToggleButton(!_interfaceEnabled, !_isGUIenabled);
                 Logger.LogInfo("Update: Toggle Notifications UI toggled with hotkey");
             }
             if (_isGUIenabled)
@@ -140,18 +140,18 @@ namespace ToggleNotifications
                 TNStyles.Init();
                 WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
                 GUI.skin = TNBaseStyle.Skin;
-                this._activeVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel();
-                if (!this._interfaceEnabled || !this._isGUIenabled || this._activeVessel == null)
+                _activeVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel();
+                if (!_interfaceEnabled || !_isGUIenabled || _activeVessel == null)
                     return;
 
-                this.windowRect = GUILayout.Window(
+                windowRect = GUILayout.Window(
                     GUIUtility.GetControlID(FocusType.Passive),
-                    this.windowRect,
+                    windowRect,
                     MainUI.FillWindow,
                     "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
                     GUILayout.Height(0.0f),
-                    GUILayout.Width((float)this.windowWidth),
-                    GUILayout.MinHeight(400) // Adjust the value to your desired height
+                    GUILayout.Width((float)windowWidth),
+                    GUILayout.MinHeight(400)
                 );
 
                 saverectpos();
