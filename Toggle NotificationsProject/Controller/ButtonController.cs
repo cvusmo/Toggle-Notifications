@@ -6,7 +6,7 @@
 
         private protected void Run()
         {
-            foreach (ButtonBase buttonBase in this.buttons.Where<ButtonBase>((Func<ButtonBase, bool>)(button => button.active)))
+            foreach (ButtonBase buttonBase in buttons.Where<ButtonBase>((Func<ButtonBase, bool>)(button => button.active)))
                 buttonBase.Run();
         }
     }

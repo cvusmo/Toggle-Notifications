@@ -10,6 +10,8 @@ using SpaceWarp.API.Assets;
 using SpaceWarp.API.Mods;
 using SpaceWarp.API.UI.Appbar;
 using System.Reflection;
+using ToggleNotifications.Pages;
+using ToggleNotifications.PatchManager;
 using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
@@ -71,7 +73,7 @@ namespace ToggleNotifications
             Appbar.RegisterAppButton(
                 "Toggle Notifications",
                 ToolbarFlightButtonID,
-                AssetManager.GetAsset<Texture2D>($"{this.SpaceWarpMetadata.ModID}/images/icon.png"),
+                AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
                 isOpen =>
                 {
                     ToggleButton(isOpen, isOpen);
@@ -84,6 +86,11 @@ namespace ToggleNotifications
             {
                 { NotificationType.GamePauseToggledMessage, true },
                 { NotificationType.SolarPanelsIneffectiveMessage, true },
+                { NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, true },
+                { NotificationType.VesselOutOfElectricity, true },
+                { NotificationType.VesselLostControlMessage, true },
+                { NotificationType.VesselLeftCommunicationRangeMessage, true },
+                { NotificationType.CannotChangeNodeWhileOutOfFuelMessage, true },
             });
 
             // configuration
@@ -97,21 +104,11 @@ namespace ToggleNotifications
             _isGUIenabled = toggle;
             GameObject.Find("BTN-ToggleNotificationsFlight")?.GetComponent<UIValue_WriteBool_Toggle>()?.SetValue(_isGUIenabled);
         }
-
-        internal void EnableGamePauseNotification(bool enable)
-        {
-            AssistantToTheAssistantPatchManager.isGamePaused = enable;
-        }
-
-        internal void EnableSolarPanelsNotification(bool enable)
-        {
-            AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = enable;
-        }
         internal void Update()
         {
             if (Input.GetKey(KeyCode.RightAlt) && Input.GetKeyDown(KeyCode.P))
             {
-                this.ToggleButton(!this._interfaceEnabled, !this._isGUIenabled);
+                ToggleButton(!_interfaceEnabled, !_isGUIenabled);
                 Logger.LogInfo("Update: Toggle Notifications UI toggled with hotkey");
             }
             if (_isGUIenabled)
@@ -137,34 +134,19 @@ namespace ToggleNotifications
             GameState gameState2 = GameState.FlightView;
             if (nullable.GetValueOrDefault() == gameState2 & nullable.HasValue)
                 _isGUIenabled = true;
-            //game.Messages = GameManager.Instance?.Game?.Messages?.Subscribe<DiscoverableMessage>(message =>
 
             if (_isGUIenabled)
             {
                 TNStyles.Init();
                 WindowTool.CheckMainWindowPos(ref windowRect, windowWidth);
                 GUI.skin = TNBaseStyle.Skin;
-                this._activeVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel();
-                if (!this._interfaceEnabled || !this._isGUIenabled || this._activeVessel == null)
+                _activeVessel = GameManager.Instance?.Game?.ViewController?.GetActiveVehicle(true)?.GetSimVessel();
+                if (!_interfaceEnabled || !_isGUIenabled || _activeVessel == null)
                     return;
 
-                this.windowRect = GUILayout.Window(
-                    GUIUtility.GetControlID(FocusType.Passive),
-                    this.windowRect,
-                    MainUI.FillWindow,
-                    "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
-                    GUILayout.Height(0.0f),
-                    GUILayout.Width((float)this.windowWidth),
-                    GUILayout.MinHeight(400) // Adjust the value to your desired height
-                );
-
+                MainUI.OnGUI();
                 saverectpos();
-                //tooltips
                 UIFields.CheckEditor();
-            }
-            else if (gearPage.UIVisible)
-            {
-                GearPage.OnGUI(notificationToggle);
             }
         }
         internal void CloseWindow()

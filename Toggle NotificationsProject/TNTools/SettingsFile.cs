@@ -13,7 +13,7 @@ namespace ToggleNotifications.TNTools
 
         internal SettingsFile(string file_path)
         {
-            this.FilePath = file_path;
+            FilePath = file_path;
             Load();
         }
 
@@ -26,7 +26,7 @@ namespace ToggleNotifications.TNTools
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             try
             {
-                this.Data = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(FilePath));
+                Data = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(FilePath));
             }
             catch (System.Exception)
             {
@@ -46,7 +46,7 @@ namespace ToggleNotifications.TNTools
             }
             catch (System.Exception)
             {
-                Logger.LogError($"Error saving {this.FilePath}");
+                Logger.LogError($"Error saving {FilePath}");
             }
 
             Thread.CurrentThread.CurrentCulture = _previousCulture;

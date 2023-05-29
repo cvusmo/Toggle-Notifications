@@ -1,8 +1,9 @@
 ﻿using KSP.Messages;
+using ToggleNotifications.PatchManager;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
 
-namespace ToggleNotifications
+namespace ToggleNotifications.Buttons
 {
     internal class SolarPanelButton : MonoBehaviour
     {
@@ -27,15 +28,14 @@ namespace ToggleNotifications
             SolarPanelsIneffectiveMessage solarPanelsIneffective = msg as SolarPanelsIneffectiveMessage;
             if (solarPanelsIneffective != null)
             {
-                solarPanelNotificationEnabled = true; // Solar panels have become ineffective.
-                //OnGUI(); // Remove this line
+                solarPanelNotificationEnabled = true;
             }
         }
 
         public void OnGUI()
         {
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
-            Rect solarPanelToggleRect = new Rect(3, 96, buttonWidth, 20);
+            Rect solarPanelToggleRect = new Rect(3, 100, buttonWidth, 20);
 
             GUIStyle toggleStyle = solarPanelNotificationEnabled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
             Color textColor = solarPanelNotificationEnabled ? ColorTools.ParseColor("#C0C1E2") : Color.red;
@@ -48,12 +48,12 @@ namespace ToggleNotifications
             {
                 if (solarPanelToggle)
                 {
-                    // Enable the solar panel notifications
+                    AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = true;
                     messageCenter.Subscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
                 }
                 else
                 {
-                    // Disable the solar panel notifications
+                    AssistantToTheAssistantPatchManager.isSolarPanelsEnabled = false;
                     messageCenter.Unsubscribe<SolarPanelsIneffectiveMessage>(SolarPanelsIneffectiveMessageCallback);
                 }
 

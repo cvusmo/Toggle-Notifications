@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace ToggleNotifications.UI
+﻿namespace ToggleNotifications.UI
 {
     internal interface IPageContent
     {
