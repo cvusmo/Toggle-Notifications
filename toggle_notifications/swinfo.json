@@ -5,7 +5,7 @@
   "description": "Toggle Notifications on and off",
   "license": "MIT",
   "source": "https://github.com/cvusmo/Toggle-Notifications",
-  "version": "0.2.4",
+  "version": "0.2.2",
   "version_check": "https://raw.githubusercontent.com/cvusmo/Toggle-Notifications/master/toggle_notifications/swinfo.json",
   "dependencies": [
     {
