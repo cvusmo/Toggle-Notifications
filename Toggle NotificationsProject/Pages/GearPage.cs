@@ -60,13 +60,12 @@ namespace ToggleNotifications.Pages
 
             return contentHeight;
         }
-
         internal void OnGUI()
         {
+            GUILayout.BeginVertical(GUILayout.Height(pageHeight));
+
             if (uiVisible)
             {
-                GUILayout.BeginVertical(GUILayout.Height(pageHeight));
-
                 if (GUILayout.Button("Close Settings"))
                 {
                     CloseSettings();
@@ -81,11 +80,9 @@ namespace ToggleNotifications.Pages
                 {
                     notificationToggle.ListGUI();
                 }
-
-                GUILayout.EndVertical();
-                GUILayout.Space(5);
             }
+            GUILayout.EndVertical();
+            GUILayout.Space(5);
         }
-
     }
 }

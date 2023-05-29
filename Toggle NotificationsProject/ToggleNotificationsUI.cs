@@ -1,5 +1,4 @@
 using KSP.Messages;
-using ToggleNotifications.Buttons;
 using ToggleNotifications.Pages;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
@@ -9,7 +8,6 @@ namespace ToggleNotifications
     internal class ToggleNotificationsUI : MonoBehaviour
     {
         internal ToggleNotificationsPlugin mainPlugin;
-        internal static ToggleNotificationsUI instance;
         private MessageCenter messageCenter;
         private Dictionary<NotificationType, bool> notificationStates = new Dictionary<NotificationType, bool>();
         private NotificationToggle notificationToggle;
@@ -18,40 +16,34 @@ namespace ToggleNotifications
         private MainPage mainPage;
         private GearPage gearPage;
 
-        //buttons
-        private GamePauseButton gamePauseButton;
-        private SolarPanelButton solarPanelButton;
-        private ElectricityButton outOfElectricityButton;
-        private VesselLostControlButton vesselLostControlButton;
-        private CommunicationRangeButton communicationRangeButton;
-        private OutOfFuelButton outOfFuelButton;
-
         public ToggleNotificationsUI(ToggleNotificationsPlugin mainPlugin, bool _isGUIenabled, MessageCenter messageCenter)
         {
-            instance = this;
             this.mainPlugin = mainPlugin;
             this.messageCenter = messageCenter;
-
-
             notificationToggle = new NotificationToggle(mainPlugin, notificationStates);
 
             gearPage = new GearPage(mainPlugin, notificationToggle);
-            mainPage = new MainPage();
-
-            gamePauseButton = new GamePauseButton(mainPlugin, notificationToggle);
-            solarPanelButton = new SolarPanelButton(mainPlugin, messageCenter, notificationToggle);
-            outOfElectricityButton = new ElectricityButton(mainPlugin, messageCenter, notificationToggle);
-            vesselLostControlButton = new VesselLostControlButton(mainPlugin, messageCenter, notificationToggle);
-            communicationRangeButton = new CommunicationRangeButton(mainPlugin, messageCenter, notificationToggle);
-            outOfFuelButton = new OutOfFuelButton(mainPlugin, messageCenter, notificationToggle);
+            mainPage = new MainPage(mainPlugin, messageCenter, notificationToggle);
         }
+
+        internal void OnGUI()
+        {
+            mainPlugin.windowRect = GUILayout.Window(
+                GUIUtility.GetControlID(FocusType.Passive),
+                mainPlugin.windowRect,
+                FillWindow,
+                "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
+                GUILayout.Height(0.0f),
+                GUILayout.Width((float)mainPlugin.windowWidth),
+                GUILayout.MinHeight(400)
+            );
+        }
+
         internal void FillWindow(int windowID)
         {
             TopButtons.Init(mainPlugin.windowRect.width);
-
+            WindowTool.CheckMainWindowPos(ref mainPlugin.windowRect, mainPlugin.windowWidth);
             GUILayout.BeginHorizontal();
-
-            // MENU BAR
             GUILayout.FlexibleSpace();
 
             GUI.Label(new Rect(10f, 4f, 29f, 29f), (Texture)TNBaseStyle.Icon, TNBaseStyle.IconsLabel);
@@ -73,50 +65,13 @@ namespace ToggleNotifications
 
             GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
 
-            // Group 2: Toggle Buttons
-            GUILayout.BeginVertical();
-            if (!gearPage.UIVisible)
+            if (gearPage.UIVisible)
             {
-                GUILayout.FlexibleSpace();
-
-                GUILayout.BeginVertical(GUILayout.Height(60));
-
-                gamePauseButton.OnGUI();
-                solarPanelButton.OnGUI();
-                outOfElectricityButton.OnGUI();
-                vesselLostControlButton.OnGUI();
-                communicationRangeButton.OnGUI();
-                outOfFuelButton.OnGUI();
-
-                GUILayout.EndVertical();
-
-
-                // Group 3: Version Number
-                GUIStyle nameLabelStyle = new GUIStyle()
-                {
-                    border = new RectOffset(3, 3, 5, 5),
-                    padding = new RectOffset(3, 3, 4, 4),
-                    overflow = new RectOffset(0, 0, 0, 0),
-                    normal = { textColor = ColorTools.ParseColor("#C0C1E2") },
-                    alignment = TextAnchor.MiddleRight
-                };
-
-                GUILayout.FlexibleSpace();
-
-                GUILayout.Label("v0.2.4", nameLabelStyle);
-
-                GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
-
-                GUILayout.EndVertical();
-
-            }
-            else if (gearPage.UIVisible)
-            {
-                GUILayout.BeginVertical(GUILayout.Height(GearPage.GetContentHeight(notificationToggle)));
-
                 gearPage.OnGUI();
-
-                GUILayout.EndVertical();
+            }
+            else
+            {
+                mainPage.OnGUI();
             }
 
             GUI.DragWindow(new Rect(0.0f, 0.0f, 10000f, 500f));
@@ -124,5 +79,9 @@ namespace ToggleNotifications
             mainPlugin.saverectpos();
         }
 
+        private void DrawGearPage()
+        {
+            gearPage.OnGUI();
+        }
     }
 }

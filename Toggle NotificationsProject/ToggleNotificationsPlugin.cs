@@ -144,18 +144,8 @@ namespace ToggleNotifications
                 if (!_interfaceEnabled || !_isGUIenabled || _activeVessel == null)
                     return;
 
-                windowRect = GUILayout.Window(
-                    GUIUtility.GetControlID(FocusType.Passive),
-                    windowRect,
-                    MainUI.FillWindow,
-                    "<color=#696DFF>TOGGLE NOTIFICATIONS</color>",
-                    GUILayout.Height(0.0f),
-                    GUILayout.Width((float)windowWidth),
-                    GUILayout.MinHeight(400)
-                );
-
+                MainUI.OnGUI();
                 saverectpos();
-
                 UIFields.CheckEditor();
             }
         }
