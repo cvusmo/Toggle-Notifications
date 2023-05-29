@@ -47,6 +47,6 @@ Coming next with 0.2.3:
 **Ability to toggle notifications back on 
 
 
-    [====================================================================================]
+
 
 Thank you to LuxStice, ShadowDev, Munix, The Yeetster, and schlosrat for all the help getting this working correctly!
