@@ -1,6 +1,6 @@
 
 [Toggle Notifications v0.2.4]
-"Toggle Notifications On or Off!" by cvusmo
+
 
                          [Requirements SpaceWarp + BepInEx + KSP 2]
 
