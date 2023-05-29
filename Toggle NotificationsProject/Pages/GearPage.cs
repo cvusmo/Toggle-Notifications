@@ -1,4 +1,5 @@
 ﻿using ToggleNotifications.Controller;
+using ToggleNotifications.PatchManager;
 using ToggleNotifications.TNTools;
 using ToggleNotifications.TNTools.UI;
 using UnityEngine;
@@ -78,6 +79,16 @@ namespace ToggleNotifications.Pages
 
                 if (settings_mode)
                 {
+                    notificationToggle.notificationStates = new Dictionary<NotificationType, bool>()
+{
+                        { NotificationType.SolarPanelsIneffectiveMessage, AssistantToTheAssistantPatchManager.isSolarPanelsEnabled },
+                        { NotificationType.CannotPlaceManeuverNodeWhileOutOfFuelMessage, AssistantToTheAssistantPatchManager.isOutOfFuelEnabled },
+                        { NotificationType.GamePauseToggledMessage, AssistantToTheAssistantPatchManager.isPauseVisible },
+                        { NotificationType.VesselOutOfElectricity, AssistantToTheAssistantPatchManager.isElectricalEnabled },
+                        { NotificationType.VesselLostControlMessage, AssistantToTheAssistantPatchManager.isLostControlEnabled },
+                        { NotificationType.VesselLeftCommunicationRangeMessage, AssistantToTheAssistantPatchManager.isCommRangeEnabled },
+                        { NotificationType.CannotChangeNodeWhileOutOfFuelMessage, AssistantToTheAssistantPatchManager.isOutOfFuelEnabled }
+                        };
                     notificationToggle.ListGUI();
                 }
             }

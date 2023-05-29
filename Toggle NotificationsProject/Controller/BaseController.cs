@@ -37,7 +37,6 @@ namespace ToggleNotifications.Controller
         public virtual void onReset()
         {
         }
-
         public virtual void OnGUI()
         {
             if (isActive)
