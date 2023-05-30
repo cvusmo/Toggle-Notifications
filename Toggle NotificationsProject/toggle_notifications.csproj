@@ -7,7 +7,7 @@
     <AssemblyName>ToggleNotifications</AssemblyName>
     <Product>Toggle Notifications</Product>
     <Description>Toggle Notifications On and Off!</Description>
-    <Version>0.2.2</Version>
+    <Version>0.2.4</Version>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
       https://nuget.bepinex.dev/v3/index.json
