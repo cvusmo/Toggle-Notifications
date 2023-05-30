@@ -55,7 +55,7 @@ namespace ToggleNotifications.Pages
             }
 
             float minHeight = 50;
-            float maxHeight = 200;
+            float maxHeight = 100;
 
             contentHeight = Mathf.Clamp(contentHeight, minHeight, maxHeight);
 
@@ -75,7 +75,7 @@ namespace ToggleNotifications.Pages
                 GUILayout.FlexibleSpace();
 
                 GUILayout.Label("Settings:");
-                settings_mode = GUILayout.Toggle(settings_mode, "Notification", GUILayout.ExpandWidth(false));
+                settings_mode = GUILayout.Toggle(settings_mode, "Status of Notifications", GUILayout.ExpandWidth(false));
 
                 if (settings_mode)
                 {

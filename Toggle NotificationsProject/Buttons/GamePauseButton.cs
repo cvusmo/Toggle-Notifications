@@ -8,13 +8,11 @@ namespace ToggleNotifications.Buttons
     {
         private ToggleNotificationsPlugin mainPlugin;
         private NotificationToggle notificationToggle;
-        private bool pauseToggled;
 
         public GamePauseButton(ToggleNotificationsPlugin mainPlugin, NotificationToggle notificationToggle)
         {
             this.mainPlugin = mainPlugin;
             this.notificationToggle = notificationToggle;
-            pauseToggled = true;
         }
 
         internal void OnGUI()
@@ -22,27 +20,17 @@ namespace ToggleNotifications.Buttons
             int buttonWidth = Mathf.RoundToInt(mainPlugin.windowRect.width - 12);
             Rect gamePauseToggleRect = new Rect(3, 60, buttonWidth, 20);
 
-            GUIStyle toggleStyle = pauseToggled ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
-            Color textColor = pauseToggled ? ColorTools.ParseColor("#C0C1E2") : Color.red;
+            GUIStyle toggleStyle = AssistantToTheAssistantPatchManager.IsPauseVisible ? TNBaseStyle.Toggle : TNBaseStyle.ToggleError;
+            Color textColor = AssistantToTheAssistantPatchManager.IsPauseVisible ? ColorTools.ParseColor("#C0C1E2") : Color.red;
 
             toggleStyle.normal.textColor = textColor;
 
-            bool gamePauseToggle = GUI.Toggle(gamePauseToggleRect, pauseToggled, "Game Pause", toggleStyle);
+            bool gamePauseToggle = GUI.Toggle(gamePauseToggleRect, AssistantToTheAssistantPatchManager.IsPauseVisible, "Game Pause", toggleStyle);
 
-            if (gamePauseToggle != pauseToggled)
+            if (gamePauseToggle != AssistantToTheAssistantPatchManager.IsPauseVisible)
             {
-                if (gamePauseToggle)
-                {
-                    AssistantToTheAssistantPatchManager.IsPauseVisible = true;
-                    Debug.Log("Game Pause Notifications Enabled: " + AssistantToTheAssistantPatchManager.IsPauseVisible);
-                }
-                else
-                {
-                    AssistantToTheAssistantPatchManager.IsPauseVisible = false;
-                    Debug.Log("Game Pause Notifications Disabled: " + AssistantToTheAssistantPatchManager.IsPauseVisible);
-                }
-
-                pauseToggled = gamePauseToggle;
+                AssistantToTheAssistantPatchManager.IsPauseVisible = gamePauseToggle;
+                Debug.Log("Game Pause Notifications " + (AssistantToTheAssistantPatchManager.IsPauseVisible ? "Enabled" : "Disabled"));
                 notificationToggle.CheckCurrentState(NotificationType.GamePauseToggledMessage, AssistantToTheAssistantPatchManager.IsPauseVisible);
             }
         }

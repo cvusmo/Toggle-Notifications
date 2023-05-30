@@ -16,7 +16,7 @@ namespace ToggleNotifications.PatchManager
         // Patch states
         internal static bool isGamePaused = true;
         internal static bool isSolarPanelsEnabled = true;
-        internal static bool isPauseVisible;
+        internal static bool isPauseVisible = true;
         internal static bool isElectricalEnabled = true;
         internal static bool isLostControlEnabled = true;
         internal static bool isCommRangeEnabled = true;
@@ -53,14 +53,16 @@ namespace ToggleNotifications.PatchManager
             {
                 if (isPauseVisible)
                 {
-                    // Update the IsPaused field with the game pause state and isPausePublish
-                    __instance.IsPaused = isGamePaused;
-                    return true; // Continue with the original method
+                    isGamePaused = true;
+                    isGamePaused = isPauseVisible;
+                    return __instance.IsPaused;
+
                 }
                 else
                 {
-                    // Disable the notification from showing by returning false
-                    return __instance.IsPaused;
+                    isGamePaused = false;
+                    isGamePaused = isPauseVisible;
+                    return true;
                 }
             }
         }
