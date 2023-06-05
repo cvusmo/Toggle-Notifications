@@ -1,5 +1,5 @@
 
-[Toggle Notifications v0.2.4]
+[Toggle Notifications v0.2.5]
 
 
                          [Requirements SpaceWarp + BepInEx + KSP 2]
