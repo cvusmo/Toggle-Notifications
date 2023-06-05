@@ -62,7 +62,7 @@ namespace ToggleNotifications.Pages
 
             GUILayout.FlexibleSpace();
 
-            GUILayout.Label("v0.2.4", nameLabelStyle);
+            GUILayout.Label("v0.2.5", nameLabelStyle);
 
             GUILayout.Box(GUIContent.none, TNBaseStyle.Separator);
 
