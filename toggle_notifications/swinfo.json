@@ -6,7 +6,6 @@
   "license": "MIT",
   "source": "https://github.com/cvusmo/Toggle-Notifications",
   "version": "0.2.5",
-"spec":  "1.3",
   "version_check": "https://raw.githubusercontent.com/cvusmo/Toggle-Notifications/master/toggle_notifications/swinfo.json",
   "dependencies": [
     {
