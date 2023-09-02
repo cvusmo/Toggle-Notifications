@@ -59,6 +59,7 @@ namespace ToggleNotifications
             TNBaseSettings.Init(SettingsPath);
 
             base.OnInitialized();
+            Debug.Log("SpaceWarpMetadata.ModID value: " + SpaceWarpMetadata.ModID);
 
             Instance = this;
             Logger = base.Logger;
@@ -68,12 +69,13 @@ namespace ToggleNotifications
             messageCenter = game.Messages;
 
             MainUI = new ToggleNotificationsUI(this, _isGUIenabled, messageCenter);
+            Debug.Log("SpaceWarpMetadata.ModID value: " + SpaceWarpMetadata.ModID);
 
             // Register Flight AppBar button
             Appbar.RegisterAppButton(
                 "Toggle Notifications",
                 ToolbarFlightButtonID,
-                AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"),
+                AssetManager.GetAsset<Texture2D>($"{SpaceWarpMetadata.ModID}/images/icon.png"), //changed
                 isOpen =>
                 {
                     ToggleButton(isOpen, isOpen);
