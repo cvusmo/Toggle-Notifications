@@ -7,7 +7,7 @@ namespace ToggleNotifications.TNTools.UI
     {
         internal static Texture2D LoadIcon(string path)
         {
-            string fullPath = "com.github.cvusmo.togglenotifications/images/" + path + ".png";
+            string fullPath = "{MyPluginInfo.PLUGIN_GUID}/images/" + path + ".png";
             Debug.Log("Trying to load asset from path: " + fullPath);
             Texture2D imageTexture = AssetManager.GetAsset<Texture2D>(fullPath);
 
@@ -16,7 +16,7 @@ namespace ToggleNotifications.TNTools.UI
                 Debug.LogError("Failed to load image texture from path: " + path);
                 Debug.Log("Full resource path: " + Application.dataPath + "/" + path);
                 Debug.Log("Expected resource type: Texture2D");
-                Debug.Log("Full path: " + Application.dataPath + "com.github.cvusmo.togglenotifications/images/" + path + ".png");
+                Debug.Log("Full path: " + Application.dataPath + "{MyPluginInfo.PLUGIN_GUID}/images/" + path + ".png");
             }
             return imageTexture;
         }
