@@ -158,7 +158,7 @@ namespace ToggleNotifications.PatchManager
         }
 
 
-        //OutOfFuel Patches
+        // OutOfFuel Patches
 
         [HarmonyPatch(typeof(NotificationEvents))]
         internal static class OutOfFuelPatch
