@@ -1,12 +1,14 @@
 
-[Toggle Notifications v0.2.5]
+[Toggle Notifications v0.4.0]
+Coming next with 0.4.0:
+**More Notifications to disable
+**Ability to toggle notifications back on 
 
+[Description:] Toggle Notifications allows players to disable or enable various Notificiations within Kerbal Space Program 2. In the current 0.3.1 build players now have access to a GUI which will allow them to select which notifications they want enabled or disabled. Currently once you enable a Notification, you cannot disable it. You'll have to save, and relaunch to reset the Notification. This build only allows the user to disable the Game Pause Notification. 
 
                          [Requirements SpaceWarp + BepInEx + KSP 2]
 
-[Description:] Toggle Notifications allows players to disable or enable various Notificiations within Kerbal Space Program 2. In the current 0.2.2 build players now have access to a GUI which will allow them to select which notifications they want enabled or disabled. Currently once you enable a Notification, you cannot disable it. You'll have to save, and relaunch to reset the Notification. This build only allows the user to disable the Game Pause Notification. 
-
-[0.2.5 Release Notes]
+[0.3.1 Release Notes]
 **Fixed game pause and it is now able to be re-enabled by the player
 **Reorganized, restructured, and optimized backend
 **Updated Harmony Transpilers to target only necessary notifications
@@ -41,11 +43,9 @@ The template versions follow this convention: x.y.z.version, where x.y.z is the 
 
 
                                        [Future Updates]
-Coming next with 0.2.3:
+Coming next with 0.4.0:
 **More Notifications to disable
 **Ability to toggle notifications back on 
-
-
 
 
 Thank you to LuxStice, ShadowDev, Munix, The Yeetster, and schlosrat for all the help getting this working correctly!
