@@ -91,6 +91,7 @@ namespace ToggleNotifications
                 { NotificationType.VesselLostControlMessage, true },
                 { NotificationType.VesselLeftCommunicationRangeMessage, true },
                 { NotificationType.CannotChangeNodeWhileOutOfFuelMessage, true },
+                { NotificationType.OutOfResourceMessage, true },
             });
 
             // configuration

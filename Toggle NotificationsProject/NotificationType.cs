@@ -10,6 +10,7 @@
         VesselLostControlMessage,
         VesselLeftCommunicationRangeMessage,
         CannotChangeNodeWhileOutOfFuelMessage,
+        OutOfResourceMessage,
         None,
     }
 }

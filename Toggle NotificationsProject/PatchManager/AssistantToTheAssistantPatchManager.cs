@@ -21,6 +21,7 @@ namespace ToggleNotifications.PatchManager
         internal static bool isLostControlEnabled = true;
         internal static bool isCommRangeEnabled = true;
         internal static bool isOutOfFuelEnabled = true;
+        internal static bool isOutOfResourceMessage = true;
         internal static bool IsPauseVisible
         {
             get { return isPauseVisible; }
@@ -182,6 +183,40 @@ namespace ToggleNotifications.PatchManager
             internal static IEnumerable<CodeInstruction> TranspileCannotChangeNode(IEnumerable<CodeInstruction> instructions)
             {
                 if (!AssistantToTheAssistantPatchManager.isOutOfFuelEnabled)
+                {
+                    yield break;
+                }
+
+                foreach (CodeInstruction instruction in instructions)
+                {
+                    yield return instruction;
+                }
+            }
+        }
+
+        // Out of Resource Patch
+        internal static class OutOfResourceMessage
+        {
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(NotificationEvents), "OutOfResourceMessage")]
+            internal static IEnumerable<CodeInstruction> TranspileCannotPlaceManeuverNode(IEnumerable<CodeInstruction> instructions)
+            {
+                if (!AssistantToTheAssistantPatchManager.isOutOfResourceMessage)
+                {
+                    yield break;
+                }
+
+                foreach (CodeInstruction instruction in instructions)
+                {
+                    yield return instruction;
+                }
+            }
+
+            [HarmonyTranspiler]
+            [HarmonyPatch(typeof(NotificationEvents), "OutOfResourceMessage")]
+            internal static IEnumerable<CodeInstruction> TranspileCannotChangeNode(IEnumerable<CodeInstruction> instructions)
+            {
+                if (!AssistantToTheAssistantPatchManager.isOutOfResourceMessage)
                 {
                     yield break;
                 }
